@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\UserDetail;
 
 class UsersController extends Controller
 {
@@ -27,8 +28,31 @@ class UsersController extends Controller
     public function index()
     {
         $you = auth()->user();
-        $users = User::all();
-        return view('dashboard.admin.usersList', compact('users', 'you'));
+        $users = User::paginate(10);
+        return view('user.index', compact('users', 'you'));
+    }
+
+    public function create()
+    {
+        $user = new User();
+        $user->detail = new UserDetail();
+        $data = compact('user');
+
+        return view('user.form', $data);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|min:1|max:256',
+            'email' => 'required|email|max:256',
+            'phone' => 'required|max:15',
+        ]);
+        $newUserPayload = $request->only(['name', 'email']);
+        $newUserPayload['password'] = 'password';
+        $user = User::create($newUserPayload);
+        $user->detail()->create($request->only('phone'));
+        return redirect()->route('users.index')->with('message', 'Berhasil membuat user baru: ' . $user->name);
     }
 
     /**
@@ -40,7 +64,7 @@ class UsersController extends Controller
     public function show($id)
     {
         $user = User::find($id);
-        return view('dashboard.admin.userShow', compact( 'user' ));
+        return view('user.detail', compact( 'user' ));
     }
 
     /**
@@ -52,7 +76,7 @@ class UsersController extends Controller
     public function edit($id)
     {
         $user = User::find($id);
-        return view('dashboard.admin.userEditForm', compact('user'));
+        return view('user.form', compact('user'));
     }
 
     /**
@@ -88,6 +112,6 @@ class UsersController extends Controller
         if($user){
             $user->delete();
         }
-        return redirect()->route('users.index');
+        return redirect()->route('users.index')->with('message', 'Berhasil menghapus ' . $user->name);
     }
 }

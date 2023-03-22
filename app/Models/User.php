@@ -52,4 +52,9 @@ class User extends Authenticatable
     protected $attributes = [ 
         'menuroles' => 'user',
     ];
+
+    public function detail()
+    {
+        return $this->hasOne(\App\Models\UserDetail::class);
+    }
 }
