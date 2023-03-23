@@ -13,16 +13,14 @@ class CreateUserVirtualAccountsTable extends Migration
      */
     public function up()
     {
-        Schema::create('user_virtual_accounts', function (Blueprint $table) {
+        Schema::create('virtual_accounts', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users');
-            $table->unsignedBigInteger('virtual_account_id');
-            $table->foreign('virtual_account_id')
-                ->references('id')
-                ->on('virtual_accounts');
+            $table->string('number', 28);
+            $table->boolean('is_active');
             $table->timestamps();
         });
     }
@@ -34,6 +32,6 @@ class CreateUserVirtualAccountsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_virtual_accounts');
+        Schema::dropIfExists('virtual_accounts');
     }
 }

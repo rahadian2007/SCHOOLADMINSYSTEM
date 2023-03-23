@@ -57,4 +57,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(\App\Models\UserDetail::class);
     }
+
+    public function virtualAccounts()
+    {
+        return $this->hasMany(\App\Models\VirtualAccount::class);
+    }
 }

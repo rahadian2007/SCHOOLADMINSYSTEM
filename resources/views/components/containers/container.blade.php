@@ -20,9 +20,19 @@ switch ($size) {
                         {{ Session::get('message') }}
                     </x-alerts.alert>
                 @endif
+                @if(Session::has('success'))
+                    <x-alerts.alert>
+                        {{ Session::get('success') }}
+                    </x-alerts.alert>
+                @endif
                 @if(Session::has('errors'))
                     <x-alerts.alert preset="danger">
                         {{ $errors->first() }}
+                    </x-alerts.alert>
+                @endif
+                @if(Session::has('error'))
+                    <x-alerts.alert preset="danger">
+                        {{ Session::get('error') }}
                     </x-alerts.alert>
                 @endif
                 {{ $slot }}

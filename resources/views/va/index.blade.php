@@ -4,7 +4,7 @@
     <x-containers.container>
         <x-containers.card searchEnabled>
             <x-slot name="addNew">
-                <x-forms.button href="{{ route('va.create') }}">Tambah {{ __('Payment') }}</x-forms.button>
+                <x-forms.button href="{{ route('va.create') }}">Tambah {{ __('Virtual Account') }}</x-forms.button>
             </x-slot>
             <table class="table table-responsive-sm table-striped">
                 <thead>
@@ -18,19 +18,17 @@
                 <tbody>
                     @foreach($vas as $va)
                     <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <a href="{{ url('/users/' . $user->id) }}" class="btn btn-block btn-primary">View</a>
-                            <a href="{{ url('/users/' . $user->id . '/edit') }}" class="btn btn-block btn-primary">Edit</a>
-                            @if( $you->id !== $user->id )
-                            <form action="{{ route('users.destroy', $user->id ) }}" method="POST">
+                        <td>{{ $va->user->name }}</td>
+                        <td>{{ $va->number }}</td>
+                        <td>{{ $va->is_active ? 'Aktif' : 'Tidak Aktif' }}</td>
+                        <td class="d-flex">
+                            <x-forms.button href="{{ route('va.show', $va->id) }}">View</x-forms.button>
+                            <x-forms.button href="{{ route('va.edit', $va->id) }}" preset="warning" class="mx-1">Edit</x-forms.button>
+                            <form action="{{ route('va.destroy', $va->id ) }}" method="POST">
                                 @method('DELETE')
                                 @csrf
-                                <button class="btn btn-block btn-danger">Delete User</button>
+                                <x-forms.button type="submit" preset="danger">Delete</x-forms.button>
                             </form>
-                            @endif
                         </td>
                     </tr>
                     @endforeach
@@ -41,6 +39,7 @@
                     @endif
                 </tbody>
             </table>
+            {{ $vas->links() }}
         </x-containers.card>
     </x-containers.container>
 @endsection
