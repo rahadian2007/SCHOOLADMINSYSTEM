@@ -5,13 +5,23 @@
 @endsection
 
 @section('content')
-<x-containers.container>
+<x-containers.container size="6">
     <x-containers.card>
         <x-slot name="title">Form Tambah VA</x-slot>
         <form method="POST" action="{{ route('bread.store') }}">
             @csrf
-            <input name="marker" value="createForm" type="hidden">
-
+            <div class="form-group">
+                <label for="user">Nama Orang Tua</label>
+                {!! Form::select('user', $userOptions, null, ['class' => 'form-control mb-2']) !!}
+            </div>
+            <div class="form-group">
+                <label for="user">Nomor Virtual Account</label>
+                <input type="text" value="" readonly class="form-control" />
+            </div>
+            <div class="form-group">
+                <label for="user">Nominal Transaksi</label>
+                <input type="number" value="" class="form-control" />
+            </div>
             <button type="submit" class="btn btn-primary">
                 Save
             </button>

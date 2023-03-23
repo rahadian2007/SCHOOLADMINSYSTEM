@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\User;
 
 class VirtualAccountController extends Controller
 {
@@ -15,6 +15,7 @@ class VirtualAccountController extends Controller
 
     public function create()
     {
-        return view('va.form');
+        $userOptions = User::pluck('name', 'id');
+        return view('va.form', compact('userOptions'));
     }
 }

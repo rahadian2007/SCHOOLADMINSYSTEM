@@ -2,9 +2,9 @@
 
 @section('content')
     <x-containers.container>
-        <x-containers.card>
+        <x-containers.card searchEnabled>
             <x-slot name="addNew">
-                <x-forms.button href="{{ route('va.create') }}">Tambah {{ __('Users') }}</x-forms.button>
+                <x-forms.button href="{{ route('va.create') }}">Tambah {{ __('Payment') }}</x-forms.button>
             </x-slot>
             <table class="table table-responsive-sm table-striped">
                 <thead>
@@ -34,6 +34,11 @@
                         </td>
                     </tr>
                     @endforeach
+                    @if(sizeof($vas) === 0)
+                    <tr>
+                        <td colspan="4">Tidak ada data</td>
+                    </tr>
+                    @endif
                 </tbody>
             </table>
         </x-containers.card>
