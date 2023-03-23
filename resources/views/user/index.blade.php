@@ -2,7 +2,7 @@
 
 @section('content')
 <x-containers.container>
-  <x-containers.card>
+  <x-containers.card searchEnabled>
     <x-slot name="addNew">
       <x-forms.button href="{{ route('users.create') }}">
         New {{ __('Users') }}
@@ -36,6 +36,11 @@
           </td>
         </tr>
       @endforeach
+      @if (sizeof($users) === 0)
+      <tr>
+        <td colspan="4">Data tidak tersedia</td>
+      </tr>
+      @endif
       </tbody>
     </table>
     {{ $users->links() }}

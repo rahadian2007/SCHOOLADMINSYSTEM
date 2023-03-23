@@ -25,10 +25,18 @@ class UsersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $you = auth()->user();
-        $users = User::paginate(10);
+        $users = User::query();
+        $query = $request->input('q');
+        if ($query) {
+            $users = $users->where('name', 'like', "%$query%")
+                ->orWhereHas('detail', function ($q) use ($query) {
+                    $q->where('phone', 'like', "%$query%");
+                });
+        }
+        $users = $users->paginate(10);
         return view('user.index', compact('users', 'you'));
     }
 
@@ -89,13 +97,16 @@ class UsersController extends Controller
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate([
-            'name'       => 'required|min:1|max:256',
-            'email'      => 'required|email|max:256'
+            'name' => 'required|min:1|max:256',
+            'email' => 'required|email|max:256',
+            'phone' => 'required|max:15',
         ]);
         $user = User::find($id);
-        $user->name       = $request->input('name');
-        $user->email      = $request->input('email');
+        $user->name = $request->input('name');
+        $user->email = $request->input('email');
         $user->save();
+        $user->detail->phone = $request->input('phone');
+        $user->detail->save();
         $request->session()->flash('message', 'Successfully updated user');
         return redirect()->route('users.index');
     }
