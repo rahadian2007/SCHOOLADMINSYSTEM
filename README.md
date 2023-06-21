@@ -357,3 +357,13 @@ There is only one limitation you can't can’t re-distribute the CoreUI as stock
 CoreUI is an MIT licensed open source project and completely free to use. However, the amount of effort needed to maintain and develop new features for the project is not sustainable without proper financial backing. You can support development by donating on [PayPal](https://www.paypal.me/holeczek), buying [CoreUI Pro Version](https://coreui.io/pro) or buying one of our [premium admin templates](https://genesisui.com/?support=1).
 
 As of now I am exploring the possibility of working on CoreUI fulltime - if you are a business that is building core products using CoreUI, I am also open to conversations regarding custom sponsorship / consulting arrangements. Get in touch on [Twitter](https://twitter.com/lukaszholeczek).
+
+## BCA Signature Generator Example
+
+```
+php artisan bca:generate-asymmetric-headers
+```
+
+```
+php artisan bca:generate-symmetric-headers GET /banking/v2/corporates/h2hauto009/accounts/0611104625 Ddo1/cexbWHRXJ27Ju0slNbPJsow1dpP7MVZGaF1d9Exa/t5fMP5M92EFV7JsXLx3q/TcM+gRIyQdNthd5kVOuWtBahbUZTJYoZrI2LjVSDeQHsUSHnjHkMQGKzB382wS0AUbJ7RaNPFw6+34N/mweRvpa9LXLJATA2whtjYYDrc7p13MS1GkFUAmNyZnE30/LCEkfdN1f3pQ4Q3Z7r7+MUoKfDWvV1iyFPL0XN0TfKQkqb0oJUxFy7qC9PPhu6wHuRfsOFrlT8zn9aPtZHTz+bHU6gD14FpNnr3nV0vAkI3RKjNHFJAILr1E5SPsE/VlV2wBIV/nkRAfnPmH/EcEw== {}
+```

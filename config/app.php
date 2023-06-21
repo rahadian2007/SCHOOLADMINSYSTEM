@@ -15,6 +15,9 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
     'description' => env('APP_DESCRIPTION', 'Laravel'),
+    'bca_private_key' => env('APP_BCA_PRIV_KEY', ''),
+    'bca_client_id' => env('APP_BCA_CLIENT_ID', 'ebfcf5ce-6d38-49c6-9bed-4ac0c0322783'),
+    'bca_client_secret' => env('APP_BCA_CLIENT_SECRET', '106f89cd-f5a8-459b-a2b7-a06ca3f5044a'),
 
     /*
     |--------------------------------------------------------------------------
