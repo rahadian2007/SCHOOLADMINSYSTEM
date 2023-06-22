@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\BcaHelper;
 use Illuminate\Support\Facades\Auth;
 
-class HomeController extends Controller
+class HomeController extends PaymentController
 {
     public function index()
     {
@@ -12,6 +13,8 @@ class HomeController extends Controller
             return redirect('/login');
         }
 
-        return view('dashboard.homepage');
+        $test = BcaHelper::createVirtualAccountPaymentFlag();
+
+        return response()->json(["test" => "a"]);
     }
 }

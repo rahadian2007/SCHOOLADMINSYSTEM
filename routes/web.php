@@ -11,7 +11,7 @@
 |
 */
 
-Route::group(['middleware' => ['get.menu']], function () {
+Route::group(['middleware' => ['get.menu', 'web']], function () {
     Route::get('/', 'HomeController@index');
 
     Route::group(['middleware' => ['role:user']], function () {

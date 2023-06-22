@@ -3,8 +3,13 @@
 namespace App\Helpers;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Exception;
 
 class BcaHelper {
+
+    public static $accessTokenSessionPath = "bca_access_token";
 
     /**
      * Asymmetric header to get access token
@@ -21,16 +26,16 @@ class BcaHelper {
         $signature = base64_encode($binarySignature);
 
         return [
-            "clientId" => $clientId,
-            "timestamp" => $timestamp,
-            "signature" => $signature,
+            "X-CLIENT-KEY" => $clientId,
+            "X-TIMESTAMP" => $timestamp,
+            "X-SIGNATURE" => $signature,
         ];
     }
 
     /**
      * Symmetric header to make sure payload integrity
      */
-    public static function getSymmetricHeaders($httpMethod, $relativeUriPath, $accessToken, $body = "")
+    public static function getSymmetricHeaders($httpMethod, $relativeUriPath, $accessToken, $body = "", $externalId = null, $useAdditionalHeaders = false)
     {
         $timestamp = Carbon::now()->timezone("Asia/Jakarta")->toIso8601String();
         $minifiedJsonBody = json_encode($body);
@@ -41,12 +46,95 @@ class BcaHelper {
         $signatureHashAlgo = "sha512";
         $signature = hash_hmac($signatureHashAlgo, $stringToSign, $clientSecret);
 
-        return [
-            "uri" => $relativeUriPath,
-            "authorization" => "Bearer $accessToken",
-            "externalId" => "<Unique reference number>",
-            "timestamp" => $timestamp,
-            "signature" => $signature,
+        $headers = [
+            "Authorization" => "Bearer $accessToken",
+            "X-TIMESTAMP" => $timestamp,
+            "X-SIGNATURE" => $signature,
+            "ORIGIN" => config("app.url"),
+            "X-EXTERNAL-ID" => $externalId,
+            "X-EXTERNAL-ID" => $externalId,
         ];
+
+        if ($useAdditionalHeaders) {
+            $additionalHeaders = [
+                "X-PARTNER-ID" => config('app.bca_client_id'),
+                "CHANNEL-ID" => "95231",
+            ];
+
+            $headers = array_merge($headers, $additionalHeaders);
+        }
+
+        return $headers;
+    }
+
+    /**
+     * Check whether access token is in cache. Create new one when unavailable.
+     */
+    public static function evalAccessToken()
+    {
+        try {
+            if (!Cache::has(static::$accessTokenSessionPath)) {
+                $asymmetricHeaders = BcaHelper::getAsymmetricHeaders();
+                $requestUrl = config('app.bca_api_base_url') . "/openapi/v1.0/access-token/b2b";
+                $requestBody = [ "grantType" => "client_credentials" ];
+                $response = Http::acceptJson()
+                    ->withHeaders($asymmetricHeaders)
+                    ->post($requestUrl, $requestBody);
+                $jsonResponse = $response->json();
+                $accessToken = $jsonResponse["accessToken"];
+                if ($accessToken) {
+                    Cache::put(static::$accessTokenSessionPath, $accessToken, 900);
+                }
+            }
+        } catch (Exception $error) {
+            // TODO: Handle token error
+        }
+    }
+
+    public static function getAccountInfo()
+    {
+        try {
+            $httpMethod = "POST";
+            $relativeUriPath = "/fire/accounts";
+            $accessToken = Cache::get(static::$accessTokenSessionPath);
+            $symmetricHeaders = BcaHelper::getSymmetricHeaders(
+                $httpMethod,
+                $relativeUriPath,
+                $accessToken
+            );
+            $requestUrl = config('app.bca_api_base_url') . $relativeUriPath;
+            $response = Http::acceptJson()
+                ->withHeaders($symmetricHeaders)
+                ->post($requestUrl);
+            return $response->json();
+        } catch (Exception $error) {
+            dd($error);
+            // TODO: Handle token error
+        }
+    }
+
+    public static function createVirtualAccountPaymentFlag()
+    {
+        try {
+            $httpMethod = "POST";
+            $relativeUriPath = "/openapi/v1.0/transfer-va/payment";
+            $accessToken = Cache::get(static::$accessTokenSessionPath);
+            $headers = BcaHelper::getSymmetricHeaders(
+                $httpMethod,
+                $relativeUriPath,
+                $accessToken,
+                "",
+                null,
+                true
+            );
+            $requestUrl = config('app.bca_api_base_url') . $relativeUriPath;
+            $response = Http::acceptJson()
+                ->withHeaders($headers)
+                ->post($requestUrl);
+            return $response->json();
+        } catch (Exception $error) {
+            dd($error);
+            // TODO: Handle token error
+        }
     }
 }
