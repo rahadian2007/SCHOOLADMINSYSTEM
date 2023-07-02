@@ -13,8 +13,8 @@ class HomeController extends PaymentController
             return redirect('/login');
         }
 
-        $test = BcaHelper::createVirtualAccountPaymentFlag();
+        $response = BcaHelper::getTransferVaStatus();
 
-        return response()->json(["test" => "a"]);
+        return response()->json($response);
     }
 }

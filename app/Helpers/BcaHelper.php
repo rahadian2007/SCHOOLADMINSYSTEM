@@ -5,6 +5,7 @@ namespace App\Helpers;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Exception;
 
 class BcaHelper {
@@ -35,7 +36,7 @@ class BcaHelper {
     /**
      * Symmetric header to make sure payload integrity
      */
-    public static function getSymmetricHeaders($httpMethod, $relativeUriPath, $accessToken, $body = "", $externalId = null, $useAdditionalHeaders = false)
+    public static function getSymmetricHeaders($httpMethod, $relativeUriPath, $accessToken, $body = "", $useAdditionalHeaders = false)
     {
         $timestamp = Carbon::now()->timezone("Asia/Jakarta")->toIso8601String();
         $minifiedJsonBody = json_encode($body);
@@ -45,6 +46,7 @@ class BcaHelper {
         $clientSecret = config('app.bca_client_secret');
         $signatureHashAlgo = "sha512";
         $signature = hash_hmac($signatureHashAlgo, $stringToSign, $clientSecret);
+        $externalId = substr(config('app.bca_client_id'), 12) . date("Ymd");
 
         $headers = [
             "Authorization" => "Bearer $accessToken",
@@ -52,13 +54,13 @@ class BcaHelper {
             "X-SIGNATURE" => $signature,
             "ORIGIN" => config("app.url"),
             "X-EXTERNAL-ID" => $externalId,
-            "X-EXTERNAL-ID" => $externalId,
         ];
 
         if ($useAdditionalHeaders) {
+            $channelId = "95231";
             $additionalHeaders = [
-                "X-PARTNER-ID" => config('app.bca_client_id'),
-                "CHANNEL-ID" => "95231",
+                "X-PARTNER-ID" => config('app.bca_partner_id'),
+                "CHANNEL-ID" => $channelId,
             ];
 
             $headers = array_merge($headers, $additionalHeaders);
@@ -100,7 +102,9 @@ class BcaHelper {
             $symmetricHeaders = BcaHelper::getSymmetricHeaders(
                 $httpMethod,
                 $relativeUriPath,
-                $accessToken
+                $accessToken,
+                "",
+                true
             );
             $requestUrl = config('app.bca_api_base_url') . $relativeUriPath;
             $response = Http::acceptJson()
@@ -110,6 +114,45 @@ class BcaHelper {
         } catch (Exception $error) {
             dd($error);
             // TODO: Handle token error
+        }
+    }
+    
+    public static function getTransferVaStatus()
+    {
+        try {
+            $httpMethod = "POST";
+            $relativeUriPath = "/openapi/v1.0/transfer-va/status";
+            $accessToken = Cache::get(static::$accessTokenSessionPath);
+            $requestUrl = config('app.bca_api_base_url') . $relativeUriPath;
+            Log::info("Request to: $requestUrl");
+            $symmetricHeaders = BcaHelper::getSymmetricHeaders(
+                $httpMethod,
+                $relativeUriPath,
+                $accessToken,
+                "",
+                true
+            );
+            Log::info("Headers:");
+            Log::info($symmetricHeaders);
+            $spacer = "        ";
+            $partnerServiceId = $spacer . config('app.bca_partner_id');
+            $customerNumber = "01";
+            $requestBody = [
+                "partnerServiceId" => $partnerServiceId,
+                "customerNo" => $customerNumber,
+                "virtualAccountNo" => $partnerServiceId . $customerNumber,
+                "paymentRequestId" => "202202111031031234500001136962",
+            ];
+            Log::info("Request Body:");
+            Log::info($requestBody);
+            $response = Http::acceptJson()
+                ->withHeaders($symmetricHeaders)
+                ->post($requestUrl, $requestBody);
+            Log::info("Response:");
+            Log::info($response);
+            return $response->json();
+        } catch (Exception $error) {
+            Log::error($error);
         }
     }
 

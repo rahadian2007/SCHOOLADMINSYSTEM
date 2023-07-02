@@ -40,17 +40,16 @@ class GenerateBcaAsymmetricHeaders extends Command
     {
         
         $bcaHelper = BcaHelper::getAsymmetricHeaders();
-        extract($bcaHelper); // clientId, timestamp, signature
 
         $this->line("----------");
         $this->info("X-CLIENT-KEY");
-        $this->info($clientId);
+        $this->info($bcaHelper["X-CLIENT-KEY"]);
         $this->newLine();
         $this->info("X-TIMESTAMP");
-        $this->info($timestamp);
+        $this->info($bcaHelper["X-TIMESTAMP"]);
         $this->newLine();
         $this->info("X-SIGNATURE");
-        $this->info($signature);
+        $this->info($bcaHelper["X-SIGNATURE"]);
         $this->line("----------");
     }
 }

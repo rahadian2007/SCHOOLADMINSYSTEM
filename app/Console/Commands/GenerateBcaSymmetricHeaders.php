@@ -48,23 +48,23 @@ class GenerateBcaSymmetricHeaders extends Command
             $accessToken,
             $body
         );
-        extract($bcaHelper); // $uri, $authorization, $externalId, $timestamp, $signature
+        dd($bcaHelper); // $uri, $authorization, $externalId, $timestamp, $signature
 
-        $this->line("----------");
-        $this->info("URI");
-        $this->info($uri);
-        $this->newLine();
-        $this->info("Bearer Authorization");
-        $this->info($authorization);
-        $this->newLine();
-        $this->info("External ID");
-        $this->info($externalId);
-        $this->newLine();
-        $this->info("Timestamp");
-        $this->info($timestamp);
-        $this->newLine();
-        $this->info("Signature");
-        $this->info($signature);
-        $this->line("----------");
+        // $this->line("----------");
+        // $this->info("URI");
+        // $this->info($uri);
+        // $this->newLine();
+        // $this->info("Bearer Authorization");
+        // $this->info($authorization);
+        // $this->newLine();
+        // $this->info("External ID");
+        // $this->info($externalId);
+        // $this->newLine();
+        // $this->info("Timestamp");
+        // $this->info($timestamp);
+        // $this->newLine();
+        // $this->info("Signature");
+        // $this->info($signature);
+        // $this->line("----------");
     }
 }
