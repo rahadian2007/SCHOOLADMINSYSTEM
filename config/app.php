@@ -30,6 +30,7 @@ return [
     'bca_client_secret' => env('APP_BCA_CLIENT_SECRET', '106f89cd-f5a8-459b-a2b7-a06ca3f5044a'),
     'bca_api_base_url' => env('APP_BCA_API_BASE_URL', ''),
     'bca_partner_id' => env('APP_BCA_PARTNER_ID', ''),
+    'bca_company_id' => env('APP_BCA_COMPANY_ID', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -246,6 +247,134 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
 
+    ],
+
+    // BCA Response map
+    "INVALID_FIELD_FORMAT" => [
+        "HTTP_CODE" => 400,
+        "CODE" => "4007300",
+        "MSG" => "Invalid field format [clientId/clientSecret/grantType]",
+        "PAYMENT_FLAG_STATUS" => null,
+    ],
+    "UNAUTHORIZED_CONNECTION" => [
+        "HTTP_CODE" => 400,
+        "CODE" => "4007300",
+        "MSG" => "Unauthorized. [Connection not allowed]",
+        "PAYMENT_FLAG_STATUS" => null,
+    ],
+    "UNAUTHORIZED" => [
+        "HTTP_CODE" => 400,
+        "CODE" => "4007301",
+        "MSG" => "invalid timestamp format [X-TIMESTAMP]",
+        "PAYMENT_FLAG_STATUS" => null,
+    ],
+    "INVALID_MANDATORY_FIELD" => [
+        "HTTP_CODE" => 400,
+        "CODE" => "4007301",
+        "MSG" => "Invalid mandatory field",
+        "PAYMENT_FLAG_STATUS" => null,
+    ],
+    "UNAUTHORIZED_SIGNATURE" => [
+        "HTTP_CODE" => 401,
+        "CODE" => "4017300",
+        "MSG" => "Unauthorized. [Signature]",
+        "PAYMENT_FLAG_STATUS" => null,
+    ],
+    "UNAUTHORIZED_UNKNOWN_CLIENT" => [
+        "HTTP_CODE" => 401,
+        "CODE" => "4017300",
+        "MSG" => "Unauthorized. [Unknown client]",
+        "PAYMENT_FLAG_STATUS" => null,
+    ],
+    "ACCESS_TOKEN_INVALID" => [
+        "HTTP_CODE" => 401,
+        "CODE" => "4012501",
+        "MSG" => "Access Token Invalid",
+        "PAYMENT_FLAG_STATUS" => null,
+    ],
+    "UNAUTHORIZED_SIGNATURE" => [
+        "HTTP_CODE" => 401,
+        "CODE" => "4012500",
+        "MSG" => "Unauthorized. [Signature]",
+        "PAYMENT_FLAG_STATUS" => null,
+    ],
+    "UNAUTHORIZED_STRING_TO_SIGN" => [
+        "HTTP_CODE" => 401,
+        "CODE" => "4012500",
+        "MSG" => "Unauthorized. [Signature]",
+        "PAYMENT_FLAG_STATUS" => null,
+    ],
+    "UNAUTHORIZED_UNKNOWN_CLIENT" => [
+        "HTTP_CODE" => 401,
+        "CODE" => "4012500",
+        "MSG" => "Unauthorized. [Unknown client]",
+        "PAYMENT_FLAG_STATUS" => null,
+    ],
+    "MISSING_MANDATORY_FIELD" => [
+        "HTTP_CODE" => 400,
+        "CODE" => "4002502",
+        "MSG" => "Missing mandatory field",
+        "PAYMENT_FLAG_STATUS" => "01",
+    ],
+    "CONFLICT_EXTERNAL_ID" => [
+        "HTTP_CODE" => 409,
+        "CODE" => "4092501",
+        "MSG" => "Conflict",
+        "PAYMENT_FLAG_STATUS" => "01",
+    ],
+    "VALID_VA" => [
+        "HTTP_CODE" => 200,
+        "CODE" => "2002500",
+        "MSG" => "Success",
+        "PAYMENT_FLAG_STATUS" => "00",
+    ],
+    "VALID_VA_SETTLED" => [
+        "HTTP_CODE" => 404,
+        "CODE" => "4042514",
+        "MSG" => "Bill has been paid",
+        "PAYMENT_FLAG_STATUS" => "01",
+    ],
+    "VALID_VA_EXPIRED" => [
+        "HTTP_CODE" => 404,
+        "CODE" => "4042519",
+        "MSG" => "Bill expired",
+        "PAYMENT_FLAG_STATUS" => "01",
+    ],
+    "VALID_VA_EXPIRED" => [
+        "HTTP_CODE" => 404,
+        "CODE" => "4042519",
+        "MSG" => "Bill expired",
+        "PAYMENT_FLAG_STATUS" => "01",
+    ],
+    "VALID_VA_UNREGISTERED" => [
+        "HTTP_CODE" => 404,
+        "CODE" => "4042512",
+        "MSG" => "Bill not found",
+        "PAYMENT_FLAG_STATUS" => "01",
+    ],
+    "REQUEST_PARSING_ERROR" => [
+        "HTTP_CODE" => 400,
+        "CODE" => "4002500",
+        "MSG" => "Parsing Error",
+        "PAYMENT_FLAG_STATUS" => "01",
+    ],
+    "RESPONSE_PARSING_ERROR" => [
+        "HTTP_CODE" => 400,
+        "CODE" => "4002500",
+        "MSG" => "Parsing Error",
+        "PAYMENT_FLAG_STATUS" => "01",
+    ],
+    "SERVER_GENERAL_ERROR" => [
+        "HTTP_CODE" => 500,
+        "CODE" => "5002500",
+        "MSG" => "General Error",
+        "PAYMENT_FLAG_STATUS" => null,
+    ],
+    "SERVER_ERROR_TIMEOUT" => [
+        "HTTP_CODE" => 504,
+        "CODE" => "5047300",
+        "MSG" => "Timeout",
+        "PAYMENT_FLAG_STATUS" => null,
     ],
 
 ];

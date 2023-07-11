@@ -45,21 +45,21 @@ class BcaHelper {
         $stringToSign = "$httpMethod:$relativeUriPath:$accessToken:$hashedMinifiedJsonBody:$timestamp";
         $clientSecret = config('app.bca_client_secret');
         $signatureHashAlgo = "sha512";
-        $signature = hash_hmac($signatureHashAlgo, $stringToSign, $clientSecret);
-        $externalId = substr(config('app.bca_client_id'), 12) . date("Ymd");
+        $signature = base64_encode(hash_hmac($signatureHashAlgo, $stringToSign, $clientSecret));
+        // $signature = hash_hmac($signatureHashAlgo, $stringToSign, $clientSecret);
+        $externalId = (int) date("YmdHms");
 
         $headers = [
             "Authorization" => "Bearer $accessToken",
             "X-TIMESTAMP" => $timestamp,
             "X-SIGNATURE" => $signature,
-            "ORIGIN" => config("app.url"),
             "X-EXTERNAL-ID" => $externalId,
         ];
 
         if ($useAdditionalHeaders) {
             $channelId = "95231";
             $additionalHeaders = [
-                "X-PARTNER-ID" => config('app.bca_partner_id'),
+                "X-PARTNER-ID" => config('app.bca_company_id'),
                 "CHANNEL-ID" => $channelId,
             ];
 
@@ -135,7 +135,7 @@ class BcaHelper {
             Log::info("Headers:");
             Log::info($symmetricHeaders);
             $spacer = "        ";
-            $partnerServiceId = $spacer . config('app.bca_partner_id');
+            $partnerServiceId = $spacer . config('app.bca_company_id');
             $customerNumber = "01";
             $requestBody = [
                 "partnerServiceId" => $partnerServiceId,
