@@ -36,17 +36,26 @@ class BcaHelper {
     /**
      * Symmetric header to make sure payload integrity
      */
-    public static function getSymmetricHeaders($httpMethod, $relativeUriPath, $accessToken, $body = "", $useAdditionalHeaders = false)
+    public static function getSymmetricHeaders($httpMethod, $relativeUriPath, $accessToken, $body = null, $useAdditionalHeaders = false)
     {
+        $upperCasedHttpMethod = strtoupper($httpMethod);
         $timestamp = Carbon::now()->timezone("Asia/Jakarta")->toIso8601String();
-        $minifiedJsonBody = json_encode($body);
-        $bodyHashAlgo = "SHA256";
+
+        $hashedMinifiedJsonBody = null;
+
+        $bodyHashAlgo = "sha256";
+        $minifiedJsonBody = json_encode($body, JSON_UNESCAPED_SLASHES);
         $hashedMinifiedJsonBody = hash($bodyHashAlgo, $minifiedJsonBody);
-        $stringToSign = "$httpMethod:$relativeUriPath:$accessToken:$hashedMinifiedJsonBody:$timestamp";
+
+        $stringToSign = "{$upperCasedHttpMethod}:{$relativeUriPath}:{$accessToken}:{$hashedMinifiedJsonBody}:{$timestamp}";
+        
+        Log::info("String to sign");
+        Log::info($stringToSign);
+
         $clientSecret = config('app.bca_client_secret');
+        $clientId = config('app.bca_client_id');
         $signatureHashAlgo = "sha512";
-        $signature = base64_encode(hash_hmac($signatureHashAlgo, $stringToSign, $clientSecret));
-        // $signature = hash_hmac($signatureHashAlgo, $stringToSign, $clientSecret);
+        $signature = base64_encode(hash_hmac($signatureHashAlgo, $stringToSign, $clientSecret, true));
         $externalId = (int) date("YmdHms");
 
         $headers = [
@@ -54,10 +63,12 @@ class BcaHelper {
             "X-TIMESTAMP" => $timestamp,
             "X-SIGNATURE" => $signature,
             "X-EXTERNAL-ID" => $externalId,
+            "X-CLIENT-KEY" => $clientId,
+            "Content-Type" => "application/json",
         ];
 
         if ($useAdditionalHeaders) {
-            $channelId = "95231";
+            $channelId = 95231;
             $additionalHeaders = [
                 "X-PARTNER-ID" => config('app.bca_company_id'),
                 "CHANNEL-ID" => $channelId,
@@ -89,7 +100,7 @@ class BcaHelper {
                 }
             }
         } catch (Exception $error) {
-            // TODO: Handle token error
+            Log::error($error);
         }
     }
 
@@ -112,8 +123,7 @@ class BcaHelper {
                 ->post($requestUrl);
             return $response->json();
         } catch (Exception $error) {
-            dd($error);
-            // TODO: Handle token error
+            Log::error($error);
         }
     }
     
@@ -124,17 +134,7 @@ class BcaHelper {
             $relativeUriPath = "/openapi/v1.0/transfer-va/status";
             $accessToken = Cache::get(static::$accessTokenSessionPath);
             $requestUrl = config('app.bca_api_base_url') . $relativeUriPath;
-            Log::info("Request to: $requestUrl");
-            $symmetricHeaders = BcaHelper::getSymmetricHeaders(
-                $httpMethod,
-                $relativeUriPath,
-                $accessToken,
-                "",
-                true
-            );
-            Log::info("Headers:");
-            Log::info($symmetricHeaders);
-            $spacer = "        ";
+            $spacer = "   ";
             $partnerServiceId = $spacer . config('app.bca_company_id');
             $customerNumber = "01";
             $requestBody = [
@@ -143,13 +143,29 @@ class BcaHelper {
                 "virtualAccountNo" => $partnerServiceId . $customerNumber,
                 "paymentRequestId" => "202202111031031234500001136962",
             ];
+
+            Log::info("Request to endpoint: $requestUrl");
+
+            $symmetricHeaders = BcaHelper::getSymmetricHeaders(
+                $httpMethod,
+                $relativeUriPath,
+                $accessToken,
+                $requestBody,
+                true
+            );
+
+            Log::info("Headers:");
+            Log::info($symmetricHeaders);
             Log::info("Request Body:");
             Log::info($requestBody);
+
             $response = Http::acceptJson()
                 ->withHeaders($symmetricHeaders)
                 ->post($requestUrl, $requestBody);
+
             Log::info("Response:");
             Log::info($response);
+
             return $response->json();
         } catch (Exception $error) {
             Log::error($error);
@@ -176,8 +192,7 @@ class BcaHelper {
                 ->post($requestUrl);
             return $response->json();
         } catch (Exception $error) {
-            dd($error);
-            // TODO: Handle token error
+            Log::error($error);
         }
     }
 }
