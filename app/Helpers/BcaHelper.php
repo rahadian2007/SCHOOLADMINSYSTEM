@@ -21,9 +21,8 @@ class BcaHelper {
         $timestamp = Carbon::now()->timezone("Asia/Jakarta")->toIso8601String();
         $stringToSign = "$clientId|$timestamp";
         $privateKey = openssl_get_privatekey(config('app.bca_private_key'));
-        $algo = "SHA256";
 
-        openssl_sign($stringToSign, $binarySignature, $privateKey, $algo);
+        openssl_sign($stringToSign, $binarySignature, $privateKey, "SHA256");
         $signature = base64_encode($binarySignature);
 
         return [
@@ -35,49 +34,50 @@ class BcaHelper {
 
     /**
      * Symmetric header to make sure payload integrity
+     * @param String $httpMethod (must be upper cased)
+     * @param String $relativeUriPath
+     * @param String $accessToken
+     * @param Object $body
+     * @return Array $headers
      */
-    public static function getSymmetricHeaders($httpMethod, $relativeUriPath, $accessToken, $body = null, $useAdditionalHeaders = false)
+    public static function getSymmetricHeaders($httpMethod, $relativeUriPath, $accessToken, $body = null)
     {
-        $upperCasedHttpMethod = strtoupper($httpMethod);
-        $timestamp = Carbon::now()->timezone("Asia/Jakarta")->toIso8601String();
+        $timestamp = Carbon::now()
+            ->timezone("Asia/Jakarta")
+            ->toIso8601String();
 
-        $hashedMinifiedJsonBody = null;
+        $hashedMinifiedJsonBody = hash(
+            "sha256",
+            json_encode( // minify and remove whitespace
+                $body,
+                JSON_UNESCAPED_SLASHES
+            )
+        );
 
-        $bodyHashAlgo = "sha256";
-        $minifiedJsonBody = json_encode($body, JSON_UNESCAPED_SLASHES);
-        $hashedMinifiedJsonBody = hash($bodyHashAlgo, $minifiedJsonBody);
+        $stringToSign = "{$httpMethod}:{$relativeUriPath}:{$accessToken}:{$hashedMinifiedJsonBody}:{$timestamp}";
 
-        $stringToSign = "{$upperCasedHttpMethod}:{$relativeUriPath}:{$accessToken}:{$hashedMinifiedJsonBody}:{$timestamp}";
+        $signature = base64_encode(
+            hash_hmac(
+                "sha512",
+                $stringToSign,
+                config('app.bca_client_secret'),
+                true
+            )
+        );
         
         Log::info("String to sign");
         Log::info($stringToSign);
 
-        $clientSecret = config('app.bca_client_secret');
-        $clientId = config('app.bca_client_id');
-        $signatureHashAlgo = "sha512";
-        $signature = base64_encode(hash_hmac($signatureHashAlgo, $stringToSign, $clientSecret, true));
-        $externalId = (int) date("YmdHms");
-
-        $headers = [
+        return [
             "Authorization" => "Bearer $accessToken",
             "X-TIMESTAMP" => $timestamp,
             "X-SIGNATURE" => $signature,
-            "X-EXTERNAL-ID" => $externalId,
-            "X-CLIENT-KEY" => $clientId,
+            "X-EXTERNAL-ID" => (int) date("YmdHms"),
+            "X-CLIENT-KEY" => config('app.bca_client_id'),
             "Content-Type" => "application/json",
+            "X-PARTNER-ID" => config('app.bca_company_id'),
+            "CHANNEL-ID" => 95231, // Virtual account channel id = 95231
         ];
-
-        if ($useAdditionalHeaders) {
-            $channelId = 95231;
-            $additionalHeaders = [
-                "X-PARTNER-ID" => config('app.bca_company_id'),
-                "CHANNEL-ID" => $channelId,
-            ];
-
-            $headers = array_merge($headers, $additionalHeaders);
-        }
-
-        return $headers;
     }
 
     /**
@@ -87,11 +87,10 @@ class BcaHelper {
     {
         try {
             if (!Cache::has(static::$accessTokenSessionPath)) {
-                $asymmetricHeaders = BcaHelper::getAsymmetricHeaders();
                 $requestUrl = config('app.bca_api_base_url') . "/openapi/v1.0/access-token/b2b";
                 $requestBody = [ "grantType" => "client_credentials" ];
                 $response = Http::acceptJson()
-                    ->withHeaders($asymmetricHeaders)
+                    ->withHeaders(BcaHelper::getAsymmetricHeaders())
                     ->post($requestUrl, $requestBody);
                 $jsonResponse = $response->json();
                 $accessToken = $jsonResponse["accessToken"];
@@ -130,11 +129,10 @@ class BcaHelper {
     public static function getTransferVaStatus()
     {
         try {
-            $httpMethod = "POST";
             $relativeUriPath = "/openapi/v1.0/transfer-va/status";
+            $spacer = "   ";
             $accessToken = Cache::get(static::$accessTokenSessionPath);
             $requestUrl = config('app.bca_api_base_url') . $relativeUriPath;
-            $spacer = "   ";
             $partnerServiceId = $spacer . config('app.bca_company_id');
             $customerNumber = "01";
             $requestBody = [
@@ -147,11 +145,10 @@ class BcaHelper {
             Log::info("Request to endpoint: $requestUrl");
 
             $symmetricHeaders = BcaHelper::getSymmetricHeaders(
-                $httpMethod,
+                "POST",
                 $relativeUriPath,
                 $accessToken,
-                $requestBody,
-                true
+                $requestBody
             );
 
             Log::info("Headers:");
