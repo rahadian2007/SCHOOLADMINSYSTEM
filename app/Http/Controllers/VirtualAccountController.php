@@ -11,7 +11,9 @@ class VirtualAccountController extends Controller
     public function index()
     {
         $vas = VirtualAccount::paginate(10);
-        $data = compact('vas');
+        $totalBill = VirtualAccount::sum('outstanding');
+        $vaCount = VirtualAccount::count();
+        $data = compact('vas', 'totalBill', 'vaCount');
         return view('va.index', $data);
     }
 
@@ -33,8 +35,10 @@ class VirtualAccountController extends Controller
             $request->validate([
                 'user_id' => 'required',
                 'number' => 'required|unique:virtual_accounts|max:28',
+                'outstanding' => 'required',
                 'is_active' => 'required',
             ]);
+            dd($this->getPayloadDataFromRequest($request));
             VirtualAccount::create($this->getPayloadDataFromRequest($request));
             return redirect()->route('va.index')->with('success', 'Berhasil menambah Virtual Account: ' . $request->input('number'));
         } catch (\Exception $e) {
@@ -54,6 +58,7 @@ class VirtualAccountController extends Controller
             $request->validate([
                 'user_id' => 'required',
                 'number' => 'required|max:28',
+                'outstanding' => 'required',
                 'is_active' => 'required',
             ]);
             $va->update($this->getPayloadDataFromRequest($request));

@@ -20,6 +20,8 @@ class CreateUserVirtualAccountsTable extends Migration
                 ->references('id')
                 ->on('users');
             $table->string('number', 28);
+            $table->string('outstanding');
+            $table->text('description')->nullable();
             $table->boolean('is_active');
             $table->timestamps();
         });

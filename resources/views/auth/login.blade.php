@@ -8,8 +8,11 @@
           <div class="card-group">
             <div class="card p-4">
               <div class="card-body">
-                <h1>Login</h1>
-                <p class="text-muted">Sign In to your account</p>
+                <h1>Masuk</h1>
+                <div class="d-flex align-items-center my-4">
+                  <img src="/assets/brand/logo.png" width="32" height="32" />
+                  <h5 class="ml-2 font-weight-bold">Yayasan Al Haq Margahayu</h5>
+                </div>
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
                     <div class="input-group mb-3">
