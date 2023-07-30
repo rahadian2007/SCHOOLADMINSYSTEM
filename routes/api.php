@@ -20,5 +20,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 */
 
 Route::prefix('/v1.0')->group(function () {
-    Route::post('/transfer-va/payment', [\App\Http\Controllers\SnapVaInboundController::class, 'updateVaPaymentFlag']);
+    Route::post('/access-token/b2b', [\App\Http\Controllers\SnapVaInboundController::class, 'generateAccessTokenB2b']);
+    Route::post('/transfer-va/inquiry', [\App\Http\Controllers\SnapVaInboundController::class, 'transferVaInquiry']);
+    Route::post('/transfer-va/payment', [\App\Http\Controllers\SnapVaInboundController::class, 'transferVaPayment']);
 });
