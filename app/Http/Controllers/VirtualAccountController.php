@@ -38,7 +38,6 @@ class VirtualAccountController extends Controller
                 'outstanding' => 'required',
                 'is_active' => 'required',
             ]);
-            dd($this->getPayloadDataFromRequest($request));
             VirtualAccount::create($this->getPayloadDataFromRequest($request));
             return redirect()->route('va.index')->with('success', 'Berhasil menambah Virtual Account: ' . $request->input('number'));
         } catch (\Exception $e) {

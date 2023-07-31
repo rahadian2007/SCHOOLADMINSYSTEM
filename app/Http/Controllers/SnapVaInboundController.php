@@ -3,18 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\SnapRequestParsingException;
+use App\Models\Payment;
 use App\Models\VirtualAccount;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class SnapVaInboundController extends Controller
 {
     private $CURRENCY = 'IDR';
-    private $INQUIRY_RESP_STATUS_SUCCESS = '2002400';
-    private $INQUIRY_PROC_STATUS_SUCCESS = '00';
     private $INQUIRY_PROC_REASON_SUCCESS_ID = 'Sukses';
     private $INQUIRY_PROC_REASON_SUCCESS_EN = 'Success';
-    private $INQUIRY_MSG_SUCCESS = 'Successful';
     private $INQUIRY_SUB_COMPANY = '00000';
     private $INQUIRY_VA_TYPE = '2'; // Open Payment (O): Tagihan tidak muncul (No Bill)
     private $PAYMENT_RESP_STATUS_SUCCESS = '2002600';
@@ -28,7 +28,7 @@ class SnapVaInboundController extends Controller
      */
     public function generateAccessTokenB2b(Request $request)
     {
-        $this->validateRequest($request, []);
+        $this->validateRequest($request, [], null);
 
         return response()->json($request->all());
     }
@@ -38,6 +38,12 @@ class SnapVaInboundController extends Controller
      */
     public function transferVaInquiry(Request $request)
     {
+        Log::info("INITIATE VA INQUIRY");
+
+        extract($request->all());
+
+        $va = VirtualAccount::where('number', $virtualAccountNo)->first();
+
         $this->validateRequest($request, [
             'partnerServiceId' => 'required|string',
             'customerNo' => 'required|string',
@@ -45,21 +51,45 @@ class SnapVaInboundController extends Controller
             'trxDateInit' => 'required|string',
             'channelCode' => 'required|numeric',
             'inquiryRequestId' => 'required|numeric',
-        ]);
+        ], $va);
 
-        extract($request->all());
-
-        $va = VirtualAccount::where('number', $virtualAccountNo)->first();
 
         if (!$va) {
             throw new SnapRequestParsingException('VALID_VA_UNREGISTERED');
         }
 
+        // Scenario: bill already paid
+        if ($va->outstanding === '0') {
+            throw new SnapRequestParsingException('VALID_VA_SETTLED');
+        }
+        
+        // Scenario: bill expired
+        if (!$va->is_active) {
+            throw new SnapRequestParsingException('VALID_VA_EXPIRED');
+        }
+
+        // Create payment instance
+        $externalId = $request->headers->get('X-EXTERNAL-ID');
+
+        Payment::create([
+            'partnerServiceId' => $partnerServiceId,
+            'customerNo' => $customerNo,
+            'virtualAccountNumber' => $virtualAccountNo,
+            'virtualAccountName' => $va->user->name,
+            'trxId' => '',
+            'paymentRequestId' => $externalId,
+            'channelCode' => $channelCode,
+            'paidAmount' => json_encode([
+                'value' => $va->outstanding,
+                'currency' => $this->CURRENCY,
+            ])
+        ]);
+
         $data = [
-            'responseCode' => $this->INQUIRY_RESP_STATUS_SUCCESS,
-            'responseMessage' => $this->INQUIRY_MSG_SUCCESS,
+            'responseCode' => config('app.VALID_VA')['CODE'],
+            'responseMessage' => config('app.VALID_VA')['MSG'],
             'virtualAccountData' => [
-                'inquiryStatus' => $this->INQUIRY_PROC_STATUS_SUCCESS,
+                'inquiryStatus' => config('app.VALID_VA')['PAYMENT_FLAG_STATUS'],
                 'inquiryReason' => [
                     'english' => $this->INQUIRY_PROC_REASON_SUCCESS_EN,
                     'indonesia' => $this->INQUIRY_PROC_REASON_SUCCESS_ID,
@@ -107,6 +137,9 @@ class SnapVaInboundController extends Controller
 
         $this->validateResponse($response);
 
+        Log::info("SUCCESS RESPONSE");
+        Log::info($response);
+
         return $response;
     }
 
@@ -115,25 +148,30 @@ class SnapVaInboundController extends Controller
      */
     public function transferVaPayment(Request $request)
     {
-        $this->validateRequest($request, [
-            'partnerServiceId' => 'required|string',
-            'customerNo' => 'required|string',
-            'virtualAccountNo' => 'required|string',
-            'virtualAccountName' => 'required|string',
-            'paymentRequestId' => 'required|string',
-            'channelCode' => 'required|numeric',
-            'paidAmount.value' => 'required|string',
-            'paidAmount.currency' => 'required|string',
-            'flagAdvise' => 'required|string',
-        ]);
+        Log::info("INITIATE VA TRANSFER");
 
         extract($request->all());
 
         $va = VirtualAccount::where('number', $virtualAccountNo)->first();
 
-        if (!$va) {
-            throw new SnapRequestParsingException('VALID_VA_UNREGISTERED');
-        }
+        $this->validateRequest(
+            $request,
+            [
+                'partnerServiceId' => 'required|string',
+                'customerNo' => 'required|string',
+                'virtualAccountNo' => 'required|string',
+                'virtualAccountName' => 'required|string',
+                'paymentRequestId' => 'required|string',
+                'channelCode' => 'required|numeric',
+                'paidAmount.value' => 'required|string',
+                'paidAmount.currency' => 'required|string',
+                'flagAdvise' => 'required|string',
+            ],
+            $va,
+            [
+                'checkConflictedExternalIdEnabled' => false,
+            ]
+        );
 
         $data = [
             'responseCode' => $this->PAYMENT_RESP_STATUS_SUCCESS,
@@ -190,6 +228,9 @@ class SnapVaInboundController extends Controller
 
         $this->validateResponse($response);
 
+        Log::info("SUCCESS RESPONSE");
+        Log::info($response);
+
         return $response;
     }
 
@@ -206,8 +247,63 @@ class SnapVaInboundController extends Controller
         }
     }
 
-    private function validateRequest(Request $request, $validation)
+    private function checkConflictedExternalId(Request $request)
     {
+        $externalId = $request->headers->get('X-EXTERNAL-ID');
+        $isExternalIdUnique = !Payment::where('paymentRequestId', $externalId)
+            ->whereDate('created_at', Carbon::today())
+            ->first();
+
+        if (!$isExternalIdUnique) {
+            throw new SnapRequestParsingException('CONFLICTED_EXTERNAL_ID');
+        }
+    }
+
+    private function checkInconsistentExternalId(Request $request)
+    {
+        $externalId = $request->headers->get('X-EXTERNAL-ID');
+        $isExternalIdUnique = !Payment::where('paymentRequestId', $externalId)
+            ->whereDate('created_at', Carbon::today())
+            ->first();
+
+        if ($isExternalIdUnique) {
+            throw new SnapRequestParsingException('INCONSISTENT_EXTERNAL_ID');
+        }
+    }
+
+    private function checkIsVaSettled($virtualAccount)
+    {
+        $isVaSettled = $virtualAccount->outstanding === '0';
+
+        if ($isVaSettled) {
+            throw new SnapRequestParsingException('VALID_VA_SETTLED');
+        }
+    }
+
+    private function checkIsVaRegistered($virtualAccount)
+    {
+        if (!$virtualAccount) {
+            throw new SnapRequestParsingException('VALID_VA_UNREGISTERED');
+        }
+    }
+
+    private function checkIsVaExpired($virtualAccount)
+    {
+        $isVaExpired = !$virtualAccount->is_active;
+
+        if ($isVaExpired) {
+            throw new SnapRequestParsingException('VALID_VA_EXPIRED');
+        }
+    }
+
+    private function validateRequest(
+        Request $request,
+        $validation,
+        $virtualAccount,
+        $options = [
+            'checkConflictedExternalIdEnabled' => true,
+        ]
+    ) {
         // Check request parsing error
         $this->checkRequestParsingError($request);
 
@@ -215,19 +311,29 @@ class SnapVaInboundController extends Controller
         $this->checkMandatoryFields($request, $validation);
 
         // Check invalid field format
-        // $this->checkInvalidHeaderFieldFormats($request);
+        $this->checkInvalidHeaderFieldFormats($request);
 
-        // TODO: Check is External ID conflicted
-        // TODO: Check is VA settled
-        // TODO: Check is VA expired
-        // TODO: Check is VA unregistered
-        // TODO: Check response parsing error
+        // Check is External ID conflicted
+        if ($options['checkConflictedExternalIdEnabled']) {
+            $this->checkConflictedExternalId($request);
+        } else {
+            $this->checkInconsistentExternalId($request);
+        }
+
+        // Check is VA registered
+        $this->checkIsVaRegistered($virtualAccount);
+
+        // Check is VA settled
+        $this->checkIsVaSettled($virtualAccount);
+
+        // Check is VA expired
+        $this->checkIsVaExpired($virtualAccount);
     }
 
     private function validateResponse($response)
     {
-        // TODO: validate response
-        return true;
+        json_decode($response);
+        return json_last_error() === JSON_ERROR_NONE;
     }
 
     private function checkInvalidHeaderFieldFormats(Request $request)
@@ -245,7 +351,7 @@ class SnapVaInboundController extends Controller
                 throw new SnapRequestParsingException('INVALID_MANDATORY_FIELD');
             }
         } else {
-            $hasValidHeadersValue = $request->headers->has('X-CLIENT-ID');
+            $hasValidHeadersValue = $request->headers->has('X-EXTERNAL-ID');
 
             if (!$hasValidHeadersValue) {
                 throw new SnapRequestParsingException('INVALID_MANDATORY_FIELD');

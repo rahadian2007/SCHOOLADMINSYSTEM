@@ -4,6 +4,8 @@ namespace App\Exceptions;
 
 use Exception;
 
+use Illuminate\Support\Facades\Log;
+
 class SnapRequestParsingException extends Exception
 {
     private $additionalMessage;
@@ -21,11 +23,19 @@ class SnapRequestParsingException extends Exception
 
     public function render()
     {
-        $error = config("app.".$this->getMessage());
-        return response()->json([
-            'responseCode' => $error['CODE'],
-            'responseMessage' => $error['MSG'] . ' ' . $this->additionalMessage,
-            'virtualAccountData' => [],
-        ]);
+        try {
+            $error = config("app.".$this->getMessage());
+            $response = response()->json([
+                'responseCode' => $error['CODE'],
+                'responseMessage' => $error['MSG'] . ' ' . $this->additionalMessage,
+                'virtualAccountData' => [],
+            ]);
+    
+            Log::warning("INITIATE TRANSFER VA INQUIRY");
+    
+            return $response;
+        } catch (Exception $error) {
+            Log::error($error);
+        }
     }
 }

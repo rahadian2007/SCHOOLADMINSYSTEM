@@ -316,10 +316,16 @@ return [
         "MSG" => "Missing mandatory field",
         "PAYMENT_FLAG_STATUS" => "01",
     ],
-    "CONFLICT_EXTERNAL_ID" => [
+    "CONFLICTED_EXTERNAL_ID" => [
         "HTTP_CODE" => 409,
         "CODE" => "4092501",
         "MSG" => "Conflict",
+        "PAYMENT_FLAG_STATUS" => "01",
+    ],
+    "INCONSISTENT_EXTERNAL_ID" => [
+        "HTTP_CODE" => 404,
+        "CODE" => "4042518",
+        "MSG" => "Inconsistent Request",
         "PAYMENT_FLAG_STATUS" => "01",
     ],
     "VALID_VA" => [
@@ -332,12 +338,6 @@ return [
         "HTTP_CODE" => 404,
         "CODE" => "4042514",
         "MSG" => "Bill has been paid",
-        "PAYMENT_FLAG_STATUS" => "01",
-    ],
-    "VALID_VA_EXPIRED" => [
-        "HTTP_CODE" => 404,
-        "CODE" => "4042519",
-        "MSG" => "Bill expired",
         "PAYMENT_FLAG_STATUS" => "01",
     ],
     "VALID_VA_EXPIRED" => [
