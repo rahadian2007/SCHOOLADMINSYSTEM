@@ -12,6 +12,16 @@ class BcaHelper {
 
     public static $accessTokenSessionPath = "bca_access_token";
 
+    public static function getSignature($clientId, $timestamp)
+    {
+        $stringToSign = "$clientId|$timestamp";
+        $privateKey = openssl_get_privatekey(config('app.bca_private_key'));
+        openssl_sign($stringToSign, $binarySignature, $privateKey, "SHA256");
+        $signature = base64_encode($binarySignature);
+        
+        return $signature;
+    }
+
     /**
      * Asymmetric header to get access token
      */
@@ -19,11 +29,7 @@ class BcaHelper {
     {
         $clientId = config('app.bca_client_id');
         $timestamp = Carbon::now()->timezone("Asia/Jakarta")->toIso8601String();
-        $stringToSign = "$clientId|$timestamp";
-        $privateKey = openssl_get_privatekey(config('app.bca_private_key'));
-
-        openssl_sign($stringToSign, $binarySignature, $privateKey, "SHA256");
-        $signature = base64_encode($binarySignature);
+        $signature = self::getSignature($clientId, $timestamp);
 
         return [
             "X-CLIENT-KEY" => $clientId,
