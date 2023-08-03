@@ -127,10 +127,17 @@ class AccessTokenController extends Controller
 
         // Validate signature
 
-        $requestedAsymmetricSignature = $request->header('X-SIGNATURE');
-        $calculatedAsymmetricSignature = BcaHelper::getSignature($clientId, $timestamp);
+        $signature = $request->header('X-SIGNATURE');
+        $stringToSign = "$clientId|$timestamp";
+        $publicKey = openssl_get_publickey(config('app.bca_public_key'));
+        $isSignatureVerified = openssl_verify(
+            $stringToSign,
+            $signature,
+            $publicKey,
+            'SHA256'
+        );
 
-        if ($requestedAsymmetricSignature !== $calculatedAsymmetricSignature) {
+        if (!$isSignatureVerified) {
             throw new SnapRequestParsingException('UNAUTHORIZED_SIGNATURE');
         }
 

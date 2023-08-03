@@ -26,6 +26,7 @@ return [
     */
 
     'bca_private_key' => env('APP_BCA_PRIV_KEY', ''),
+    'bca_public_key' => env('APP_BCA_PUB_KEY', ''),
     'bca_client_id' => env('APP_BCA_CLIENT_ID', 'ebfcf5ce-6d38-49c6-9bed-4ac0c0322783'),
     'bca_client_secret' => env('APP_BCA_CLIENT_SECRET', '106f89cd-f5a8-459b-a2b7-a06ca3f5044a'),
     'bca_api_base_url' => env('APP_BCA_API_BASE_URL', ''),
