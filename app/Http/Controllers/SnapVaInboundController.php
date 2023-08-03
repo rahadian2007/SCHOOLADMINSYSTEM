@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Exceptions\SnapRequestParsingException;
 use App\Models\Payment;
 use App\Models\VirtualAccount;
+use App\Models\OAuthClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use ReallySimpleJWT\Token;
 
 class SnapVaInboundController extends Controller
 {
@@ -38,109 +40,125 @@ class SnapVaInboundController extends Controller
      */
     public function transferVaInquiry(Request $request)
     {
-        Log::info("INITIATE VA INQUIRY");
+        try {
 
-        extract($request->all());
-
-        $va = VirtualAccount::where('number', $virtualAccountNo)->first();
-
-        $this->validateRequest($request, [
-            'partnerServiceId' => 'required|string',
-            'customerNo' => 'required|string',
-            'virtualAccountNo' => 'required|string',
-            'trxDateInit' => 'required|string',
-            'channelCode' => 'required|numeric',
-            'inquiryRequestId' => 'required|numeric',
-        ], $va);
-
-
-        if (!$va) {
-            throw new SnapRequestParsingException('VALID_VA_UNREGISTERED');
-        }
-
-        // Scenario: bill already paid
-        if ($va->outstanding === '0') {
-            throw new SnapRequestParsingException('VALID_VA_SETTLED');
-        }
-        
-        // Scenario: bill expired
-        if (!$va->is_active) {
-            throw new SnapRequestParsingException('VALID_VA_EXPIRED');
-        }
-
-        // Create payment instance
-        $externalId = $request->headers->get('X-EXTERNAL-ID');
-
-        Payment::create([
-            'partnerServiceId' => $partnerServiceId,
-            'customerNo' => $customerNo,
-            'virtualAccountNumber' => $virtualAccountNo,
-            'virtualAccountName' => $va->user->name,
-            'trxId' => '',
-            'paymentRequestId' => $externalId,
-            'channelCode' => $channelCode,
-            'paidAmount' => json_encode([
-                'value' => $va->outstanding,
-                'currency' => $this->CURRENCY,
-            ])
-        ]);
-
-        $data = [
-            'responseCode' => config('app.VALID_VA')['CODE'],
-            'responseMessage' => config('app.VALID_VA')['MSG'],
-            'virtualAccountData' => [
-                'inquiryStatus' => config('app.VALID_VA')['PAYMENT_FLAG_STATUS'],
-                'inquiryReason' => [
-                    'english' => $this->INQUIRY_PROC_REASON_SUCCESS_EN,
-                    'indonesia' => $this->INQUIRY_PROC_REASON_SUCCESS_ID,
-                ],
+            Log::info(">> INITIATE VA INQUIRY");
+    
+            extract($request->all());
+    
+            $va = VirtualAccount::where('number', $virtualAccountNo)->first();
+    
+            $this->validateRequest($request, [
+                'partnerServiceId' => 'required|string',
+                'customerNo' => 'required|string',
+                'virtualAccountNo' => 'required|string',
+                'trxDateInit' => 'required|string',
+                'channelCode' => 'required|numeric',
+                'inquiryRequestId' => 'required|numeric',
+            ], $va);
+    
+    
+            if (!$va) {
+                throw new SnapRequestParsingException('VALID_VA_UNREGISTERED');
+            }
+    
+            // Scenario: bill already paid
+            if ($va->outstanding === '0') {
+                throw new SnapRequestParsingException('VALID_VA_SETTLED');
+            }
+            
+            // Scenario: bill expired
+            if (!$va->is_active) {
+                throw new SnapRequestParsingException('VALID_VA_EXPIRED');
+            }
+    
+            // Create payment instance
+            $externalId = $request->headers->get('X-EXTERNAL-ID');
+    
+            Payment::create([
                 'partnerServiceId' => $partnerServiceId,
                 'customerNo' => $customerNo,
-                'virtualAccountNo' => $virtualAccountNo,
+                'virtualAccountNumber' => $virtualAccountNo,
                 'virtualAccountName' => $va->user->name,
-                'inquiryRequestId' => $inquiryRequestId,
-                'totalAmount' => [
+                'trxId' => '',
+                'paymentRequestId' => $externalId,
+                'channelCode' => $channelCode,
+                'paidAmount' => json_encode([
                     'value' => $va->outstanding,
                     'currency' => $this->CURRENCY,
-                ],
-                'subCompany' => $this->INQUIRY_SUB_COMPANY,
-                'billDetails' => [
-                    [
-                        'billNo' => $virtualAccountNo,
-                        'billDescription' => [
+                ])
+            ]);
+    
+            $data = [
+                'responseCode' => config('app.VALID_VA')['CODE'],
+                'responseMessage' => config('app.VALID_VA')['MSG'],
+                'virtualAccountData' => [
+                    'inquiryStatus' => config('app.VALID_VA')['PAYMENT_FLAG_STATUS'],
+                    'inquiryReason' => [
+                        'english' => $this->INQUIRY_PROC_REASON_SUCCESS_EN,
+                        'indonesia' => $this->INQUIRY_PROC_REASON_SUCCESS_ID,
+                    ],
+                    'partnerServiceId' => $partnerServiceId,
+                    'customerNo' => $customerNo,
+                    'virtualAccountNo' => $virtualAccountNo,
+                    'virtualAccountName' => $va->user->name,
+                    'inquiryRequestId' => $inquiryRequestId,
+                    'totalAmount' => [
+                        'value' => $va->outstanding,
+                        'currency' => $this->CURRENCY,
+                    ],
+                    'subCompany' => $this->INQUIRY_SUB_COMPANY,
+                    'billDetails' => [
+                        [
+                            'billNo' => $virtualAccountNo,
+                            'billDescription' => [
+                                'english' => $va->description,
+                                'indonesia' => $va->description,
+                            ],
+                            'billSubCompany' => $this->INQUIRY_SUB_COMPANY,
+                            'billAmount' => [
+                                'value' => $va->outstanding,
+                                'currency' => $this->CURRENCY,
+                            ],
+                        ],
+                    ],
+                    'freeTexts' => [
+                        [
                             'english' => $va->description,
                             'indonesia' => $va->description,
                         ],
-                        'billSubCompany' => $this->INQUIRY_SUB_COMPANY,
-                        'billAmount' => [
-                            'value' => $va->outstanding,
-                            'currency' => $this->CURRENCY,
-                        ],
                     ],
-                ],
-                'freeTexts' => [
-                    [
-                        'english' => $va->description,
-                        'indonesia' => $va->description,
+                    'virtualAccountTrxType' => $this->INQUIRY_VA_TYPE,
+                    'feeAmount' => [
+                        'value' => '',
+                        'currency' => '',
                     ],
+                    'additionalInfo' => '',
                 ],
-                'virtualAccountTrxType' => $this->INQUIRY_VA_TYPE,
-                'feeAmount' => [
-                    'value' => '',
-                    'currency' => '',
-                ],
-                'additionalInfo' => '',
-            ],
-        ];
+            ];
+    
+            $response = response()->json($data);
+    
+            $this->validateResponse($response);
+    
+            Log::info(">> SUCCESS RESPONSE:");
+            Log::info($response);
+    
+            return $response;
+        } catch (\App\Exceptions\SnapRequestParsingException $e) {
+            return $e->render();
+        } catch(\Illuminate\Http\Client\ConnectionException $e) {
+            return response()->json([
+                'responseCode' => '5042600',
+                'responseMessage' => 'Timeout',
+                'virtualAccountData' => [],
+            ]);
+        } catch (\Exception $e) {
+            Log::info("INTERNAL SERVER ERROR");
+            Log::warning($e);
 
-        $response = response()->json($data);
-
-        $this->validateResponse($response);
-
-        Log::info("SUCCESS RESPONSE");
-        Log::info($response);
-
-        return $response;
+            throw new SnapRequestParsingException('SERVER_INTERNAL_ERROR');
+        }
     }
 
     /**
@@ -148,90 +166,106 @@ class SnapVaInboundController extends Controller
      */
     public function transferVaPayment(Request $request)
     {
-        Log::info("INITIATE VA TRANSFER");
+        try {
 
-        extract($request->all());
-
-        $va = VirtualAccount::where('number', $virtualAccountNo)->first();
-
-        $this->validateRequest(
-            $request,
-            [
-                'partnerServiceId' => 'required|string',
-                'customerNo' => 'required|string',
-                'virtualAccountNo' => 'required|string',
-                'virtualAccountName' => 'required|string',
-                'paymentRequestId' => 'required|string',
-                'channelCode' => 'required|numeric',
-                'paidAmount.value' => 'required|string',
-                'paidAmount.currency' => 'required|string',
-                'flagAdvise' => 'required|string',
-            ],
-            $va,
-            [
-                'checkConflictedExternalIdEnabled' => false,
-            ]
-        );
-
-        $data = [
-            'responseCode' => $this->PAYMENT_RESP_STATUS_SUCCESS,
-            'responseMessage' => $this->PAYMENT_MSG_SUCCESS,
-            'virtualAccountData' => [
-                'paymentFlagStatus' => $this->PAYMENT_SUCCESS_FLAG_STATUS,
-                'paymentFlagReason' => [
-                    'indonesia' => $this->PAYMENT_SUCCESS_FLAG_REASON_ID,
-                    'english' => $this->PAYMENT_SUCCESS_FLAG_REASON_EN,
+            Log::info(">> INITIATE VA TRANSFER");
+    
+            extract($request->all());
+    
+            $va = VirtualAccount::where('number', $virtualAccountNo)->first();
+    
+            $this->validateRequest(
+                $request,
+                [
+                    'partnerServiceId' => 'required|string',
+                    'customerNo' => 'required|string',
+                    'virtualAccountNo' => 'required|string',
+                    'virtualAccountName' => 'required|string',
+                    'paymentRequestId' => 'required|string',
+                    'channelCode' => 'required|numeric',
+                    'paidAmount.value' => 'required|string',
+                    'paidAmount.currency' => 'required|string',
+                    'flagAdvise' => 'required|string',
                 ],
-                'partnerServiceId' => $partnerServiceId,
-                'customerNo' => $customerNo,
-                'virtualAccountNo' => $virtualAccountNo,
-                'virtualAccountName' => $va->user->name,
-                'inquiryRequestId' => '202202110909314440200001136962',
-                'paymentRequestId' => '202202110909314440200001136962',
-                'paidAmount' => [
-                    'value' => $paidAmount['value'],
-                    'currency' => $paidAmount['currency'],
+                $va,
+                [
+                    'checkConflictedExternalIdEnabled' => false,
+                ]
+            );
+    
+            $data = [
+                'responseCode' => $this->PAYMENT_RESP_STATUS_SUCCESS,
+                'responseMessage' => $this->PAYMENT_MSG_SUCCESS,
+                'virtualAccountData' => [
+                    'paymentFlagStatus' => $this->PAYMENT_SUCCESS_FLAG_STATUS,
+                    'paymentFlagReason' => [
+                        'indonesia' => $this->PAYMENT_SUCCESS_FLAG_REASON_ID,
+                        'english' => $this->PAYMENT_SUCCESS_FLAG_REASON_EN,
+                    ],
+                    'partnerServiceId' => $partnerServiceId,
+                    'customerNo' => $customerNo,
+                    'virtualAccountNo' => $virtualAccountNo,
+                    'virtualAccountName' => $va->user->name,
+                    'inquiryRequestId' => '202202110909314440200001136962',
+                    'paymentRequestId' => '202202110909314440200001136962',
+                    'paidAmount' => [
+                        'value' => $paidAmount['value'],
+                        'currency' => $paidAmount['currency'],
+                    ],
+                    'totalAmount' => [
+                        'value' => $totalAmount['value'],
+                        'currency' => $totalAmount['value'],
+                    ],
+                    'transactionDate' => $trxDateTime,
+                    'referenceNo' => $billDetails[0]['billReferenceNo'],
+                    'billDetails' => [
+                        [
+                            'billNo' => $billDetails[0]['billNo'],
+                            'billDescription' => [
+                                'english' => $billDetails[0]['billDescription']['english'],
+                                'indonesia' => $billDetails[0]['billDescription']['indonesia'],
+                            ],
+                            'billSubCompany' => $billDetails[0]['billSubCompany'],
+                            'billAmount' => [
+                                'value' => $billDetails[0]['billAmount']['value'],
+                                'currency' => $billDetails[0]['billAmount']['currency'],
+                            ],
+                            'additionalInfo' => [
+                                'value' => $billDetails[0]['additionalInfo']['value'],
+                            ],
+                            'billReferenceNo' => $billDetails[0]['billReferenceNo'],
+                            'status' => $this->PAYMENT_SUCCESS_FLAG_STATUS,
+                            'reason' => [
+                                'english' => $billDetails[0] && isset($billDetails[0]['reason']) ? $billDetails[0]['reason']['english'] : '',
+                                'indonesia' => $billDetails[0] && isset($billDetails[0]['reason']) ? $billDetails[0]['reason']['indonesia'] : '',
+                            ],
+                        ]
+                    ],
                 ],
-                'totalAmount' => [
-                    'value' => $totalAmount['value'],
-                    'currency' => $totalAmount['value'],
-                ],
-                'transactionDate' => $trxDateTime,
-                'referenceNo' => $billDetails[0]['billReferenceNo'],
-                'billDetails' => [
-                    [
-                        'billNo' => $billDetails[0]['billNo'],
-                        'billDescription' => [
-                            'english' => $billDetails[0]['billDescription']['english'],
-                            'indonesia' => $billDetails[0]['billDescription']['indonesia'],
-                        ],
-                        'billSubCompany' => $billDetails[0]['billSubCompany'],
-                        'billAmount' => [
-                            'value' => $billDetails[0]['billAmount']['value'],
-                            'currency' => $billDetails[0]['billAmount']['currency'],
-                        ],
-                        'additionalInfo' => [
-                            'value' => $billDetails[0]['additionalInfo']['value'],
-                        ],
-                        'billReferenceNo' => $billDetails[0]['billReferenceNo'],
-                        'status' => $this->PAYMENT_SUCCESS_FLAG_STATUS,
-                        'reason' => [
-                            'english' => $billDetails[0] && isset($billDetails[0]['reason']) ? $billDetails[0]['reason']['english'] : '',
-                            'indonesia' => $billDetails[0] && isset($billDetails[0]['reason']) ? $billDetails[0]['reason']['indonesia'] : '',
-                        ],
-                    ]
-                ],
-            ],
-        ];
+            ];
+    
+            $response = response()->json($data);
+    
+            $this->validateResponse($response);
+    
+            Log::info(">> SUCCESS RESPONSE:");
+            Log::info($response);
+    
+            return $response;
+        } catch (\App\Exceptions\SnapRequestParsingException $e) {
+            return $e->render();
+        } catch(\Illuminate\Http\Client\ConnectionException $e) {
+            return response()->json([
+                'responseCode' => '5042600',
+                'responseMessage' => 'Timeout',
+                'virtualAccountData' => [],
+            ]);
+        } catch (\Exception $e) {
+            Log::info("INTERNAL SERVER ERROR");
+            Log::warning($e);
 
-        $response = response()->json($data);
-
-        $this->validateResponse($response);
-
-        Log::info("SUCCESS RESPONSE");
-        Log::info($response);
-
-        return $response;
+            throw new SnapRequestParsingException('SERVER_INTERNAL_ERROR');
+        }
     }
 
     /**
@@ -328,6 +362,21 @@ class SnapVaInboundController extends Controller
 
         // Check is VA expired
         $this->checkIsVaExpired($virtualAccount);
+
+        // Check is token valid
+        $this->checkIsTokenValid($request);
+    }
+
+    private function checkIsTokenValid(Request $request)
+    {
+        $clientId = $request->headers->get('X-CLIENT-KEY');
+        $client = OAuthClient::find($clientId);
+        $authorization = $request->bearerToken();
+        $validated = Token::validate($authorization, $client->secret);
+
+        if (!$validated) {
+            throw new SnapRequestParsingException('ACCESS_TOKEN_INVALID');
+        }
     }
 
     private function validateResponse($response)

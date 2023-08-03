@@ -364,6 +364,12 @@ return [
         "MSG" => "Parsing Error",
         "PAYMENT_FLAG_STATUS" => "01",
     ],
+    "SERVER_INTERNAL_ERROR" => [
+        "HTTP_CODE" => 500,
+        "CODE" => "5002600",
+        "MSG" => "Internal Server Error",
+        "PAYMENT_FLAG_STATUS" => null,
+    ],
     "SERVER_GENERAL_ERROR" => [
         "HTTP_CODE" => 500,
         "CODE" => "5002500",

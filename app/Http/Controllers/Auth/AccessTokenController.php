@@ -7,8 +7,9 @@ use App\Exceptions\SnapRequestParsingException;
 use App\Helpers\BcaHelper;
 use App\Models\OAuthClient;
 use Illuminate\Http\Request;
-use ReallySimpleJWT\Token;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
+use ReallySimpleJWT\Token;
 
 class AccessTokenController extends Controller
 {
@@ -16,37 +17,63 @@ class AccessTokenController extends Controller
 
     public function issueToken(Request $request)
     {
-        $client = $this->validateRequestAndGetClient($request);
-        $expiration = time() + $this->expirationInSeconds;
-        $issuer = config('app.url');
-        $token = Token::create(
-            $client->user_id,
-            $client->secret,
-            $expiration,
-            $issuer,
-            [ 'fixed_secret_length_enabled' => false ]
-        );
+        try {
+            Log::info('>> INITIATE ISSUE TOKEN, REQUEST:');
+            Log::info($request);
 
-        $response = [
-            'responseCode' => '2007300',
-            'responseMessage' => 'Successful',
-            'accessToken' => $token,
-            'tokenType' => 'bearer',
-            'expiresIn' => $this->expirationInSeconds,
-        ];
+            $client = $this->validateRequestAndGetClient($request);
+            $expiration = time() + $this->expirationInSeconds;
+            $issuer = config('app.url');
+            $token = Token::create(
+                $client->user_id,
+                $client->secret,
+                $expiration,
+                $issuer,
+                [ 'fixed_secret_length_enabled' => false ]
+            );
 
-        return response()->json($response);
+            $response = [
+                'responseCode' => '2007300',
+                'responseMessage' => 'Successful',
+                'accessToken' => $token,
+                'tokenType' => 'bearer',
+                'expiresIn' => $this->expirationInSeconds,
+            ];
+
+            $jsonResponse = response()->json($response);
+
+            Log::info('>> SUCCESS RESPONSE:');
+            Log::info($jsonResponse);
+    
+            return $jsonResponse;
+        } catch (\App\Exceptions\SnapRequestParsingException $e) {
+            return $e->render();
+        } catch(\Illuminate\Http\Client\ConnectionException $e) {
+            return response()->json([
+                'responseCode' => '5042600',
+                'responseMessage' => 'Timeout',
+                'virtualAccountData' => [],
+            ]);
+        } catch (\Exception $e) {
+            Log::info("INTERNAL SERVER ERROR");
+            Log::warning($e);
+
+            throw new SnapRequestParsingException('SERVER_INTERNAL_ERROR');
+        }
     }
 
     public function validateToken(Request $request)
     {
         $clientId = $request->headers->get('X-CLIENT-KEY');
+
         if (!$clientId) {
             throw new SnapRequestParsingException('INVALID_MANDATORY_FIELD');
         }
+
         $client = OAuthClient::find($clientId);
         $authorization = $request->bearerToken();
         $validated = Token::validate($authorization, $client->secret);
+
         return response()->json([
             'validated' => $validated
         ]);
@@ -66,6 +93,7 @@ class AccessTokenController extends Controller
         // Validate timestamp
 
         $timestamp = null;
+
         try {
             $timestampStr = $request->header('X-TIMESTAMP');
             $timestamp = Carbon::parse($timestampStr);

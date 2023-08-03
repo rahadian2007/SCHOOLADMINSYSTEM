@@ -31,8 +31,6 @@ class SnapRequestParsingException extends Exception
                 'virtualAccountData' => [],
             ]);
     
-            Log::warning("INITIATE TRANSFER VA INQUIRY");
-    
             return $response;
         } catch (Exception $error) {
             Log::error($error);
