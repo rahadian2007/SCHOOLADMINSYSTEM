@@ -192,6 +192,14 @@ class SnapVaInboundController extends Controller
                     'checkConflictedExternalIdEnabled' => false,
                 ]
             );
+
+            $newOutstanding = $va->outstanding - $request->get('paidAmount')['value'];
+
+            if ($newOutstanding < 0) {
+                throw new SnapRequestParsingException('SERVER_INTERNAL_ERROR');
+            }
+
+            $va->update([ 'outstanding' => $newOutstanding ]);
     
             $data = [
                 'responseCode' => $this->PAYMENT_RESP_STATUS_SUCCESS,
