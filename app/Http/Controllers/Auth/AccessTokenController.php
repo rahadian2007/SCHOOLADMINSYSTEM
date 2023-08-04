@@ -132,7 +132,7 @@ class AccessTokenController extends Controller
         $publicKey = openssl_get_publickey(config('app.bca_public_key'));
         $isSignatureVerified = openssl_verify(
             $stringToSign,
-            $signature,
+            base64_decode($signature),
             $publicKey,
             'SHA256'
         );
