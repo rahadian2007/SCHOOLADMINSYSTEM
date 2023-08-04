@@ -27,8 +27,7 @@ class SnapRequestParsingException extends Exception
             $error = config("app.".$this->getMessage());
             $response = response()->json([
                 'responseCode' => $error['CODE'],
-                'responseMessage' => $error['MSG'] . ' ' . $this->additionalMessage,
-                'virtualAccountData' => [],
+                'responseMessage' => $error['MSG'] . $this->additionalMessage,
             ]);
     
             return $response;
