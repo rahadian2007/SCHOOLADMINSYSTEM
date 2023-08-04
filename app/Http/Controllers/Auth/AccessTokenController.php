@@ -93,9 +93,9 @@ class AccessTokenController extends Controller
         // Validate timestamp
 
         $timestamp = null;
+        $timestampStr = $request->header('X-TIMESTAMP');
 
         try {
-            $timestampStr = $request->header('X-TIMESTAMP');
             $timestamp = Carbon::parse($timestampStr);
             $expiredTimestampThreshold = Carbon::now()->subSeconds($this->expirationInSeconds);
             $isExpired = $timestamp < $expiredTimestampThreshold;
@@ -128,7 +128,7 @@ class AccessTokenController extends Controller
         // Validate signature
 
         $signature = $request->header('X-SIGNATURE');
-        $stringToSign = "$clientId|$timestamp";
+        $stringToSign = "$clientId|$timestampStr";
         $publicKey = openssl_get_publickey(config('app.bca_public_key'));
         $isSignatureVerified = openssl_verify(
             $stringToSign,
@@ -137,7 +137,7 @@ class AccessTokenController extends Controller
             'SHA256'
         );
 
-        if (!$isSignatureVerified) {
+        if ($isSignatureVerified !== 1) {
             throw new SnapRequestParsingException('UNAUTHORIZED_SIGNATURE');
         }
 
