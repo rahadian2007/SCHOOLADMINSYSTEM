@@ -307,7 +307,7 @@ return [
     ],
     "UNAUTHORIZED_UNKNOWN_CLIENT" => [
         "HTTP_CODE" => 401,
-        "CODE" => "4012500",
+        "CODE" => "4017300",
         "MSG" => "Unauthorized. [Unknown client]",
         "PAYMENT_FLAG_STATUS" => null,
     ],
