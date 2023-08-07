@@ -58,7 +58,7 @@ class AccessTokenController extends Controller
             Log::info("INTERNAL SERVER ERROR");
             Log::warning($e);
 
-            throw new SnapRequestParsingException('SERVER_INTERNAL_ERROR');
+            throw new SnapRequestParsingException('AUTH_SERVER_INTERNAL_ERROR');
         }
     }
 
@@ -67,7 +67,7 @@ class AccessTokenController extends Controller
         $clientId = $request->headers->get('X-CLIENT-KEY');
 
         if (!$clientId) {
-            throw new SnapRequestParsingException('INVALID_MANDATORY_FIELD');
+            throw new SnapRequestParsingException('AUTH_INVALID_MANDATORY_FIELD');
         }
 
         $client = OAuthClient::find($clientId);
@@ -87,7 +87,7 @@ class AccessTokenController extends Controller
         $isGrantTypeValid = $request->get('grantType') === $validGrantType;
         
         if (!$isGrantTypeValid) {
-            throw new SnapRequestParsingException('INVALID_FIELD_FORMAT');
+            throw new SnapRequestParsingException('AUTH_INVALID_FIELD_FORMAT');
         }
 
         // Validate timestamp
@@ -102,11 +102,11 @@ class AccessTokenController extends Controller
             $isFuture = $timestamp > Carbon::now();
 
             if ($isExpired || $isFuture) {
-                throw new SnapRequestParsingException('INVALID_TIMESTAMP_FORMAT');
+                throw new SnapRequestParsingException('AUTH_INVALID_TIMESTAMP_FORMAT');
             }
 
         } catch (\Carbon\Exceptions\InvalidFormatException $e) {
-            throw new SnapRequestParsingException('INVALID_TIMESTAMP_FORMAT');
+            throw new SnapRequestParsingException('AUTH_INVALID_TIMESTAMP_FORMAT');
         }
 
         // Validate client key
@@ -114,7 +114,7 @@ class AccessTokenController extends Controller
         $clientId = $request->header('X-CLIENT-KEY');
 
         if (!$clientId) {
-            throw new SnapRequestParsingException('INVALID_MANDATORY_FIELD');
+            throw new SnapRequestParsingException('AUTH_INVALID_MANDATORY_FIELD');
         }
         
         // Validate client
@@ -122,7 +122,7 @@ class AccessTokenController extends Controller
         $client = OAuthClient::find($clientId);
 
         if (!$client) {
-            throw new SnapRequestParsingException('UNAUTHORIZED_UNKNOWN_CLIENT');
+            throw new SnapRequestParsingException('AUTH_UNAUTHORIZED_UNKNOWN_CLIENT');
         }
 
         // Validate signature
@@ -138,7 +138,7 @@ class AccessTokenController extends Controller
         );
 
         if ($isSignatureVerified !== 1) {
-            throw new SnapRequestParsingException('UNAUTHORIZED_SIGNATURE');
+            throw new SnapRequestParsingException('AUTH_UNAUTHORIZED_SIGNATURE');
         }
 
         return $client;

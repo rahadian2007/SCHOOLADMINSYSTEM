@@ -27,16 +27,8 @@ class SnapVaInboundController extends Controller
     private $PAYMENT_SUCCESS_FLAG_REASON_ID = 'SUKSES';
     private $PAYMENT_SUCCESS_FLAG_REASON_EN = 'BERHASIL';
     private $ADDITIONAL_SPACE = '   ';
-
-    /**
-     * /access-token/b2b
-     */
-    public function generateAccessTokenB2b(Request $request)
-    {
-        $this->validateRequest($request, [], null);
-
-        return response()->json($request->all());
-    }
+    private $REQUEST_TYPE = '';
+    private $CLIENT = null;
 
     /**
      * /transfer-va/inquiry
@@ -46,6 +38,7 @@ class SnapVaInboundController extends Controller
         try {
 
             Log::info(">> INITIATE VA INQUIRY");
+            $this->REQUEST_TYPE = 'INQUIRY';
     
             extract($request->all());
     
@@ -197,7 +190,8 @@ class SnapVaInboundController extends Controller
                         'virtualAccountNo' => $virtualAccountNo,
                         'paymentRequestId' => $paymentRequestId,
                     ]
-                ]
+                ],
+                'PAYMENT'
             );
 
             $newOutstanding = $va->outstanding - $request->get('paidAmount')['value'];
@@ -294,7 +288,7 @@ class SnapVaInboundController extends Controller
         json_decode($request->getContent());
 
         if (json_last_error() != JSON_ERROR_NONE) {
-            throw new SnapRequestParsingException('REQUEST_PARSING_ERROR');
+            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_REQUEST_PARSING_ERROR');
         }
     }
 
@@ -306,7 +300,7 @@ class SnapVaInboundController extends Controller
             ->first();
 
         if (!$isExternalIdUnique) {
-            throw new SnapRequestParsingException('CONFLICTED_EXTERNAL_ID');
+            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_CONFLICTED_EXTERNAL_ID');
         }
     }
 
@@ -318,7 +312,7 @@ class SnapVaInboundController extends Controller
             ->first();
 
         if ($isExternalIdUnique) {
-            throw new SnapRequestParsingException('INCONSISTENT_EXTERNAL_ID');
+            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INCONSISTENT_EXTERNAL_ID');
         }
     }
 
@@ -356,7 +350,7 @@ class SnapVaInboundController extends Controller
                 'feeAmount' => null,
                 'additionalInfo' => new stdClass,
             ];
-            throw new SnapRequestParsingException('VALID_VA_SETTLED', '', $virtualAccountData);
+            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_VALID_VA_SETTLED', '', $virtualAccountData);
         }
     }
 
@@ -393,7 +387,7 @@ class SnapVaInboundController extends Controller
                 'additionalInfo' => new stdClass,
             ];
 
-            throw new SnapRequestParsingException('UNREGISTERED_VA', '', $virtualAccountData);
+            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_UNREGISTERED_VA', '', $virtualAccountData);
         }
     }
 
@@ -432,7 +426,7 @@ class SnapVaInboundController extends Controller
                 'additionalInfo' => new stdClass,
             ];
 
-            throw new SnapRequestParsingException('VALID_VA_EXPIRED', '', $virtualAccountData);
+            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_VALID_VA_EXPIRED', '', $virtualAccountData);
         }
     }
 
@@ -472,6 +466,44 @@ class SnapVaInboundController extends Controller
 
         // Check is token valid
         $this->checkIsTokenValid($request);
+
+        // Check valid signature 
+        $this->checkIsSignatureValid($request);
+    }
+
+    private function checkIsSignatureValid(Request $request)
+    {
+        $httpMethod = $request->method();
+        $relativeUrl = '/' . $request->path();
+        $accessToken = $request->bearerToken();
+        $requestBody = $request->json()->all();
+        $hashedMinifiedJsonBody = hash(
+            "sha256",
+            json_encode( // minify and remove whitespace
+                $requestBody,
+                JSON_UNESCAPED_SLASHES
+            )
+        );
+        Log::info($requestBody);
+        Log::info($hashedMinifiedJsonBody);
+        $signature = $request->header('X-SIGNATURE');
+        $timestampStr = $request->header('X-TIMESTAMP');
+        $stringToSign = "$httpMethod:$relativeUrl:$accessToken:$hashedMinifiedJsonBody:$timestampStr";
+        Log::info($stringToSign);
+        $bcaSecret = $this->CLIENT->secret;
+        $signatureTester = base64_encode(
+            hash_hmac(
+                "sha512",
+                $stringToSign,
+                $bcaSecret,
+                true
+            )
+        );
+        Log::info($signature);
+        Log::info($signatureTester);
+        if ($signatureTester !== $signature) {
+            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_UNAUTHORIZED_SIGNATURE');
+        }
     }
 
     private function checkIsTokenValid(Request $request)
@@ -482,26 +514,29 @@ class SnapVaInboundController extends Controller
         if (!$clientId) {
             $clientId = $request->headers->get('X-PARTNER-ID');
             $client = OAuthClient::where('partner_id', $clientId)->first();
+            $this->CLIENT = $client;
         } else {
             $client = OAuthClient::find($clientId);
         }
 
         if (!$client) {
-            throw new SnapRequestParsingException('UNAUTHORIZED_UNKNOWN_CLIENT');
+            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_UNAUTHORIZED_UNKNOWN_CLIENT');
         }
 
         $authorization = $request->bearerToken();
         $validated = Token::validate($authorization, $client->secret);
 
         if (!$validated) {
-            throw new SnapRequestParsingException('ACCESS_TOKEN_INVALID');
+            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_ACCESS_TOKEN_INVALID');
         }
     }
 
     private function validateResponse($response)
     {
         json_decode($response);
-        return json_last_error() === JSON_ERROR_NONE;
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_RESPONSE_PARSING_ERROR');
+        }
     }
 
     private function checkInvalidHeaderFieldFormats(Request $request)
@@ -510,19 +545,19 @@ class SnapVaInboundController extends Controller
             $hasValidGrantValue = $request->get('grantType') === 'client_credentials';
 
             if (!$hasValidGrantValue) {
-                throw new SnapRequestParsingException('INVALID_MANDATORY_FIELD');
+                throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INVALID_MANDATORY_FIELD');
             }
 
             $isClientKeyExist = $request->headers->has('X-CLIENT-KEY');
 
             if (!$isClientKeyExist) {
-                throw new SnapRequestParsingException('INVALID_MANDATORY_FIELD');
+                throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INVALID_MANDATORY_FIELD');
             }
         } else {
             $hasValidHeadersValue = $request->headers->has('X-EXTERNAL-ID');
 
             if (!$hasValidHeadersValue) {
-                throw new SnapRequestParsingException('INVALID_MANDATORY_FIELD');
+                throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INVALID_MANDATORY_FIELD');
             }
         }
     }
@@ -550,7 +585,7 @@ class SnapVaInboundController extends Controller
         $isHeadersValid = $request->headers->has('CHANNEL-ID') && $request->headers->has('X-PARTNER-ID');
 
         if (!$isHeadersValid) {
-            throw new SnapRequestParsingException('INVALID_MANDATORY_FIELD');
+            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_MISSING_MANDATORY_FIELD');
         }
 
         // Check mandatory body
@@ -560,7 +595,7 @@ class SnapVaInboundController extends Controller
             $messages = $bodyValidator->getMessageBag();
             $failedAttributes = array_keys($messages->getMessages());
             $additionalMessage = implode(', ', $failedAttributes);
-            throw new SnapRequestParsingException('INVALID_MANDATORY_FIELD', $additionalMessage);
+            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_MISSING_MANDATORY_FIELD', $additionalMessage);
         }
     }
 }

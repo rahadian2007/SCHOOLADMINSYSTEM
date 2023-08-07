@@ -251,137 +251,226 @@ return [
     ],
 
     // BCA Response map
-    "INVALID_FIELD_FORMAT" => [
+    // TYPE: AUTH
+    "AUTH_INVALID_FIELD_FORMAT" => [
         "HTTP_CODE" => 400,
         "CODE" => "4007300",
-        "MSG" => "Invalid field format [clientId/clientSecret/grantType]",
+        "MSG" => "Invalid field format",
         "PAYMENT_FLAG_STATUS" => null,
     ],
-    "UNAUTHORIZED_CONNECTION" => [
+    "AUTH_UNAUTHORIZED_CONNECTION" => [
         "HTTP_CODE" => 400,
         "CODE" => "4007300",
         "MSG" => "Unauthorized. [Connection not allowed]",
         "PAYMENT_FLAG_STATUS" => null,
     ],
-    "INVALID_TIMESTAMP_FORMAT" => [
+    "AUTH_INVALID_TIMESTAMP_FORMAT" => [
         "HTTP_CODE" => 400,
         "CODE" => "4007301",
         "MSG" => "invalid timestamp format [X-TIMESTAMP]",
         "PAYMENT_FLAG_STATUS" => null,
     ],
-    "INVALID_MANDATORY_FIELD" => [
+    "AUTH_INVALID_MANDATORY_FIELD" => [
         "HTTP_CODE" => 400,
-        "CODE" => "4007301",
+        "CODE" => "4007302",
         "MSG" => "Invalid mandatory field",
         "PAYMENT_FLAG_STATUS" => null,
     ],
-    "UNAUTHORIZED_SIGNATURE" => [
+    "AUTH_UNAUTHORIZED_SIGNATURE" => [
         "HTTP_CODE" => 401,
         "CODE" => "4017300",
         "MSG" => "Unauthorized. [Signature]",
         "PAYMENT_FLAG_STATUS" => null,
     ],
-    "UNAUTHORIZED_UNKNOWN_CLIENT" => [
+    "AUTH_UNAUTHORIZED_UNKNOWN_CLIENT" => [
         "HTTP_CODE" => 401,
         "CODE" => "4017300",
         "MSG" => "Unauthorized. [Unknown client]",
         "PAYMENT_FLAG_STATUS" => null,
     ],
-    "ACCESS_TOKEN_INVALID" => [
-        "HTTP_CODE" => 401,
-        "CODE" => "4012501",
-        "MSG" => "Access Token Invalid",
+    "AUTH_SERVER_ERROR_TIMEOUT" => [
+        "HTTP_CODE" => 504,
+        "CODE" => "5047300",
+        "MSG" => "Timeout",
         "PAYMENT_FLAG_STATUS" => null,
     ],
-    "UNAUTHORIZED_SIGNATURE" => [
+
+    // TYPE: INQUIRY
+    "INQUIRY_ACCESS_TOKEN_INVALID" => [
         "HTTP_CODE" => 401,
-        "CODE" => "4017300",
+        "CODE" => "4012401",
+        "MSG" => "Invalid Token (B2B)",
+        "PAYMENT_FLAG_STATUS" => null,
+    ],
+    "INQUIRY_UNAUTHORIZED_SIGNATURE" => [
+        "HTTP_CODE" => 401,
+        "CODE" => "4012400",
         "MSG" => "Unauthorized. [Signature]",
         "PAYMENT_FLAG_STATUS" => null,
     ],
-    "UNAUTHORIZED_STRING_TO_SIGN" => [
+    "INQUIRY_UNAUTHORIZED_STRING_TO_SIGN" => [
         "HTTP_CODE" => 401,
-        "CODE" => "4012500",
+        "CODE" => "4012400",
         "MSG" => "Unauthorized. [Signature]",
         "PAYMENT_FLAG_STATUS" => null,
     ],
-    "UNAUTHORIZED_UNKNOWN_CLIENT" => [
+    "INQUIRY_UNAUTHORIZED_UNKNOWN_CLIENT" => [
         "HTTP_CODE" => 401,
-        "CODE" => "4017300",
+        "CODE" => "4012400",
         "MSG" => "Unauthorized. [Unknown client]",
         "PAYMENT_FLAG_STATUS" => null,
     ],
-    "MISSING_MANDATORY_FIELD" => [
+    "INQUIRY_MISSING_MANDATORY_FIELD" => [
         "HTTP_CODE" => 400,
-        "CODE" => "4002502",
-        "MSG" => "Missing mandatory field",
-        "PAYMENT_FLAG_STATUS" => "01",
+        "CODE" => "4002402",
+        "MSG" => "Invalid Mandatory Field",
+        "PAYMENT_FLAG_STATUS" => '01',
     ],
-    "CONFLICTED_EXTERNAL_ID" => [
+    "INQUIRY_INVALID_FIELD_FORMAT" => [
+        "HTTP_CODE" => 400,
+        "CODE" => "4002401",
+        "MSG" => "Invalid Field Format",
+        "PAYMENT_FLAG_STATUS" => '01',
+    ],
+    "INQUIRY_CONFLICTED_EXTERNAL_ID" => [
         "HTTP_CODE" => 409,
-        "CODE" => "4092501",
+        "CODE" => "4092400",
         "MSG" => "Conflict",
         "PAYMENT_FLAG_STATUS" => "01",
     ],
-    "INCONSISTENT_EXTERNAL_ID" => [
-        "HTTP_CODE" => 404,
-        "CODE" => "4042518",
-        "MSG" => "Inconsistent Request",
-        "PAYMENT_FLAG_STATUS" => "01",
+    "INQUIRY_INVALID_FIELD_FORMAT" => [
+        "HTTP_CODE" => 400,
+        "CODE" => "4007300",
+        "MSG" => "Invalid field format [clientId/clientSecret/grantType]",
+        "PAYMENT_FLAG_STATUS" => null,
     ],
-    "VALID_VA" => [
+    "INQUIRY_VALID_VA" => [
         "HTTP_CODE" => 200,
-        "CODE" => "2002500",
+        "CODE" => "2002400",
         "MSG" => "Success",
         "PAYMENT_FLAG_STATUS" => "00",
     ],
-    "VALID_VA_SETTLED" => [
+    "INQUIRY_VALID_VA_SETTLED" => [
         "HTTP_CODE" => 404,
         "CODE" => "4042414",
         "MSG" => "Paid bill",
         "PAYMENT_FLAG_STATUS" => "01",
     ],
-    "VALID_VA_EXPIRED" => [
+    "INQUIRY_VALID_VA_EXPIRED" => [
         "HTTP_CODE" => 404,
-        "CODE" => "4042519",
-        "MSG" => "Bill expired",
+        "CODE" => "4042419",
+        "MSG" => "Invalid Bill",
         "PAYMENT_FLAG_STATUS" => "01",
     ],
-    "UNREGISTERED_VA" => [
+    "INQUIRY_UNREGISTERED_VA" => [
         "HTTP_CODE" => 404,
         "CODE" => "4042412",
         "MSG" => "Invalid Bill",
         "PAYMENT_FLAG_STATUS" => "01",
     ],
-    "REQUEST_PARSING_ERROR" => [
+    "INQUIRY_REQUEST_PARSING_ERROR" => [
         "HTTP_CODE" => 400,
-        "CODE" => "4002500",
-        "MSG" => "Parsing Error",
+        "CODE" => "4002400",
+        "MSG" => "Bad Request",
         "PAYMENT_FLAG_STATUS" => "01",
     ],
-    "RESPONSE_PARSING_ERROR" => [
+    "INQUIRY_RESPONSE_PARSING_ERROR" => [
         "HTTP_CODE" => 400,
-        "CODE" => "4002500",
-        "MSG" => "Parsing Error",
+        "CODE" => "4002400",
+        "MSG" => "Bad Request",
         "PAYMENT_FLAG_STATUS" => "01",
     ],
-    "SERVER_INTERNAL_ERROR" => [
-        "HTTP_CODE" => 500,
-        "CODE" => "5002600",
-        "MSG" => "Internal Server Error",
+
+    // TYPE: PAYMENT
+    "PAYMENT_ACCESS_TOKEN_INVALID" => [
+        "HTTP_CODE" => 401,
+        "CODE" => "4012501",
+        "MSG" => "Invalid Token (B2B)",
         "PAYMENT_FLAG_STATUS" => null,
     ],
-    "SERVER_GENERAL_ERROR" => [
-        "HTTP_CODE" => 500,
-        "CODE" => "5002500",
-        "MSG" => "General Error",
+    "PAYMENT_UNAUTHORIZED_SIGNATURE" => [
+        "HTTP_CODE" => 401,
+        "CODE" => "4012500",
+        "MSG" => "Unauthorized. [Signature]",
         "PAYMENT_FLAG_STATUS" => null,
     ],
-    "SERVER_ERROR_TIMEOUT" => [
-        "HTTP_CODE" => 504,
-        "CODE" => "5047300",
-        "MSG" => "Timeout",
+    "PAYMENT_UNAUTHORIZED_STRING_TO_SIGN" => [
+        "HTTP_CODE" => 401,
+        "CODE" => "4012500",
+        "MSG" => "Unauthorized. [Signature]",
         "PAYMENT_FLAG_STATUS" => null,
+    ],
+    "PAYMENT_UNAUTHORIZED_UNKNOWN_CLIENT" => [
+        "HTTP_CODE" => 401,
+        "CODE" => "4012500",
+        "MSG" => "Unauthorized. [Unknown client]",
+        "PAYMENT_FLAG_STATUS" => null,
+    ],
+    "PAYMENT_MISSING_MANDATORY_FIELD" => [
+        "HTTP_CODE" => 400,
+        "CODE" => "4002502",
+        "MSG" => "Invalid mandatory field",
+        "PAYMENT_FLAG_STATUS" => '01',
+    ],
+    "PAYMENT_INVALID_MANDATORY_FIELD" => [
+        "HTTP_CODE" => 400,
+        "CODE" => "4002501",
+        "MSG" => "Invalid mandatory field",
+        "PAYMENT_FLAG_STATUS" => '01',
+    ],
+    "PAYMENT_CONFLICTED_EXTERNAL_ID" => [
+        "HTTP_CODE" => 409,
+        "CODE" => "4092500",
+        "MSG" => "Conflict",
+        "PAYMENT_FLAG_STATUS" => "01",
+    ],
+    "PAYMENT_INVALID_FIELD_FORMAT" => [
+        "HTTP_CODE" => 400,
+        "CODE" => "4007300",
+        "MSG" => "Invalid field format [clientId/clientSecret/grantType]",
+        "PAYMENT_FLAG_STATUS" => null,
+    ],
+    "PAYMENT_VALID_VA" => [
+        "HTTP_CODE" => 200,
+        "CODE" => "2002500",
+        "MSG" => "Success",
+        "PAYMENT_FLAG_STATUS" => "00",
+    ],
+    "PAYMENT_VALID_VA_SETTLED" => [
+        "HTTP_CODE" => 404,
+        "CODE" => "4042514",
+        "MSG" => "Paid bill",
+        "PAYMENT_FLAG_STATUS" => "01",
+    ],
+    "PAYMENT_INCONSISTENT_REQUEST" => [
+        "HTTP_CODE" => 404,
+        "CODE" => "4042518",
+        "MSG" => "Inconsistent Request",
+        "PAYMENT_FLAG_STATUS" => "01",
+    ],
+    "PAYMENT_VALID_VA_EXPIRED" => [
+        "HTTP_CODE" => 404,
+        "CODE" => "4042519",
+        "MSG" => "Invalid Bill",
+        "PAYMENT_FLAG_STATUS" => "01",
+    ],
+    "PAYMENT_UNREGISTERED_VA" => [
+        "HTTP_CODE" => 404,
+        "CODE" => "4042512",
+        "MSG" => "Invalid Bill",
+        "PAYMENT_FLAG_STATUS" => "01",
+    ],
+    "PAYMENT_REQUEST_PARSING_ERROR" => [
+        "HTTP_CODE" => 400,
+        "CODE" => "4002500",
+        "MSG" => "Bad Request",
+        "PAYMENT_FLAG_STATUS" => "01",
+    ],
+    "PAYMENT_RESPONSE_PARSING_ERROR" => [
+        "HTTP_CODE" => 400,
+        "CODE" => "4002500",
+        "MSG" => "Bad Request",
+        "PAYMENT_FLAG_STATUS" => "01",
     ],
 
 ];
