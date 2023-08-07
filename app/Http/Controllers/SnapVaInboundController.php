@@ -11,6 +11,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use ReallySimpleJWT\Token;
+use stdClass;
 
 class SnapVaInboundController extends Controller
 {
@@ -24,6 +25,7 @@ class SnapVaInboundController extends Controller
     private $PAYMENT_SUCCESS_FLAG_STATUS = '00';
     private $PAYMENT_SUCCESS_FLAG_REASON_ID = 'SUKSES';
     private $PAYMENT_SUCCESS_FLAG_REASON_EN = 'BERHASIL';
+    private $ADDITIONAL_SPACE = '   ';
 
     /**
      * /access-token/b2b
@@ -90,7 +92,7 @@ class SnapVaInboundController extends Controller
             ]);
     
             $data = [
-                'responseCode' => config('app.VALID_VA')['CODE'],
+                'responseCode' => "2002400",
                 'responseMessage' => config('app.VALID_VA')['MSG'],
                 'virtualAccountData' => [
                     'inquiryStatus' => config('app.VALID_VA')['PAYMENT_FLAG_STATUS'],
@@ -98,10 +100,12 @@ class SnapVaInboundController extends Controller
                         'english' => $this->INQUIRY_PROC_REASON_SUCCESS_EN,
                         'indonesia' => $this->INQUIRY_PROC_REASON_SUCCESS_ID,
                     ],
-                    'partnerServiceId' => $partnerServiceId,
+                    'partnerServiceId' => $this->ADDITIONAL_SPACE . $partnerServiceId,
                     'customerNo' => $customerNo,
-                    'virtualAccountNo' => $virtualAccountNo,
+                    'virtualAccountNo' => $this->ADDITIONAL_SPACE . $virtualAccountNo,
                     'virtualAccountName' => $va->user->name,
+                    'virtualAccountEmail' => '',
+                    'virtualAccountPhone' => '',
                     'inquiryRequestId' => $inquiryRequestId,
                     'totalAmount' => [
                         'value' => $va->outstanding,
@@ -129,11 +133,8 @@ class SnapVaInboundController extends Controller
                         ],
                     ],
                     'virtualAccountTrxType' => $this->INQUIRY_VA_TYPE,
-                    'feeAmount' => [
-                        'value' => '',
-                        'currency' => '',
-                    ],
-                    'additionalInfo' => '',
+                    'feeAmount' => null,
+                    'additionalInfo' => new stdClass,
                 ],
             ];
     
@@ -210,10 +211,12 @@ class SnapVaInboundController extends Controller
                         'indonesia' => $this->PAYMENT_SUCCESS_FLAG_REASON_ID,
                         'english' => $this->PAYMENT_SUCCESS_FLAG_REASON_EN,
                     ],
-                    'partnerServiceId' => $partnerServiceId,
+                    'partnerServiceId' => $this->ADDITIONAL_SPACE . $partnerServiceId,
                     'customerNo' => $customerNo,
-                    'virtualAccountNo' => $virtualAccountNo,
+                    'virtualAccountNo' => $this->ADDITIONAL_SPACE . $virtualAccountNo,
                     'virtualAccountName' => $va->user->name,
+                    'virtualAccountEmail' => '',
+                    'virtualAccountPhone' => '',
                     'inquiryRequestId' => '202202110909314440200001136962',
                     'paymentRequestId' => '202202110909314440200001136962',
                     'paidAmount' => [
