@@ -378,10 +378,13 @@ class SnapVaInboundController extends Controller
     private function checkIsTokenValid(Request $request)
     {
         $clientId = $request->headers->get('X-CLIENT-KEY');
+        $client = null;
         if (!$clientId) {
             $clientId = $request->headers->get('X-PARTNER-ID');
+            $client = OAuthClient::where('partner_id', $clientId)->first();
+        } else {
+            $client = OAuthClient::find($clientId);
         }
-        $client = OAuthClient::find($clientId);
         $authorization = $request->bearerToken();
         $validated = Token::validate($authorization, $client->secret);
 
