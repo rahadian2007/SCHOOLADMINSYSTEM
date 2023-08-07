@@ -19,7 +19,7 @@ class SnapVaInboundController extends Controller
     private $INQUIRY_PROC_REASON_SUCCESS_ID = 'Sukses';
     private $INQUIRY_PROC_REASON_SUCCESS_EN = 'Success';
     private $INQUIRY_SUB_COMPANY = '00000';
-    private $INQUIRY_VA_TYPE = '2'; // Open Payment (O): Tagihan tidak muncul (No Bill)
+    private $INQUIRY_VA_TYPE = '3';
     private $PAYMENT_RESP_STATUS_SUCCESS = '2002600';
     private $PAYMENT_MSG_SUCCESS = 'Success';
     private $PAYMENT_SUCCESS_FLAG_STATUS = '00';
