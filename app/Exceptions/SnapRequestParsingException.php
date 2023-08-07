@@ -9,11 +9,13 @@ use Illuminate\Support\Facades\Log;
 class SnapRequestParsingException extends Exception
 {
     private $additionalMessage;
+    private $virtualAccountData;
 
-    public function __construct($message, $_additionalMessage = '')
+    public function __construct($message, $_additionalMessage = '', $_virtualAccountData = null)
     {
         parent::__construct($message);
         $this->additionalMessage = $_additionalMessage;
+        $this->virtualAccountData = $_virtualAccountData;
     }
 
     public function report(): void
@@ -25,10 +27,16 @@ class SnapRequestParsingException extends Exception
     {
         try {
             $error = config("app.".$this->getMessage());
-            $response = response()->json([
+            $jsonResponseData = [
                 'responseCode' => $error['CODE'],
                 'responseMessage' => $error['MSG'] . $this->additionalMessage,
-            ]);
+            ];
+
+            if ($this->virtualAccountData) {
+                $jsonResponseData['virtualAccountData'] = $this->virtualAccountData;
+            }
+            
+            $response = response()->json($jsonResponseData, $error['HTTP_CODE']);
     
             return $response;
         } catch (Exception $error) {

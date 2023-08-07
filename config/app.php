@@ -337,8 +337,8 @@ return [
     ],
     "VALID_VA_SETTLED" => [
         "HTTP_CODE" => 404,
-        "CODE" => "4042514",
-        "MSG" => "Bill has been paid",
+        "CODE" => "4042414",
+        "MSG" => "Paid bill",
         "PAYMENT_FLAG_STATUS" => "01",
     ],
     "VALID_VA_EXPIRED" => [
@@ -347,10 +347,10 @@ return [
         "MSG" => "Bill expired",
         "PAYMENT_FLAG_STATUS" => "01",
     ],
-    "VALID_VA_UNREGISTERED" => [
+    "UNREGISTERED_VA" => [
         "HTTP_CODE" => 404,
-        "CODE" => "4042512",
-        "MSG" => "Bill not found",
+        "CODE" => "4042412",
+        "MSG" => "Invalid Bill",
         "PAYMENT_FLAG_STATUS" => "01",
     ],
     "REQUEST_PARSING_ERROR" => [
