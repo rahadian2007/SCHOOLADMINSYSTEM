@@ -59,7 +59,6 @@ class SnapVaInboundController extends Controller
                 ],
                 $va,
                 [
-                    'checkConflictedExternalIdEnabled' => true,
                     'additionalData' => [
                         'partnerServiceId' => $partnerServiceId,
                         'customerNo' => $customerNo,
@@ -80,7 +79,8 @@ class SnapVaInboundController extends Controller
                 'virtualAccountNumber' => $virtualAccountNo,
                 'virtualAccountName' => $va->user->name,
                 'trxId' => '',
-                'paymentRequestId' => $externalId,
+                'paymentRequestId' => $inquiryRequestId,
+                'externalId' => $externalId,
                 'channelCode' => $channelCode,
                 'paidAmount' => json_encode([
                     'value' => $va->outstanding,
@@ -196,7 +196,6 @@ class SnapVaInboundController extends Controller
                 ],
                 $va,
                 [
-                    'checkConflictedExternalIdEnabled' => false,
                     'additionalData' => [
                         'partnerServiceId' => $partnerServiceId,
                         'customerNo' => $customerNo,
@@ -315,24 +314,35 @@ class SnapVaInboundController extends Controller
     private function checkConflictedExternalId(Request $request)
     {
         $externalId = $request->headers->get('X-EXTERNAL-ID');
-        $isExternalIdUnique = !Payment::where('paymentRequestId', $externalId)
+        $payment = Payment::where('externalId', $externalId)
             ->whereDate('created_at', Carbon::today())
             ->first();
 
-        if (!$isExternalIdUnique) {
-            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_CONFLICTED_EXTERNAL_ID');
+        if ($this->REQUEST_TYPE === 'PAYMENT') {
+            $isConflicted = $payment && $payment->externalId !== $request->get('paymentRequestId');
+            if ($isConflicted) {
+                throw new SnapRequestParsingException($this->REQUEST_TYPE . '_CONFLICTED_EXTERNAL_ID');
+            }
+        } else { // INQUIRY
+            if ($payment) {
+                throw new SnapRequestParsingException($this->REQUEST_TYPE . '_CONFLICTED_EXTERNAL_ID');
+            }
         }
     }
 
     private function checkInconsistentExternalId(Request $request)
     {
-        $externalId = $request->headers->get('X-EXTERNAL-ID');
-        $isExternalIdUnique = !Payment::where('paymentRequestId', $externalId)
-            ->whereDate('created_at', Carbon::today())
-            ->first();
-
-        if ($isExternalIdUnique) {
-            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INCONSISTENT_REQUEST');
+        if ($this->REQUEST_TYPE === 'PAYMENT') {
+            $paymentRequestId = $request->get('paymentRequestId');
+            $externalId = $request->headers->get('X-EXTERNAL-ID');
+            $isExternalIdAndPaymentRequestIdExist = !Payment::where('paymentRequestId', $paymentRequestId)
+                ->where('externalId', $externalId)
+                ->whereDate('created_at', Carbon::today())
+                ->exists();
+    
+            if ($isExternalIdAndPaymentRequestIdExist) {
+                throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INCONSISTENT_REQUEST');
+            }
         }
     }
 
@@ -455,7 +465,6 @@ class SnapVaInboundController extends Controller
         $validation,
         $virtualAccount,
         $options = [
-            'checkConflictedExternalIdEnabled' => true,
             'additionalData' => []
         ]
     ) {
@@ -469,11 +478,9 @@ class SnapVaInboundController extends Controller
         $this->checkInvalidHeaderFieldFormats($request);
 
         // Check is External ID conflicted
-        if ($options['checkConflictedExternalIdEnabled']) {
-            $this->checkConflictedExternalId($request);
-        } else {
-            $this->checkInconsistentExternalId($request);
-        }
+        $this->checkConflictedExternalId($request);
+
+        $this->checkInconsistentExternalId($request);
 
         // Check is VA registered
         $this->checkIsVaRegistered($virtualAccount, $options['additionalData']);
