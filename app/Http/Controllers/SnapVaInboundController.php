@@ -242,31 +242,35 @@ class SnapVaInboundController extends Controller
                     ],
                     'transactionDate' => $trxDateTime,
                     'referenceNo' => $billDetails[0]['billReferenceNo'],
-                    'billDetails' => [
-                        [
-                            'billNo' => $billDetails[0]['billNo'],
-                            'billDescription' => [
-                                'english' => $billDetails[0]['billDescription']['english'],
-                                'indonesia' => $billDetails[0]['billDescription']['indonesia'],
-                            ],
-                            'billSubCompany' => $billDetails[0]['billSubCompany'],
-                            'billAmount' => [
-                                'value' => $billDetails[0]['billAmount']['value'],
-                                'currency' => $billDetails[0]['billAmount']['currency'],
-                            ],
-                            'additionalInfo' => [
-                                'value' => $billDetails[0]['additionalInfo']['value'],
-                            ],
-                            'billReferenceNo' => $billDetails[0]['billReferenceNo'],
-                            'status' => $this->PAYMENT_SUCCESS_FLAG_STATUS,
-                            'reason' => [
-                                'english' => $billDetails[0] && isset($billDetails[0]['reason']) ? $billDetails[0]['reason']['english'] : '',
-                                'indonesia' => $billDetails[0] && isset($billDetails[0]['reason']) ? $billDetails[0]['reason']['indonesia'] : '',
-                            ],
-                        ]
-                    ],
+                    'billDetails' => [],
                 ],
             ];
+
+            if (sizeof($billDetails) > 0) {
+                $data['virtualAccountData']['billDetails'] = [
+                    [
+                        'billNo' => $billDetails[0]['billNo'],
+                        'billDescription' => [
+                            'english' => $billDetails[0]['billDescription']['english'],
+                            'indonesia' => $billDetails[0]['billDescription']['indonesia'],
+                        ],
+                        'billSubCompany' => $billDetails[0]['billSubCompany'],
+                        'billAmount' => [
+                            'value' => $billDetails[0]['billAmount']['value'],
+                            'currency' => $billDetails[0]['billAmount']['currency'],
+                        ],
+                        'additionalInfo' => [
+                            'value' => $billDetails[0]['additionalInfo']['value'],
+                        ],
+                        'billReferenceNo' => $billDetails[0]['billReferenceNo'],
+                        'status' => $this->PAYMENT_SUCCESS_FLAG_STATUS,
+                        'reason' => [
+                            'english' => $billDetails[0] && isset($billDetails[0]['reason']) ? $billDetails[0]['reason']['english'] : '',
+                            'indonesia' => $billDetails[0] && isset($billDetails[0]['reason']) ? $billDetails[0]['reason']['indonesia'] : '',
+                        ],
+                    ]
+                ];
+            }
     
             $response = response()->json($data);
     
