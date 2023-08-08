@@ -44,7 +44,7 @@ class SnapVaInboundController extends Controller
 
             $virtualAccountNo = trim($virtualAccountNo);
             $partnerServiceId = trim($partnerServiceId);
-            
+
             $va = VirtualAccount::where('number', $virtualAccountNo)->first();
     
             $this->validateRequest(
@@ -142,8 +142,10 @@ class SnapVaInboundController extends Controller
     
             return $response;
         } catch (\App\Exceptions\SnapRequestParsingException $e) {
+            Log::warning($e);
             return $e->render();
         } catch(\Illuminate\Http\Client\ConnectionException $e) {
+            Log::warning($e);
             return response()->json([
                 'responseCode' => '5042600',
                 'responseMessage' => 'Timeout',
@@ -270,8 +272,10 @@ class SnapVaInboundController extends Controller
     
             return $response;
         } catch (\App\Exceptions\SnapRequestParsingException $e) {
+            Log::warning($e);
             return $e->render();
         } catch(\Illuminate\Http\Client\ConnectionException $e) {
+            Log::warning($e);
             return response()->json([
                 'responseCode' => '5042600',
                 'responseMessage' => 'Timeout',
