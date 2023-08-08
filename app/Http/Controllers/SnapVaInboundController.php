@@ -327,7 +327,7 @@ class SnapVaInboundController extends Controller
             ->first();
 
         if ($isExternalIdUnique) {
-            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INCONSISTENT_EXTERNAL_ID');
+            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INCONSISTENT_REQUEST');
         }
     }
 
