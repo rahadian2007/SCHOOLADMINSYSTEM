@@ -499,6 +499,7 @@ class SnapVaInboundController extends Controller
                 true
             )
         );
+        Log::info($bcaSecret);
         Log::info($signature);
         Log::info($signatureTester);
         if ($signatureTester !== $signature) {
