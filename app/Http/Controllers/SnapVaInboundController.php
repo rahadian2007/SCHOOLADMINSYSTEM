@@ -85,9 +85,9 @@ class SnapVaInboundController extends Controller
     
             $data = [
                 'responseCode' => "2002400",
-                'responseMessage' => config('app.VALID_VA')['MSG'],
+                'responseMessage' => config('app.'.$this->REQUEST_TYPE.'_VALID_VA')['MSG'],
                 'virtualAccountData' => [
-                    'inquiryStatus' => config('app.VALID_VA')['PAYMENT_FLAG_STATUS'],
+                    'inquiryStatus' => config('app.'.$this->REQUEST_TYPE.'_VALID_VA')['PAYMENT_FLAG_STATUS'],
                     'inquiryReason' => [
                         'english' => $this->INQUIRY_PROC_REASON_SUCCESS_EN,
                         'indonesia' => $this->INQUIRY_PROC_REASON_SUCCESS_ID,
@@ -485,6 +485,10 @@ class SnapVaInboundController extends Controller
             )
         );
         Log::info($requestBody);
+        Log::info(json_encode( // minify and remove whitespace
+            $requestBody,
+            JSON_UNESCAPED_SLASHES
+        ));
         Log::info($hashedMinifiedJsonBody);
         $signature = $request->header('X-SIGNATURE');
         $timestampStr = $request->header('X-TIMESTAMP');
@@ -499,7 +503,6 @@ class SnapVaInboundController extends Controller
                 true
             )
         );
-        Log::info($bcaSecret);
         Log::info($signature);
         Log::info($signatureTester);
         if ($signatureTester !== $signature) {
