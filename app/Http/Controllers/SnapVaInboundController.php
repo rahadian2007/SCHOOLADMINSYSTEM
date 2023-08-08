@@ -330,7 +330,7 @@ class SnapVaInboundController extends Controller
         }
     }
 
-    private function checkInconsistentExternalId(Request $request)
+    private function checkInconsistentExternalId(Request $request, VirtualAccount $va)
     {
         if ($this->REQUEST_TYPE === 'PAYMENT') {
             $paymentRequestId = $request->get('paymentRequestId');
@@ -342,6 +342,21 @@ class SnapVaInboundController extends Controller
     
             if ($isExternalIdAndPaymentRequestIdExist) {
                 throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INCONSISTENT_REQUEST');
+            } else {
+                Payment::create([
+                    'partnerServiceId' => $request->get('partnerServiceId'),
+                    'customerNo' => $request->get('customerNo'),
+                    'virtualAccountNumber' => $request->get('virtualAccountNo'),
+                    'virtualAccountName' => $va->user->name,
+                    'trxId' => '',
+                    'paymentRequestId' => $request->get('inquiryRequestId'),
+                    'externalId' => $request->headers->get('X-EXTERNAL-ID'),
+                    'channelCode' => $request->get('channelCode'),
+                    'paidAmount' => json_encode([
+                        'value' => $va->outstanding,
+                        'currency' => $this->CURRENCY,
+                    ])
+                ]);
             }
         }
     }
@@ -480,7 +495,7 @@ class SnapVaInboundController extends Controller
         // Check is External ID conflicted
         $this->checkConflictedExternalId($request);
 
-        $this->checkInconsistentExternalId($request);
+        $this->checkInconsistentExternalId($request, $virtualAccount);
 
         // Check is VA registered
         $this->checkIsVaRegistered($virtualAccount, $options['additionalData']);
