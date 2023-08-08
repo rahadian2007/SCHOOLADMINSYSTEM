@@ -349,7 +349,7 @@ class SnapVaInboundController extends Controller
                     'virtualAccountNumber' => $request->get('virtualAccountNo'),
                     'virtualAccountName' => $va->user->name,
                     'trxId' => '',
-                    'paymentRequestId' => $request->get('inquiryRequestId'),
+                    'paymentRequestId' => $request->get('paymentRequestId'),
                     'externalId' => $request->headers->get('X-EXTERNAL-ID'),
                     'channelCode' => $request->get('channelCode'),
                     'paidAmount' => json_encode([
