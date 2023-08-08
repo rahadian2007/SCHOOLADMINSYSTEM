@@ -72,6 +72,8 @@ class SnapVaInboundController extends Controller
             // Create payment instance
             $externalId = $request->headers->get('X-EXTERNAL-ID');
     
+            Log::info('Creating payment record');
+
             Payment::create([
                 'partnerServiceId' => $partnerServiceId,
                 'customerNo' => $customerNo,
@@ -85,6 +87,9 @@ class SnapVaInboundController extends Controller
                     'currency' => $this->CURRENCY,
                 ])
             ]);
+
+            Log::info('Finished creating payment');
+            Log::info('Construct response data');
     
             $data = [
                 'responseCode' => "2002400",
@@ -152,7 +157,6 @@ class SnapVaInboundController extends Controller
                 'virtualAccountData' => [],
             ]);
         } catch (\Exception $e) {
-            dd($e);
             Log::info("INTERNAL SERVER ERROR");
             Log::warning($e);
 
@@ -547,6 +551,8 @@ class SnapVaInboundController extends Controller
 
     private function validateResponse($response)
     {
+        Log::info('Validating response');
+        Log::info($response);
         json_decode($response);
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new SnapRequestParsingException($this->REQUEST_TYPE . '_RESPONSE_PARSING_ERROR');
