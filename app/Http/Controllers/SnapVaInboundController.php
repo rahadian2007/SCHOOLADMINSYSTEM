@@ -40,10 +40,10 @@ class SnapVaInboundController extends Controller
             Log::info(">> INITIATE VA INQUIRY");
             $this->REQUEST_TYPE = 'INQUIRY';
     
-            extract($request->all());
-
-            $virtualAccountNo = trim($virtualAccountNo);
-            $partnerServiceId = trim($partnerServiceId);
+            $virtualAccountNo = trim(isset($virtualAccountNo) ? $virtualAccountNo : $request->input('virtualAccountNo'));
+            $partnerServiceId = trim(isset($partnerServiceId) ? $partnerServiceId : $request->input('partnerServiceId'));
+            $customerNo = $request->input('customerNo');
+            $inquiryRequestId = $request->input('inquiryRequestId');
 
             $va = VirtualAccount::where('number', $virtualAccountNo)->first();
     
@@ -70,6 +70,7 @@ class SnapVaInboundController extends Controller
     
             // Create payment instance
             $externalId = $request->headers->get('X-EXTERNAL-ID');
+            $channelCode = $request->headers->get('CHANNEL-ID');
     
             Log::info('Creating payment record');
 
@@ -174,10 +175,15 @@ class SnapVaInboundController extends Controller
             Log::info(">> INITIATE VA PAYMENT");
             $this->REQUEST_TYPE = 'PAYMENT';
     
-            extract($request->all());
-
             $virtualAccountNo = trim(isset($virtualAccountNo) ? $virtualAccountNo : $request->input('virtualAccountNo'));
             $partnerServiceId = trim(isset($partnerServiceId) ? $partnerServiceId : $request->input('partnerServiceId'));
+            $customerNo = $request->input('customerNo');
+            $paymentRequestId = $request->input('paymentRequestId');
+            $paidAmount = $request->input('paidAmount');
+            $trxDateTime = $request->input('trxDateTime');
+            $referenceNo = $request->input('referenceNo');
+            $totalAmount = $request->input('totalAmount');
+            $billDetails = $request->input('billDetails');
     
             $va = VirtualAccount::where('number', $virtualAccountNo)->first();
     
