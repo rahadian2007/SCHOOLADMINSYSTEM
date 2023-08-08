@@ -171,7 +171,8 @@ class SnapVaInboundController extends Controller
     {
         try {
 
-            Log::info(">> INITIATE VA TRANSFER");
+            Log::info(">> INITIATE VA PAYMENT");
+            $this->REQUEST_TYPE = 'PAYMENT';
     
             extract($request->all());
 
