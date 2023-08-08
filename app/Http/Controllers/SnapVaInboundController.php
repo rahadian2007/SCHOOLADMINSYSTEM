@@ -335,7 +335,7 @@ class SnapVaInboundController extends Controller
         if ($this->REQUEST_TYPE === 'PAYMENT') {
             $paymentRequestId = $request->get('paymentRequestId');
             $externalId = $request->headers->get('X-EXTERNAL-ID');
-            $isExternalIdAndPaymentRequestIdExist = !Payment::where('paymentRequestId', $paymentRequestId)
+            $isExternalIdAndPaymentRequestIdExist = Payment::where('paymentRequestId', $paymentRequestId)
                 ->where('externalId', $externalId)
                 ->whereDate('created_at', Carbon::today())
                 ->exists();
