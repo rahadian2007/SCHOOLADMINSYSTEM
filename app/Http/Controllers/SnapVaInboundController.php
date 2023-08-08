@@ -41,7 +41,10 @@ class SnapVaInboundController extends Controller
             $this->REQUEST_TYPE = 'INQUIRY';
     
             extract($request->all());
-    
+
+            $virtualAccountNo = trim($virtualAccountNo);
+            $partnerServiceId = trim($partnerServiceId);
+            
             $va = VirtualAccount::where('number', $virtualAccountNo)->first();
     
             $this->validateRequest(
@@ -165,6 +168,9 @@ class SnapVaInboundController extends Controller
             Log::info(">> INITIATE VA TRANSFER");
     
             extract($request->all());
+
+            $virtualAccountNo = trim($virtualAccountNo);
+            $partnerServiceId = trim($partnerServiceId);
     
             $va = VirtualAccount::where('number', $virtualAccountNo)->first();
     
