@@ -473,4 +473,11 @@ return [
         "PAYMENT_FLAG_STATUS" => "01",
     ],
 
+    "SERVER_INTERNAL_ERROR" => [
+        "HTTP_CODE" => 500,
+        "CODE" => "5002600",
+        "MSG" => "Internal Server error",
+        "PAYMENT_FLAG_STATUS" => "01",
+    ],
+
 ];
