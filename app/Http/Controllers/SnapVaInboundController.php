@@ -241,12 +241,13 @@ class SnapVaInboundController extends Controller
                         'currency' => $totalAmount['value'],
                     ],
                     'transactionDate' => $trxDateTime,
-                    'referenceNo' => $billDetails[0]['billReferenceNo'],
+                    'referenceNo' => '',
                     'billDetails' => [],
                 ],
             ];
 
             if (sizeof($billDetails) > 0) {
+                $data['virtualAccountData']['billReferenceNo'] = $billDetails[0]['billReferenceNo'];
                 $data['virtualAccountData']['billDetails'] = [
                     [
                         'billNo' => $billDetails[0]['billNo'],
