@@ -20,7 +20,7 @@ class SnapRequestParsingException extends Exception
 
     public function report(): void
     {
-        // TODO: add to log
+        Log::warning(request());
     }
 
     public function render()

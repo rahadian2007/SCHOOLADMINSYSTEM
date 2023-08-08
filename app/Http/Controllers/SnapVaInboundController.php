@@ -176,8 +176,8 @@ class SnapVaInboundController extends Controller
     
             extract($request->all());
 
-            $virtualAccountNo = trim($virtualAccountNo);
-            $partnerServiceId = trim($partnerServiceId);
+            $virtualAccountNo = trim(isset($virtualAccountNo) ? $virtualAccountNo : $request->input('virtualAccountNo'));
+            $partnerServiceId = trim(isset($partnerServiceId) ? $partnerServiceId : $request->input('partnerServiceId'));
     
             $va = VirtualAccount::where('number', $virtualAccountNo)->first();
     
@@ -504,6 +504,7 @@ class SnapVaInboundController extends Controller
         // Check is VA registered
         $this->checkIsVaRegistered($virtualAccount, $options['additionalData']);
 
+        // Check is external ID consistent
         $this->checkInconsistentExternalId($request, $virtualAccount);
         
         // Check is VA settled
