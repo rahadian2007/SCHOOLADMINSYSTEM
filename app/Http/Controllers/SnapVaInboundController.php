@@ -21,11 +21,11 @@ class SnapVaInboundController extends Controller
     private $INQUIRY_SUB_COMPANY = '00000';
     private $INQUIRY_VA_TYPE = '3';
     private $INQUIRY_INVALID_STATUS = '01';
-    private $PAYMENT_RESP_STATUS_SUCCESS = '2002600';
+    private $PAYMENT_RESP_STATUS_SUCCESS = '2002500';
     private $PAYMENT_MSG_SUCCESS = 'Success';
     private $PAYMENT_SUCCESS_FLAG_STATUS = '00';
-    private $PAYMENT_SUCCESS_FLAG_REASON_ID = 'SUKSES';
-    private $PAYMENT_SUCCESS_FLAG_REASON_EN = 'BERHASIL';
+    private $PAYMENT_SUCCESS_FLAG_REASON_ID = 'Sukses';
+    private $PAYMENT_SUCCESS_FLAG_REASON_EN = 'Success';
     private $ADDITIONAL_SPACE = '   ';
     private $REQUEST_TYPE = '';
     private $CLIENT = null;
@@ -218,10 +218,9 @@ class SnapVaInboundController extends Controller
                 'responseCode' => $this->PAYMENT_RESP_STATUS_SUCCESS,
                 'responseMessage' => $this->PAYMENT_MSG_SUCCESS,
                 'virtualAccountData' => [
-                    'paymentFlagStatus' => $this->PAYMENT_SUCCESS_FLAG_STATUS,
                     'paymentFlagReason' => [
-                        'indonesia' => $this->PAYMENT_SUCCESS_FLAG_REASON_ID,
                         'english' => $this->PAYMENT_SUCCESS_FLAG_REASON_EN,
+                        'indonesia' => $this->PAYMENT_SUCCESS_FLAG_REASON_ID,
                     ],
                     'partnerServiceId' => $this->ADDITIONAL_SPACE . $partnerServiceId,
                     'customerNo' => $customerNo,
@@ -229,20 +228,27 @@ class SnapVaInboundController extends Controller
                     'virtualAccountName' => $va->user->name,
                     'virtualAccountEmail' => '',
                     'virtualAccountPhone' => '',
-                    'inquiryRequestId' => '202202110909314440200001136962',
-                    'paymentRequestId' => '202202110909314440200001136962',
+                    'trxId' => '',
+                    'paymentRequestId' => $paymentRequestId,
                     'paidAmount' => [
                         'value' => $paidAmount['value'],
                         'currency' => $paidAmount['currency'],
                     ],
+                    'paidBills' => '',
                     'totalAmount' => [
                         'value' => $totalAmount['value'],
-                        'currency' => $totalAmount['value'],
+                        'currency' => $this->CURRENCY,
                     ],
-                    'transactionDate' => $trxDateTime,
-                    'referenceNo' => '',
+                    'trxDateTime' => $trxDateTime,
+                    'referenceNo' => $referenceNo,
+                    'journalNum' => '',
+                    'paymentType' => '',
+                    'flagAdvise' => 'N',
+                    'paymentFlagStatus' => '00',
                     'billDetails' => [],
+                    'freeTexts' => [],
                 ],
+                'additionalInfo' => new stdClass,
             ];
 
             if (sizeof($billDetails) > 0) {
