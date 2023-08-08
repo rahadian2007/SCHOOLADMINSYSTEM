@@ -552,8 +552,7 @@ class SnapVaInboundController extends Controller
     private function validateResponse($response)
     {
         Log::info('Validating response');
-        Log::info($response->geData());
-        json_decode($response->geData());
+        Log::info($response);
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new SnapRequestParsingException($this->REQUEST_TYPE . '_RESPONSE_PARSING_ERROR');
         }
