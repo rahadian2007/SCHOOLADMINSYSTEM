@@ -208,9 +208,10 @@ class SnapVaInboundController extends Controller
                         'virtualAccountNo' => $virtualAccountNo,
                         'paymentRequestId' => $paymentRequestId,
                         'trxDateTime' => $trxDateTime,
+                        'paidAmount' => $paidAmount,
+                        'referenceNo' => $referenceNo,
                     ]
-                ],
-                'PAYMENT'
+                ]
             );
 
             $newOutstanding = $va->outstanding - $request->get('paidAmount')['value'];
@@ -317,7 +318,7 @@ class SnapVaInboundController extends Controller
     
     private function checkRequestParsingError(Request $request)
     {
-        json_decode($request->getContent());
+        // json_decode($request->getContent());
 
         if (json_last_error() != JSON_ERROR_NONE) {
             throw new SnapRequestParsingException($this->REQUEST_TYPE . '_REQUEST_PARSING_ERROR');
@@ -379,35 +380,68 @@ class SnapVaInboundController extends Controller
         $isVaSettled = $virtualAccount->outstanding === '0';
 
         if ($isVaSettled) {
-            $virtualAccountData = [
-                'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
-                'inquiryReason' => [
-                    'english' => 'Already paid',
-                    'indonesia' => 'Tagihan sudah dibayar',
-                ],
-                'partnerServiceId' => $this->ADDITIONAL_SPACE . $data['partnerServiceId'],
-                'customerNo' => $data['customerNo'],
-                'virtualAccountNo' => $this->ADDITIONAL_SPACE . $data['virtualAccountNo'],
-                'virtualAccountName' => '',
-                'virtualAccountEmail' => '',
-                'virtualAccountPhone' => '',
-                'inquiryRequestId' => $data['inquiryRequestId'],
-                'totalAmount' => [
-                    'value' => $virtualAccount->outstanding,
-                    'currency' => $this->CURRENCY,
-                ],
-                'subCompany' => '',
-                'billDetails' => [],
-                'freeTexts' => [
-                    [
-                        'english' => '',
-                        'indonesia' => '',
+            if ($this->REQUEST_TYPE === 'INQUIRY') {
+                $virtualAccountData = [
+                    'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                    'inquiryReason' => [
+                        'english' => 'Already paid',
+                        'indonesia' => 'Tagihan sudah dibayar',
                     ],
-                ],
-                'virtualAccountTrxType' => $this->INQUIRY_VA_TYPE,
-                'feeAmount' => null,
-                'additionalInfo' => new stdClass,
-            ];
+                    'partnerServiceId' => $this->ADDITIONAL_SPACE . $data['partnerServiceId'],
+                    'customerNo' => $data['customerNo'],
+                    'virtualAccountNo' => $this->ADDITIONAL_SPACE . $data['virtualAccountNo'],
+                    'virtualAccountName' => '',
+                    'virtualAccountEmail' => '',
+                    'virtualAccountPhone' => '',
+                    'inquiryRequestId' => $data['inquiryRequestId'],
+                    'totalAmount' => [
+                        'value' => $virtualAccount->outstanding,
+                        'currency' => $this->CURRENCY,
+                    ],
+                    'subCompany' => '',
+                    'billDetails' => [],
+                    'freeTexts' => [
+                        [
+                            'english' => '',
+                            'indonesia' => '',
+                        ],
+                    ],
+                    'virtualAccountTrxType' => $this->INQUIRY_VA_TYPE,
+                    'feeAmount' => null,
+                    'additionalInfo' => new stdClass,
+                ];
+            } else if ($this->REQUEST_TYPE === 'PAYMENT') {
+                $virtualAccountData = [
+                    'paymentFlagReason' => [
+                        'english' => 'Bill has been paid',
+                        'indonesia' => 'Tagihan sudah dibayar',
+                    ],
+                    'partnerServiceId' => $this->ADDITIONAL_SPACE . $data['partnerServiceId'],
+                    'customerNo' => $data['customerNo'],
+                    'virtualAccountNo' => $this->ADDITIONAL_SPACE . $data['virtualAccountNo'],
+                    'virtualAccountName' => $virtualAccount->user->name,
+                    'virtualAccountEmail' => '',
+                    'virtualAccountPhone' => '',
+                    'paymentRequestId' => $data['paymentRequestId'],
+                    'paidAmount' => [
+                        'value' => isset($data['paidAmount']) && isset($data['paidAmount']['value']) ? $data['paidAmount']['value'] : '',
+                        'currency' => $this->CURRENCY,
+                    ],
+                    'paidBills' => '',
+                    'totalAmount' => [
+                        'value' => isset($data['paidAmount']) && isset($data['paidAmount']['value']) ? $data['paidAmount']['value'] : '',
+                        'currency' => $this->CURRENCY,
+                    ],
+                    'trxDateTime' => $data['trxDateTime'],
+                    'referenceNo' => $data['referenceNo'],
+                    'journalNum' => '',
+                    'paymentType' => '',
+                    'flagAdvise' => 'N',
+                    'paymentFlagStatus' => '01',
+                    'billDetails' => [],
+                    'freeTexts' => [],
+                ];
+            }
             throw new SnapRequestParsingException($this->REQUEST_TYPE . '_VALID_VA_SETTLED', '', $virtualAccountData);
         }
     }
@@ -487,35 +521,68 @@ class SnapVaInboundController extends Controller
         $isVaExpired = !$virtualAccount->is_active;
 
         if ($isVaExpired) {
-            $virtualAccountData = [
-                'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
-                'inquiryReason' => [
-                    'english' => 'Bill expired',
-                    'indonesia' => 'Tagihan kedaluarsa',
-                ],
-                'partnerServiceId' => $this->ADDITIONAL_SPACE . $data['partnerServiceId'],
-                'customerNo' => $data['customerNo'],
-                'virtualAccountNo' => $this->ADDITIONAL_SPACE . $data['virtualAccountNo'],
-                'virtualAccountName' => '',
-                'virtualAccountEmail' => '',
-                'virtualAccountPhone' => '',
-                'inquiryRequestId' => $data['inquiryRequestId'],
-                'totalAmount' => [
-                    'value' => $virtualAccount->outstanding,
-                    'currency' => $this->CURRENCY,
-                ],
-                'subCompany' => '',
-                'billDetails' => [],
-                'freeTexts' => [
-                    [
-                        'english' => '',
-                        'indonesia' => '',
+            if ($this->REQUEST_TYPE === 'INQUIRY') {
+                $virtualAccountData = [
+                    'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                    'inquiryReason' => [
+                        'english' => 'Bill expired',
+                        'indonesia' => 'Tagihan kedaluarsa',
                     ],
-                ],
-                'virtualAccountTrxType' => '',
-                'feeAmount' => null,
-                'additionalInfo' => new stdClass,
-            ];
+                    'partnerServiceId' => $this->ADDITIONAL_SPACE . $data['partnerServiceId'],
+                    'customerNo' => $data['customerNo'],
+                    'virtualAccountNo' => $this->ADDITIONAL_SPACE . $data['virtualAccountNo'],
+                    'virtualAccountName' => '',
+                    'virtualAccountEmail' => '',
+                    'virtualAccountPhone' => '',
+                    'inquiryRequestId' => $data['inquiryRequestId'],
+                    'totalAmount' => [
+                        'value' => $virtualAccount->outstanding,
+                        'currency' => $this->CURRENCY,
+                    ],
+                    'subCompany' => '',
+                    'billDetails' => [],
+                    'freeTexts' => [
+                        [
+                            'english' => '',
+                            'indonesia' => '',
+                        ],
+                    ],
+                    'virtualAccountTrxType' => '',
+                    'feeAmount' => null,
+                    'additionalInfo' => new stdClass,
+                ];
+            } else if ($this->REQUEST_TYPE === 'PAYMENT') {
+                $virtualAccountData = [
+                    'paymentFlagReason' => [
+                        'english' => 'Invalid Bill',
+                        'indonesia' => 'Tagihan kedaluarsa',
+                    ],
+                    'partnerServiceId' => $this->ADDITIONAL_SPACE . $data['partnerServiceId'],
+                    'customerNo' => $data['customerNo'],
+                    'virtualAccountNo' => $this->ADDITIONAL_SPACE . $data['virtualAccountNo'],
+                    'virtualAccountName' => '',
+                    'virtualAccountEmail' => '',
+                    'virtualAccountPhone' => '',
+                    'paymentRequestId' => $data['paymentRequestId'],
+                    'paidAmount' => [
+                        'value' => '',
+                        'currency' => '',
+                    ],
+                    'paidBills' => '',
+                    'totalAmount' => [
+                        'value' => '',
+                        'currency' => '',
+                    ],
+                    'trxDateTime' => $data['trxDateTime'],
+                    'referenceNo' => '',
+                    'journalNum' => '',
+                    'paymentType' => '',
+                    'flagAdvise' => 'N',
+                    'paymentFlagStatus' => '01',
+                    'billDetails' => [],
+                    'freeTexts' => [],
+                ];
+            }
 
             throw new SnapRequestParsingException($this->REQUEST_TYPE . '_VALID_VA_EXPIRED', '', $virtualAccountData);
         }

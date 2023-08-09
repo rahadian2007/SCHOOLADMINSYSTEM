@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\BcaHelper;
 use Illuminate\Support\Facades\Auth;
 
-class HomeController extends PaymentController
+class HomeController extends Controller
 {
     public function index()
     {
@@ -13,8 +12,8 @@ class HomeController extends PaymentController
             return redirect('/login');
         }
 
-        $response = BcaHelper::getTransferVaStatus();
-
-        return response()->json($response);
+        return response()->json([
+            'status' => false
+        ]);
     }
 }

@@ -21,13 +21,13 @@ class SnapRequestParsingException extends Exception
 
     public function report(): void
     {
-        Log::warning(request());
     }
 
     public function render()
     {
         try {
             Log::info("app.".$this->getMessage());
+            Log::warning(request());
             $error = config("app.".$this->getMessage());
             $jsonResponseData = [
                 'responseCode' => $error['CODE'],
