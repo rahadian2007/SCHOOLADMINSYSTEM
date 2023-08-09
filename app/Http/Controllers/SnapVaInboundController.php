@@ -215,11 +215,13 @@ class SnapVaInboundController extends Controller
             );
 
             $newOutstanding = $va->outstanding - $request->get('paidAmount')['value'];
+            Log::info(">> New outstanding:" . $newOutstanding);
 
             if ($newOutstanding < 0) {
                 throw new SnapRequestParsingException('SERVER_INTERNAL_ERROR');
             }
 
+            Log::info(">> Updating VA");
             $va->update([ 'outstanding' => $newOutstanding ]);
     
             $data = [
