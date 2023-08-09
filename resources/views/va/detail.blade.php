@@ -36,7 +36,7 @@
               @foreach ($payments as $payment)
               <tr>
                 <td>: {{ $payment->created_at }}</td>
-                <td>: {{ json_decode($payment->paidAmount)['value'] }}</td>
+                <td>: {{ json_decode($payment->paidAmount)->value }}</td>
               </tr>
               @endforeach
             @endif
