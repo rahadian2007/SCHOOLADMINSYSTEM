@@ -207,6 +207,7 @@ class SnapVaInboundController extends Controller
                         'customerNo' => $customerNo,
                         'virtualAccountNo' => $virtualAccountNo,
                         'paymentRequestId' => $paymentRequestId,
+                        'trxDateTime' => $trxDateTime,
                     ]
                 ],
                 'PAYMENT'
@@ -414,35 +415,68 @@ class SnapVaInboundController extends Controller
     private function checkIsVaRegistered($virtualAccount = null, $data)
     {
         if (!$virtualAccount) {
-            $virtualAccountData = [
-                'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
-                'inquiryReason' => [
-                    'english' => 'Bill not found',
-                    'indonesia' => 'Tagihan tidak ditemukan',
-                ],
-                'partnerServiceId' => $this->ADDITIONAL_SPACE . $data['partnerServiceId'],
-                'customerNo' => $data['customerNo'],
-                'virtualAccountNo' => $this->ADDITIONAL_SPACE . $data['virtualAccountNo'],
-                'virtualAccountName' => '',
-                'virtualAccountEmail' => '',
-                'virtualAccountPhone' => '',
-                'inquiryRequestId' => $data['inquiryRequestId'],
-                'totalAmount' => [
-                    'value' => '',
-                    'currency' => '',
-                ],
-                'subCompany' => '',
-                'billDetails' => [],
-                'freeTexts' => [
-                    [
-                        'english' => '',
-                        'indonesia' => '',
+            if ($this->REQUEST_TYPE === 'INQUIRY') {
+                $virtualAccountData = [
+                    'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                    'inquiryReason' => [
+                        'english' => 'Bill not found',
+                        'indonesia' => 'Tagihan tidak ditemukan',
                     ],
-                ],
-                'virtualAccountTrxType' => '',
-                'feeAmount' => null,
-                'additionalInfo' => new stdClass,
-            ];
+                    'partnerServiceId' => $this->ADDITIONAL_SPACE . $data['partnerServiceId'],
+                    'customerNo' => $data['customerNo'],
+                    'virtualAccountNo' => $this->ADDITIONAL_SPACE . $data['virtualAccountNo'],
+                    'virtualAccountName' => '',
+                    'virtualAccountEmail' => '',
+                    'virtualAccountPhone' => '',
+                    'inquiryRequestId' => $data['inquiryRequestId'],
+                    'totalAmount' => [
+                        'value' => '',
+                        'currency' => '',
+                    ],
+                    'subCompany' => '',
+                    'billDetails' => [],
+                    'freeTexts' => [
+                        [
+                            'english' => '',
+                            'indonesia' => '',
+                        ],
+                    ],
+                    'virtualAccountTrxType' => '',
+                    'feeAmount' => null,
+                    'additionalInfo' => new stdClass,
+                ];
+            } else if ($this->REQUEST_TYPE === 'PAYMENT') {
+                $virtualAccountData = [
+                    'paymentFlagReason' => [
+                        'english' => 'Bill not found',
+                        'indonesia' => 'Tagihan tidak ditemukan',
+                    ],
+                    'partnerServiceId' => $this->ADDITIONAL_SPACE . $data['partnerServiceId'],
+                    'customerNo' => $data['customerNo'],
+                    'virtualAccountNo' => $this->ADDITIONAL_SPACE . $data['virtualAccountNo'],
+                    'virtualAccountName' => '',
+                    'virtualAccountEmail' => '',
+                    'virtualAccountPhone' => '',
+                    'paymentRequestId' => $data['paymentRequestId'],
+                    'paidAmount' => [
+                        'value' => '',
+                        'currency' => '',
+                    ],
+                    'paidBills' => '',
+                    'totalAmount' => [
+                        'value' => '',
+                        'currency' => '',
+                    ],
+                    'trxDateTime' => $data['trxDateTime'],
+                    'referenceNo' => '',
+                    'journalNum' => '',
+                    'paymentType' => '',
+                    'flagAdvise' => 'N',
+                    'paymentFlagStatus' => '01',
+                    'billDetails' => [],
+                    'freeTexts' => [],
+                ];
+            }
 
             throw new SnapRequestParsingException($this->REQUEST_TYPE . '_UNREGISTERED_VA', '', $virtualAccountData);
         }
