@@ -36,7 +36,10 @@ class SnapRequestParsingException extends Exception
 
             if ($this->virtualAccountData) {
                 $jsonResponseData['virtualAccountData'] = $this->virtualAccountData;
-                $jsonResponseData['additionalInfo'] = new stdClass;
+                
+                if (!str_contains($this->getMessage(), 'INQUIRY')) {
+                    $jsonResponseData['additionalInfo'] = new stdClass;
+                }
             }
             
             $response = response()->json($jsonResponseData, $error['HTTP_CODE']);

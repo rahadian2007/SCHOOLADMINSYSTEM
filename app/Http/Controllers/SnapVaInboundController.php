@@ -607,6 +607,12 @@ class SnapVaInboundController extends Controller
         // Check invalid field format
         $this->checkInvalidHeaderFieldFormats($request);
 
+        // Check is token valid
+        $this->checkIsTokenValid($request);
+
+        // Check valid signature 
+        $this->checkIsSignatureValid($request);
+
         // Check is External ID conflicted
         $this->checkConflictedExternalId($request);
 
@@ -621,12 +627,6 @@ class SnapVaInboundController extends Controller
 
         // Check is VA expired
         $this->checkIsVaExpired($virtualAccount, $options['additionalData']);
-
-        // Check is token valid
-        $this->checkIsTokenValid($request);
-
-        // Check valid signature 
-        $this->checkIsSignatureValid($request);
     }
 
     private function checkIsSignatureValid(Request $request)
