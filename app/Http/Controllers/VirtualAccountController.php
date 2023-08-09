@@ -12,7 +12,7 @@ class VirtualAccountController extends Controller
     public function index()
     {
         $vas = VirtualAccount::paginate(10);
-        $totalBill = VirtualAccount::sum('outstanding');
+        $totalBill = VirtualAccount::where('is_active')->sum('outstanding');
         $vaCount = VirtualAccount::count();
         $data = compact('vas', 'totalBill', 'vaCount');
         return view('va.index', $data);
