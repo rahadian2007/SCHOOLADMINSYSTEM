@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Payment;
 use App\Models\VirtualAccount;
 
 class VirtualAccountController extends Controller
@@ -19,7 +20,8 @@ class VirtualAccountController extends Controller
 
     public function show(VirtualAccount $va)
     {
-        return view('va.detail', compact('va'));
+        $payments = Payment::where('virtualAccountNumber', $va->number)->get();
+        return view('va.detail', compact('va', 'payments'));
     }
 
     public function create()
