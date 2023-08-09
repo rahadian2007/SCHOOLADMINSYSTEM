@@ -41,6 +41,8 @@ class SnapRequestParsingException extends Exception
             
             $response = response()->json($jsonResponseData, $error['HTTP_CODE']);
     
+            Log::info($response);
+
             return $response;
         } catch (Exception $error) {
             Log::error($error);
