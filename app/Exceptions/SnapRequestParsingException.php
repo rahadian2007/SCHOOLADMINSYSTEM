@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Exception;
 
 use Illuminate\Support\Facades\Log;
+use stdClass;
 
 class SnapRequestParsingException extends Exception
 {
@@ -35,6 +36,7 @@ class SnapRequestParsingException extends Exception
 
             if ($this->virtualAccountData) {
                 $jsonResponseData['virtualAccountData'] = $this->virtualAccountData;
+                $jsonResponseData['additionalInfo'] = new stdClass;
             }
             
             $response = response()->json($jsonResponseData, $error['HTTP_CODE']);
