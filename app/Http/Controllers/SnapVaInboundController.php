@@ -261,7 +261,7 @@ class SnapVaInboundController extends Controller
                 'additionalInfo' => new stdClass,
             ];
 
-            if (sizeof($billDetails) > 0) {
+            if (sizeof($billDetails) > 0 && isset($data['virtualAccountData']) && isset($billDetails[0])) {
                 $data['virtualAccountData']['billReferenceNo'] = $billDetails[0]['billReferenceNo'];
                 $data['virtualAccountData']['billDetails'] = [
                     [
