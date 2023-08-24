@@ -686,6 +686,11 @@ class SnapVaInboundController extends Controller
         }
 
         $authorization = $request->bearerToken();
+        
+        if (!$authorization) {
+            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_ACCESS_TOKEN_INVALID');
+        }
+
         $validated = Token::validate($authorization, $client->secret);
 
         if (!$validated) {
