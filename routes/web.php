@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => ['get.menu', 'web']], function () {
     Route::get('/', 'HomeController@index');
 
-    Route::prefix('va-outbound')->middleware('cors')->group(function () {
+    Route::prefix('va-outbound')->group(function () {
         Route::post('/{va}', 'SnapVaOutboundController@updateVaStatus')->name('va.status-update');
     });
 
