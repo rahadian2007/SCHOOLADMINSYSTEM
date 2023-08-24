@@ -16,6 +16,10 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => ['get.menu', 'web']], function () {
     Route::get('/', 'HomeController@index');
 
+    Route::prefix('va-outbound')->group(function () {
+        Route::post('/{va}', 'SnapVaOutboundController@updateVaStatus')->name('va.status-update');
+    });
+
     Route::group(['middleware' => ['role:user']], function () {
         Route::get('/colors', function () {     return view('dashboard.colors'); });
         Route::get('/typography', function () { return view('dashboard.typography'); });

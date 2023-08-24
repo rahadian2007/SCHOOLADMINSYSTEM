@@ -480,4 +480,11 @@ return [
         "PAYMENT_FLAG_STATUS" => "01",
     ],
 
+    "STATUS_PAYMENT_NOT_FOUND" => [
+        "HTTP_CODE" => 404,
+        "CODE" => "4042601",
+        "MSG" => "Transaction not found",
+        "PAYMENT_FLAG_STATUS" => "01",
+    ],
+
 ];

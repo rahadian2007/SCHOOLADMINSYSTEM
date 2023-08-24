@@ -39,6 +39,13 @@ class Handler extends ExceptionHandler
         parent::report($exception);
     }
 
+    public function register(): void
+    {
+        $this->renderable(function (SnapRequestParsingException $e, $request) {
+            return redirect()->back()->withErrors('Test');
+        });
+    }
+
     /**
      * Render an exception into an HTTP response.
      *
@@ -52,6 +59,10 @@ class Handler extends ExceptionHandler
     {
         if ($exception instanceof \Spatie\Permission\Exceptions\UnauthorizedException) {
             return redirect()->route('login');
+        }
+
+        if ($exception instanceof SnapRequestParsingException) {
+            return redirect()->back()->withErrors('Test');
         }
 
         return parent::render($request, $exception);
