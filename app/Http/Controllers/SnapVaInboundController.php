@@ -598,40 +598,35 @@ class SnapVaInboundController extends Controller
             'additionalData' => []
         ]
     ) {
-        try {
+        // Check request parsing error
+        $this->checkRequestParsingError($request);
 
-            // Check request parsing error
-            $this->checkRequestParsingError($request);
-    
-            // Check mandatory fields
-            $this->checkMandatoryFields($request, $validation);
-    
-            // Check invalid field format
-            $this->checkInvalidHeaderFieldFormats($request);
-    
-            // Check is token valid
-            $this->checkIsTokenValid($request);
-    
-            // Check valid signature 
-            $this->checkIsSignatureValid($request);
-    
-            // Check is External ID conflicted
-            $this->checkConflictedExternalId($request);
-    
-            // Check is VA registered
-            $this->checkIsVaRegistered($virtualAccount, $options['additionalData']);
-    
-            // Check is external ID consistent
-            $this->checkInconsistentExternalId($request, $virtualAccount);
-            
-            // Check is VA settled
-            $this->checkIsVaSettled($virtualAccount, $options['additionalData']);
-    
-            // Check is VA expired
-            $this->checkIsVaExpired($virtualAccount, $options['additionalData']);
-        } catch (\Exception $e) {
+        // Check mandatory fields
+        $this->checkMandatoryFields($request, $validation);
 
-        }
+        // Check invalid field format
+        $this->checkInvalidHeaderFieldFormats($request);
+
+        // Check is token valid
+        $this->checkIsTokenValid($request);
+
+        // Check valid signature 
+        $this->checkIsSignatureValid($request);
+
+        // Check is External ID conflicted
+        $this->checkConflictedExternalId($request);
+
+        // Check is VA registered
+        $this->checkIsVaRegistered($virtualAccount, $options['additionalData']);
+
+        // Check is external ID consistent
+        $this->checkInconsistentExternalId($request, $virtualAccount);
+        
+        // Check is VA settled
+        $this->checkIsVaSettled($virtualAccount, $options['additionalData']);
+
+        // Check is VA expired
+        $this->checkIsVaExpired($virtualAccount, $options['additionalData']);
     }
 
     private function checkIsSignatureValid(Request $request)
