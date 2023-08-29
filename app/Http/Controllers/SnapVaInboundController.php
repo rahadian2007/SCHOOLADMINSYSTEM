@@ -676,9 +676,13 @@ class SnapVaInboundController extends Controller
         if (!$clientId) {
             $clientId = $request->headers->get('X-PARTNER-ID');
             $client = OAuthClient::where('partner_id', $clientId)->first();
+	    if (!$client) {
+		    $client = OAuthClient::find($clientId);
+	    }
             $this->CLIENT = $client;
         } else {
-            $client = OAuthClient::find($clientId);
+		$client = OAuthClient::find($clientId);
+		$this->CLIENT = $client;
         }
 
         if (!$client) {

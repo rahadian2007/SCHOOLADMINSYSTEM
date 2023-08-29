@@ -85,7 +85,6 @@ class AccessTokenController extends Controller
 
         $validGrantType = 'client_credentials';
         $isGrantTypeValid = $request->get('grantType') === $validGrantType;
-        
         if (!$isGrantTypeValid) {
             throw new SnapRequestParsingException('AUTH_INVALID_FIELD_FORMAT');
         }
@@ -111,7 +110,7 @@ class AccessTokenController extends Controller
 
         // Validate client key
 
-        $clientId = $request->header('X-CLIENT-KEY');
+        $clientId = $request->header('X-CLIENT-KEY') ? $request->header('X-CLIENT-KEY') : $request->header('X-PARTNER-ID');
 
         if (!$clientId) {
             throw new SnapRequestParsingException('AUTH_INVALID_MANDATORY_FIELD');
@@ -130,6 +129,7 @@ class AccessTokenController extends Controller
         $signature = $request->header('X-SIGNATURE');
         $stringToSign = "$clientId|$timestampStr";
         $publicKey = openssl_get_publickey(config('app.bca_public_key'));
+	//dd(config('app.bca_public_key'));
         $isSignatureVerified = openssl_verify(
             $stringToSign,
             base64_decode($signature),
