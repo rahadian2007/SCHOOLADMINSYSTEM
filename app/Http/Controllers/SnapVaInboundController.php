@@ -335,7 +335,7 @@ class SnapVaInboundController extends Controller
             ->first();
 
         if ($this->REQUEST_TYPE === 'PAYMENT') {
-            $isConflicted = $payment && $payment->externalId !== $request->get('paymentRequestId');
+            $isConflicted = $payment && $payment->externalId !== $externalId;
             if ($isConflicted) {
                 Log::warning('>>> $payment->externalId');
                 Log::warning($payment->externalId);
