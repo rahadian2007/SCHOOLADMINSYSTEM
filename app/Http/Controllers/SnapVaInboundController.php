@@ -653,6 +653,7 @@ class SnapVaInboundController extends Controller
         $stringToSign = "$httpMethod:$relativeUrl:$accessToken:$hashedMinifiedJsonBody:$timestampStr";
         Log::info($stringToSign);
         $bcaSecret = $this->CLIENT->secret;
+        Log::info($bcaSecret);
         $signatureTester = base64_encode(
             hash_hmac(
                 "sha512",
