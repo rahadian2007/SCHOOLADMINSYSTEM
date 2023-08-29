@@ -69,7 +69,7 @@ class BcaHelper {
             hash_hmac(
                 "sha512",
                 $stringToSign,
-                config('app.bca_client_secret'),
+                'XtA6VKJtlcuaZ2F9l3d7ksKcmUCRL7I17pSzLRA5',
                 true
             )
         );

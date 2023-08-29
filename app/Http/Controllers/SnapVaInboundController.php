@@ -651,6 +651,7 @@ class SnapVaInboundController extends Controller
         $signature = $request->header('X-SIGNATURE');
         $timestampStr = $request->header('X-TIMESTAMP');
         $stringToSign = "$httpMethod:$relativeUrl:$accessToken:$hashedMinifiedJsonBody:$timestampStr";
+        Log::info($hashedMinifiedJsonBody);
         Log::info($stringToSign);
         $bcaSecret = $this->CLIENT->secret;
         Log::info($bcaSecret);
