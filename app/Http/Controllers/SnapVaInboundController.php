@@ -337,6 +337,10 @@ class SnapVaInboundController extends Controller
         if ($this->REQUEST_TYPE === 'PAYMENT') {
             $isConflicted = $payment && $payment->externalId !== $request->get('paymentRequestId');
             if ($isConflicted) {
+                Log::warning('>>> $payment->externalId');
+                Log::warning($payment->externalId);
+                Log::warning('>>> paymentRequestId');
+                Log::warning($request->get('paymentRequestId'));
                 throw new SnapRequestParsingException($this->REQUEST_TYPE . '_CONFLICTED_EXTERNAL_ID');
             }
         } else { // INQUIRY
