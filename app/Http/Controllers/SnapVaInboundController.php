@@ -67,6 +67,10 @@ class SnapVaInboundController extends Controller
                     ]
                 ]
             );
+
+            // Inquiry specific validation
+            // INQUIRY_INVALID_FIELD_FORMAT
+            $this->checkInquiryInvalidFieldFormat($request);
     
             // Create payment instance
             $externalId = $request->headers->get('X-EXTERNAL-ID');
@@ -214,6 +218,10 @@ class SnapVaInboundController extends Controller
                 ]
             );
 
+            // Payment specific validation
+            // PAYMENT_INVALID_AMOUNT
+            $this->checkPaymentInvalidAmount($request);
+
             $newOutstanding = $va->outstanding - $request->get('paidAmount')['value'];
             Log::info(">> New outstanding:" . $newOutstanding);
 
@@ -317,7 +325,53 @@ class SnapVaInboundController extends Controller
     /**
      * ======================[ VALIDATIONS ]======================
      */
+
+    private function checkInquiryInvalidFieldFormat(Request $request)
+    {
+        $virtualAccountNo = $request->input('virtualAccountNo');
+        $partnerServiceId = $request->input('partnerServiceId');
+        $customerNo = $request->input('customerNo');
+        
+        // Validate length, max 20 char
+        if (strlen($customerNo) > 20) {
+            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INVALID_FIELD_FORMAT', '{customerNo: "exceed 20 characters"}');
+        }
+
+        // Validate VA number
+        if ($partnerServiceId . $customerNo !== $virtualAccountNo) {
+            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INVALID_FIELD_FORMAT', '{customerNo: "virtual account not matched"}');
+        }
+
+        // Validate whitespace
+        if (!strpos($virtualAccountNo, $this->ADDITIONAL_SPACE)) {
+            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INVALID_FIELD_FORMAT', '{virtualAccountNo: "invalid additional space"}');
+        }
+    }
     
+    private function checkPaymentInvalidAmount(Request $request)
+    {
+        $paidAmount = $request->get('paidAmount');
+
+        if (!$paidAmount || !isset($paidAmount['value']) || !isset($paidAmount['currency']) || !is_numeric($paidAmount['value'])) {
+            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INVALID_AMOUNT');
+        }
+
+        $paymentRequestId = $request->get('paymentRequestId');
+        $externalId = $request->get('externalId');
+
+        $payment = Payment::where('paymentRequestId', $paymentRequestId)
+                ->where('externalId', $externalId)
+                ->whereDate('created_at', Carbon::today())
+                ->first();
+        $dbPaidAmount = json_decode($payment->paidAmount);
+        
+        $isConsistentPaidAmount = $$dbPaidAmount->value !== $paidAmount['value'];
+        if ($isConsistentPaidAmount) {
+            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INVALID_AMOUNT');
+        }
+        
+    }
+
     private function checkRequestParsingError(Request $request)
     {
         // json_decode($request->getContent());

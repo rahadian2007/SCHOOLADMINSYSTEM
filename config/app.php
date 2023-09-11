@@ -338,12 +338,6 @@ return [
         "MSG" => "Conflict",
         "PAYMENT_FLAG_STATUS" => "01",
     ],
-    "INQUIRY_INVALID_FIELD_FORMAT" => [
-        "HTTP_CODE" => 400,
-        "CODE" => "4007300",
-        "MSG" => "Invalid field format [clientId/clientSecret/grantType]",
-        "PAYMENT_FLAG_STATUS" => null,
-    ],
     "INQUIRY_VALID_VA" => [
         "HTTP_CODE" => 200,
         "CODE" => "2002400",
@@ -446,6 +440,12 @@ return [
         "HTTP_CODE" => 404,
         "CODE" => "4042518",
         "MSG" => "Inconsistent Request",
+        "PAYMENT_FLAG_STATUS" => "01",
+    ],
+    "PAYMENT_INVALID_AMOUNT" => [
+        "HTTP_CODE" => 404,
+        "CODE" => "4042513",
+        "MSG" => "Invalid Amount",
         "PAYMENT_FLAG_STATUS" => "01",
     ],
     "PAYMENT_VALID_VA_EXPIRED" => [
