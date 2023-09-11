@@ -820,10 +820,28 @@ class SnapVaInboundController extends Controller
     private function checkMandatoryFields(Request $request, $validation)
     {
         // Check mandatory headers
-        $isHeadersValid = $request->headers->has('CHANNEL-ID') && $request->headers->has('X-PARTNER-ID');
+        $invalidMandatoryHeaders = [];
+        if (!$request->headers->has('CHANNEL-ID')) {
+            $invalidMandatoryHeaders[] = 'CHANNEL-ID';
+        }
+
+        if (!$request->headers->has('X-PARTNER-ID')) {
+            $invalidMandatoryHeaders[] = 'X-PARTNER-ID';
+        }
+
+        if (!$request->headers->has('X-EXTERNAL-ID')) {
+            $invalidMandatoryHeaders[] = 'X-EXTERNAL-ID';
+        }
+
+        $isHeadersValid = sizeof($invalidMandatoryHeaders) === 0;
 
         if (!$isHeadersValid) {
-            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_MISSING_MANDATORY_FIELD');
+            $vaData = VirtualAccount::where('number', $request->input('virtualAccountNo'))->first();
+            throw new SnapRequestParsingException(
+                $this->REQUEST_TYPE . '_MISSING_MANDATORY_FIELD',
+                ' [' . implode(', ', $invalidMandatoryHeaders) . ']',
+                $vaData
+            );
         }
 
         // Check mandatory body
@@ -833,7 +851,12 @@ class SnapVaInboundController extends Controller
             $messages = $bodyValidator->getMessageBag();
             $failedAttributes = array_keys($messages->getMessages());
             $additionalMessage = implode(', ', $failedAttributes);
-            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_MISSING_MANDATORY_FIELD', $additionalMessage);
+            $vaData = VirtualAccount::where('number', $request->input('virtualAccountNo'))->first();
+            throw new SnapRequestParsingException(
+                $this->REQUEST_TYPE . '_MISSING_MANDATORY_FIELD',
+                ' [' . $additionalMessage . ']',
+                $vaData
+            );
         }
     }
 }
