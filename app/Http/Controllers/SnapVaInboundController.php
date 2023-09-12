@@ -263,6 +263,16 @@ class SnapVaInboundController extends Controller
 
         $va = VirtualAccount::where('number', $virtualAccountNo)->first();
 
+        if (!$va) {
+            $this->checkIsVaRegistered(null, [
+                'partnerServiceId' => $partnerServiceId,
+                'virtualAccountNo' => $virtualAccountNo,
+                'customerNo' => $customerNo,
+                'inquiryRequestId' => $request->get('inquiryRequestId'),
+                'paymentRequestId' => $request->get('paymentRequestId'),
+            ]);
+        }
+
         if ($this->REQUEST_TYPE === 'INQUIRY') {
             $inquiryRequestId = $request->input('inquiryRequestId');
 
@@ -518,6 +528,14 @@ class SnapVaInboundController extends Controller
                         'value' => $va->outstanding,
                         'currency' => $this->CURRENCY,
                     ])
+                ]);
+            } else if (!$va) {
+                $this->checkIsVaRegistered(null, [
+                    'partnerServiceId' => $request->get('partnerServiceId'),
+                    'virtualAccountNo' => $request->get('virtualAccountNo'),
+                    'customerNo' => $request->get('customerNo'),
+                    'inquiryRequestId' => $request->get('inquiryRequestId'),
+                    'paymentRequestId' => $request->get('paymentRequestId'),
                 ]);
             }
         }
