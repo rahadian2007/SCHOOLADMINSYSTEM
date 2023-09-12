@@ -410,6 +410,24 @@ class SnapVaInboundController extends Controller
                 ->where('externalId', $externalId)
                 ->whereDate('created_at', Carbon::today())
                 ->first();
+
+        if (!$payment) {
+            $externalId = $request->headers->get('X-EXTERNAL-ID');
+            $payment = Payment::where('externalId', $externalId)
+                ->whereDate('created_at', Carbon::today())
+                ->first();
+        }
+
+        if (!$payment) {
+            $this->checkIsVaRegistered(null, [
+                'partnerServiceId' => $request->get('partnerServiceId'),
+                'virtualAccountNo' => $request->get('virtualAccountNo'),
+                'customerNo' => $request->get('customerNo'),
+                'inquiryRequestId' => $request->get('inquiryRequestId'),
+                'paymentRequestId' => $request->get('paymentRequestId'),
+            ]);
+        }
+
         $dbPaidAmount = json_decode($payment->paidAmount);
         
         $isConsistentPaidAmount = $$dbPaidAmount->value !== $paidAmount['value'];
