@@ -421,7 +421,7 @@ return [
     "PAYMENT_INVALID_FIELD_FORMAT" => [
         "HTTP_CODE" => 400,
         "CODE" => "4007300",
-        "MSG" => "Invalid field format [clientId/clientSecret/grantType]",
+        "MSG" => "Invalid field format",
         "PAYMENT_FLAG_STATUS" => null,
     ],
     "PAYMENT_VALID_VA" => [

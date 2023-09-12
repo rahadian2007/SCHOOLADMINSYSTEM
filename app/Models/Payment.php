@@ -10,6 +10,6 @@ class Payment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'partnerServiceId', 'customerNo', 'virtualAccountNumber', 'virtualAccountName', 'trxId', 'paymentRequestId', 'channelCode', 'paidAmount', 'externalId'
+        'partnerServiceId', 'customerNo', 'virtualAccountNumber', 'virtualAccountName', 'trxId', 'paymentRequestId', 'channelCode', 'paidAmount', 'externalId', 'paymentFlagStatus'
     ];
 }
