@@ -24,6 +24,7 @@ class SnapVaInboundController extends Controller
     private $PAYMENT_RESP_STATUS_SUCCESS = '2002500';
     private $PAYMENT_MSG_SUCCESS = 'Success';
     private $PAYMENT_SUCCESS_FLAG_STATUS = '00';
+    private $PAYMENT_INVALID_STATUS = '01';
     private $PAYMENT_SUCCESS_FLAG_REASON_ID = 'Sukses';
     private $PAYMENT_SUCCESS_FLAG_REASON_EN = 'Success';
     private $ADDITIONAL_SPACE = '   ';
@@ -99,48 +100,13 @@ class SnapVaInboundController extends Controller
             $data = [
                 'responseCode' => "2002400",
                 'responseMessage' => config('app.'.$this->REQUEST_TYPE.'_VALID_VA')['MSG'],
-                'virtualAccountData' => [
+                'virtualAccountData' => $this->buildVaResponsePayload($request, [
                     'inquiryStatus' => config('app.'.$this->REQUEST_TYPE.'_VALID_VA')['PAYMENT_FLAG_STATUS'],
                     'inquiryReason' => [
                         'english' => $this->INQUIRY_PROC_REASON_SUCCESS_EN,
                         'indonesia' => $this->INQUIRY_PROC_REASON_SUCCESS_ID,
-                    ],
-                    'partnerServiceId' => $this->ADDITIONAL_SPACE . $partnerServiceId,
-                    'customerNo' => $customerNo,
-                    'virtualAccountNo' => $this->ADDITIONAL_SPACE . $virtualAccountNo,
-                    'virtualAccountName' => $va->user->name,
-                    'virtualAccountEmail' => '',
-                    'virtualAccountPhone' => '',
-                    'inquiryRequestId' => $inquiryRequestId,
-                    'totalAmount' => [
-                        'value' => $va->outstanding,
-                        'currency' => $this->CURRENCY,
-                    ],
-                    'subCompany' => $this->INQUIRY_SUB_COMPANY,
-                    'billDetails' => [
-                        [
-                            'billNo' => $virtualAccountNo,
-                            'billDescription' => [
-                                'english' => $va->description,
-                                'indonesia' => $va->description,
-                            ],
-                            'billSubCompany' => $this->INQUIRY_SUB_COMPANY,
-                            'billAmount' => [
-                                'value' => $va->outstanding,
-                                'currency' => $this->CURRENCY,
-                            ],
-                        ],
-                    ],
-                    'freeTexts' => [
-                        [
-                            'english' => $va->description,
-                            'indonesia' => $va->description,
-                        ],
-                    ],
-                    'virtualAccountTrxType' => $this->INQUIRY_VA_TYPE,
-                    'feeAmount' => null,
-                    'additionalInfo' => new stdClass,
-                ],
+                    ]
+                ]),
             ];
     
             $response = response()->json($data);
@@ -186,8 +152,6 @@ class SnapVaInboundController extends Controller
             $paidAmount = $request->input('paidAmount');
             $trxDateTime = $request->input('trxDateTime');
             $referenceNo = $request->input('referenceNo');
-            $totalAmount = $request->input('totalAmount');
-            $billDetails = $request->input('billDetails');
     
             $va = VirtualAccount::where('number', $virtualAccountNo)->first();
     
@@ -235,66 +199,15 @@ class SnapVaInboundController extends Controller
             $data = [
                 'responseCode' => $this->PAYMENT_RESP_STATUS_SUCCESS,
                 'responseMessage' => $this->PAYMENT_MSG_SUCCESS,
-                'virtualAccountData' => [
+                'virtualAccountData' => $this->buildVaResponsePayload($request, [
                     'paymentFlagReason' => [
                         'english' => $this->PAYMENT_SUCCESS_FLAG_REASON_EN,
                         'indonesia' => $this->PAYMENT_SUCCESS_FLAG_REASON_ID,
                     ],
-                    'partnerServiceId' => $this->ADDITIONAL_SPACE . $partnerServiceId,
-                    'customerNo' => $customerNo,
-                    'virtualAccountNo' => $this->ADDITIONAL_SPACE . $virtualAccountNo,
-                    'virtualAccountName' => $va->user->name,
-                    'virtualAccountEmail' => '',
-                    'virtualAccountPhone' => '',
-                    'trxId' => '',
-                    'paymentRequestId' => $paymentRequestId,
-                    'paidAmount' => [
-                        'value' => $paidAmount['value'],
-                        'currency' => $paidAmount['currency'],
-                    ],
-                    'paidBills' => '',
-                    'totalAmount' => [
-                        'value' => $totalAmount['value'],
-                        'currency' => $this->CURRENCY,
-                    ],
-                    'trxDateTime' => $trxDateTime,
-                    'referenceNo' => $referenceNo,
-                    'journalNum' => '',
-                    'paymentType' => '',
-                    'flagAdvise' => 'N',
-                    'paymentFlagStatus' => '00',
-                    'billDetails' => [],
-                    'freeTexts' => [],
-                ],
+                    'paymentFlagStatus' => $this->PAYMENT_SUCCESS_FLAG_STATUS,
+                ]),
                 'additionalInfo' => new stdClass,
             ];
-
-            if (sizeof($billDetails) > 0 && isset($data['virtualAccountData']) && isset($billDetails[0])) {
-                $data['virtualAccountData']['billReferenceNo'] = $billDetails[0]['billReferenceNo'];
-                $data['virtualAccountData']['billDetails'] = [
-                    [
-                        'billNo' => $billDetails[0]['billNo'],
-                        'billDescription' => [
-                            'english' => $billDetails[0]['billDescription']['english'],
-                            'indonesia' => $billDetails[0]['billDescription']['indonesia'],
-                        ],
-                        'billSubCompany' => $billDetails[0]['billSubCompany'],
-                        'billAmount' => [
-                            'value' => $billDetails[0]['billAmount']['value'],
-                            'currency' => $billDetails[0]['billAmount']['currency'],
-                        ],
-                        'additionalInfo' => [
-                            'value' => $billDetails[0]['additionalInfo']['value'],
-                        ],
-                        'billReferenceNo' => $billDetails[0]['billReferenceNo'],
-                        'status' => $this->PAYMENT_SUCCESS_FLAG_STATUS,
-                        'reason' => [
-                            'english' => $billDetails[0] && isset($billDetails[0]['reason']) ? $billDetails[0]['reason']['english'] : '',
-                            'indonesia' => $billDetails[0] && isset($billDetails[0]['reason']) ? $billDetails[0]['reason']['indonesia'] : '',
-                        ],
-                    ]
-                ];
-            }
     
             $response = response()->json($data);
     
@@ -325,6 +238,140 @@ class SnapVaInboundController extends Controller
     /**
      * ======================[ VALIDATIONS ]======================
      */
+
+    private function buildVaResponsePayload($request, $payload = [
+        'inquiryStatus' => '',
+        'inquiryReason' => [
+            'english' => '',
+            'indonesia' => '',
+        ],
+        'paymentFlagReason' => [
+            'english' => '',
+            'indonesia' => '',
+        ],
+        'paymentFlagStatus' => '',
+    ])
+    {
+        $virtualAccountNo = $request->input('virtualAccountNo');
+        $partnerServiceId = $request->input('partnerServiceId');
+        $customerNo = $request->input('customerNo');
+        $paidAmount = $request->input('paidAmount');
+        $trxDateTime = $request->input('trxDateTime');
+        $referenceNo = $request->input('referenceNo');
+        $totalAmount = $request->input('totalAmount');
+        $billDetails = $request->input('billDetails');
+
+        $va = VirtualAccount::where('number', $virtualAccountNo)->first();
+
+        if ($this->REQUEST_TYPE === 'INQUIRY') {
+            $inquiryRequestId = $request->input('inquiryRequestId');
+
+            return [
+                'inquiryStatus' => $payload['inquiryStatus'],
+                'inquiryReason' => [
+                    'english' => $payload['inquiryReason']['english'],
+                    'indonesia' => $payload['inquiryReason']['indonesia'],
+                ],
+                'partnerServiceId' => $this->ADDITIONAL_SPACE . $partnerServiceId,
+                'customerNo' => $customerNo,
+                'virtualAccountNo' => $this->ADDITIONAL_SPACE . $virtualAccountNo,
+                'virtualAccountName' => $va->user->name,
+                'virtualAccountEmail' => '',
+                'virtualAccountPhone' => '',
+                'inquiryRequestId' => $inquiryRequestId,
+                'totalAmount' => [
+                    'value' => $va->outstanding,
+                    'currency' => $this->CURRENCY,
+                ],
+                'subCompany' => $this->INQUIRY_SUB_COMPANY,
+                'billDetails' => [
+                    [
+                        'billNo' => $virtualAccountNo,
+                        'billDescription' => [
+                            'english' => $va->description,
+                            'indonesia' => $va->description,
+                        ],
+                        'billSubCompany' => $this->INQUIRY_SUB_COMPANY,
+                        'billAmount' => [
+                            'value' => $va->outstanding,
+                            'currency' => $this->CURRENCY,
+                        ],
+                    ],
+                ],
+                'freeTexts' => [
+                    [
+                        'english' => $va->description,
+                        'indonesia' => $va->description,
+                    ],
+                ],
+                'virtualAccountTrxType' => $this->INQUIRY_VA_TYPE,
+                'feeAmount' => null,
+                'additionalInfo' => new stdClass,
+            ];
+        } else if ($this->REQUEST_TYPE === 'PAYMENT') {
+            $paymentRequestId = $request->input('paymentRequestId');
+            $data = [
+                'paymentFlagReason' => [
+                    'english' => $payload['paymentFlagReason']['english'],
+                    'indonesia' => $payload['paymentFlagReason']['indonesia'],
+                ],
+                'partnerServiceId' => $this->ADDITIONAL_SPACE . $partnerServiceId,
+                'customerNo' => $payload['customerNo'],
+                'virtualAccountNo' => $this->ADDITIONAL_SPACE . $virtualAccountNo,
+                'virtualAccountName' => $va->user->name,
+                'virtualAccountEmail' => '',
+                'virtualAccountPhone' => '',
+                'trxId' => '',
+                'paymentRequestId' => $paymentRequestId,
+                'paidAmount' => [
+                    'value' => $paidAmount['value'],
+                    'currency' => $paidAmount['currency'],
+                ],
+                'paidBills' => '',
+                'totalAmount' => [
+                    'value' => $totalAmount['value'],
+                    'currency' => $totalAmount['currency'],
+                ],
+                'trxDateTime' => $trxDateTime,
+                'referenceNo' => $referenceNo,
+                'journalNum' => '',
+                'paymentType' => '',
+                'flagAdvise' => 'N',
+                'paymentFlagStatus' => $payload['paymentFlagStatus'],
+                'billDetails' => [],
+                'freeTexts' => [],
+            ];
+
+            if (sizeof($billDetails) > 0 && isset($data['virtualAccountData']) && isset($billDetails[0])) {
+                $data['virtualAccountData']['billReferenceNo'] = $billDetails[0]['billReferenceNo'];
+                $data['virtualAccountData']['billDetails'] = [
+                    [
+                        'billNo' => $billDetails[0]['billNo'],
+                        'billDescription' => [
+                            'english' => $billDetails[0]['billDescription']['english'],
+                            'indonesia' => $billDetails[0]['billDescription']['indonesia'],
+                        ],
+                        'billSubCompany' => $billDetails[0]['billSubCompany'],
+                        'billAmount' => [
+                            'value' => $billDetails[0]['billAmount']['value'],
+                            'currency' => $billDetails[0]['billAmount']['currency'],
+                        ],
+                        'additionalInfo' => [
+                            'value' => $billDetails[0]['additionalInfo']['value'],
+                        ],
+                        'billReferenceNo' => $billDetails[0]['billReferenceNo'],
+                        'status' => $payload['paymentFlagStatus'],
+                        'reason' => [
+                            'english' => $billDetails[0] && isset($billDetails[0]['reason']) ? $billDetails[0]['reason']['english'] : '',
+                            'indonesia' => $billDetails[0] && isset($billDetails[0]['reason']) ? $billDetails[0]['reason']['indonesia'] : '',
+                        ],
+                    ]
+                ];
+            }
+
+            return $data;
+        }
+    }
 
     private function checkInquiryInvalidFieldFormat(Request $request)
     {
@@ -395,11 +442,19 @@ class SnapVaInboundController extends Controller
                 Log::warning($payment->externalId);
                 Log::warning('>>> paymentRequestId');
                 Log::warning($request->get('paymentRequestId'));
-                throw new SnapRequestParsingException($this->REQUEST_TYPE . '_CONFLICTED_EXTERNAL_ID');
+                throw new SnapRequestParsingException(
+                    $this->REQUEST_TYPE . '_CONFLICTED_EXTERNAL_ID',
+                    '',
+                    $this->buildVaResponsePayload($request)
+                );
             }
         } else { // INQUIRY
             if ($payment) {
-                throw new SnapRequestParsingException($this->REQUEST_TYPE . '_CONFLICTED_EXTERNAL_ID');
+                throw new SnapRequestParsingException(
+                    $this->REQUEST_TYPE . '_CONFLICTED_EXTERNAL_ID',
+                    '',
+                    $this->buildVaResponsePayload($request)
+                );
             }
         }
     }
@@ -783,19 +838,64 @@ class SnapVaInboundController extends Controller
             $hasValidGrantValue = $request->get('grantType') === 'client_credentials';
 
             if (!$hasValidGrantValue) {
-                throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INVALID_MANDATORY_FIELD');
+                throw new SnapRequestParsingException(
+                    $this->REQUEST_TYPE . '_INVALID_MANDATORY_FIELD',
+                    ' {"grantType": "missing field"}',
+                    $this->buildVaResponsePayload($request, [
+                        'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                        'inquiryReason' => [
+                            'english' => 'Missing mandatory field',
+                            'indonesia' => 'Isian tidak lengkap',
+                        ],
+                        'paymentFlagReason' => [
+                            'english' => 'Missing mandatory field',
+                            'indonesia' => 'Isian tidak lengkap',
+                        ],
+                        'paymentFlagStatus' => $this->PAYMENT_INVALID_STATUS,
+                    ])
+                );
             }
 
             $isClientKeyExist = $request->headers->has('X-CLIENT-KEY');
 
             if (!$isClientKeyExist) {
-                throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INVALID_MANDATORY_FIELD');
+                throw new SnapRequestParsingException(
+                    $this->REQUEST_TYPE . '_INVALID_MANDATORY_FIELD',
+                    ' {"X-CLIENT-KEY": "missing field"}',
+                    $this->buildVaResponsePayload($request, [
+                        'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                        'inquiryReason' => [
+                            'english' => 'Missing mandatory field',
+                            'indonesia' => 'Isian tidak lengkap',
+                        ],
+                        'paymentFlagReason' => [
+                            'english' => 'Missing mandatory field',
+                            'indonesia' => 'Isian tidak lengkap',
+                        ],
+                        'paymentFlagStatus' => $this->PAYMENT_INVALID_STATUS,
+                    ])
+                );
             }
         } else {
             $hasValidHeadersValue = $request->headers->has('X-EXTERNAL-ID');
 
             if (!$hasValidHeadersValue) {
-                throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INVALID_MANDATORY_FIELD');
+                throw new SnapRequestParsingException(
+                    $this->REQUEST_TYPE . '_INVALID_MANDATORY_FIELD',
+                    ' {"X-EXTERNAL-ID": "missing field"}',
+                    $this->buildVaResponsePayload($request, [
+                        'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                        'inquiryReason' => [
+                            'english' => 'Missing mandatory field',
+                            'indonesia' => 'Isian tidak lengkap',
+                        ],
+                        'paymentFlagReason' => [
+                            'english' => 'Missing mandatory field',
+                            'indonesia' => 'Isian tidak lengkap',
+                        ],
+                        'paymentFlagStatus' => $this->PAYMENT_INVALID_STATUS,
+                    ])
+                );
             }
         }
     }
@@ -836,11 +936,21 @@ class SnapVaInboundController extends Controller
         $isHeadersValid = sizeof($invalidMandatoryHeaders) === 0;
 
         if (!$isHeadersValid) {
-            $vaData = VirtualAccount::where('number', $request->input('virtualAccountNo'))->first();
             throw new SnapRequestParsingException(
                 $this->REQUEST_TYPE . '_MISSING_MANDATORY_FIELD',
                 ' [' . implode(', ', $invalidMandatoryHeaders) . ']',
-                $vaData
+                $this->buildVaResponsePayload($request, [
+                    'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                    'inquiryReason' => [
+                        'english' => 'Missing mandatory field',
+                        'indonesia' => 'Isian tidak lengkap',
+                    ],
+                    'paymentFlagReason' => [
+                        'english' => 'Missing mandatory field',
+                        'indonesia' => 'Isian tidak lengkap',
+                    ],
+                    'paymentFlagStatus' => $this->PAYMENT_INVALID_STATUS,
+                ])
             );
         }
 
@@ -855,7 +965,18 @@ class SnapVaInboundController extends Controller
             throw new SnapRequestParsingException(
                 $this->REQUEST_TYPE . '_MISSING_MANDATORY_FIELD',
                 ' [' . $additionalMessage . ']',
-                $vaData
+                $this->buildVaResponsePayload($request, [
+                    'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                    'inquiryReason' => [
+                        'english' => 'Missing mandatory field',
+                        'indonesia' => 'Isian tidak lengkap',
+                    ],
+                    'paymentFlagReason' => [
+                        'english' => 'Missing mandatory field',
+                        'indonesia' => 'Isian tidak lengkap',
+                    ],
+                    'paymentFlagStatus' => $this->PAYMENT_INVALID_STATUS,
+                ])
             );
         }
     }
