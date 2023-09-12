@@ -470,7 +470,22 @@ class SnapVaInboundController extends Controller
                 ->exists();
     
             if ($isExternalIdAndPaymentRequestIdExist) {
-                throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INCONSISTENT_REQUEST');
+                throw new SnapRequestParsingException(
+                    $this->REQUEST_TYPE . '_INCONSISTENT_REQUEST',
+                    '',
+                    $this->buildVaResponsePayload($request, [
+                        'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                        'inquiryReason' => [
+                            'english' => 'Duplicated X-EXTERNAL-ID and paymentRequestId',
+                            'indonesia' => 'X-EXTERNAL-ID dan paymentRequestId terduplikasi',
+                        ],
+                        'paymentFlagReason' => [
+                            'english' => 'Duplicated X-EXTERNAL-ID and paymentRequestId',
+                            'indonesia' => 'X-EXTERNAL-ID dan paymentRequestId terduplikasi',
+                        ],
+                        'paymentFlagStatus' => $this->PAYMENT_INVALID_STATUS,
+                    ])
+                );
             } else if ($va) {
                 Payment::create([
                     'partnerServiceId' => $request->get('partnerServiceId'),
