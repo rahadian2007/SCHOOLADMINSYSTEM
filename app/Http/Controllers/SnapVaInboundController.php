@@ -316,7 +316,7 @@ class SnapVaInboundController extends Controller
                     'indonesia' => $payload['paymentFlagReason']['indonesia'],
                 ],
                 'partnerServiceId' => $this->ADDITIONAL_SPACE . $partnerServiceId,
-                'customerNo' => $payload['customerNo'],
+                'customerNo' => $customerNo,
                 'virtualAccountNo' => $this->ADDITIONAL_SPACE . $virtualAccountNo,
                 'virtualAccountName' => $va->user->name,
                 'virtualAccountEmail' => '',
