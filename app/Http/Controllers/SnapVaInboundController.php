@@ -46,6 +46,10 @@ class SnapVaInboundController extends Controller
             $customerNo = $request->input('customerNo');
             $inquiryRequestId = $request->input('inquiryRequestId');
 
+            // Inquiry specific validation
+            // INQUIRY_INVALID_FIELD_FORMAT
+            $this->checkInquiryInvalidFieldFormat($request);
+
             $va = VirtualAccount::where('number', $virtualAccountNo)->first();
     
             $this->validateRequest(
@@ -68,10 +72,6 @@ class SnapVaInboundController extends Controller
                     ]
                 ]
             );
-
-            // Inquiry specific validation
-            // INQUIRY_INVALID_FIELD_FORMAT
-            $this->checkInquiryInvalidFieldFormat($request);
     
             // Create payment instance
             $externalId = $request->headers->get('X-EXTERNAL-ID');
@@ -154,6 +154,10 @@ class SnapVaInboundController extends Controller
             $referenceNo = $request->input('referenceNo');
     
             $va = VirtualAccount::where('number', $virtualAccountNo)->first();
+
+            // Payment specific validation
+            // PAYMENT_INVALID_AMOUNT
+            $this->checkPaymentInvalidAmount($request);
     
             $this->validateRequest(
                 $request,
@@ -181,10 +185,6 @@ class SnapVaInboundController extends Controller
                     ]
                 ]
             );
-
-            // Payment specific validation
-            // PAYMENT_INVALID_AMOUNT
-            $this->checkPaymentInvalidAmount($request);
 
             $newOutstanding = $va->outstanding - $request->get('paidAmount')['value'];
             Log::info(">> New outstanding:" . $newOutstanding);
