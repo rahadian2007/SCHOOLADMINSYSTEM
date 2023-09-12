@@ -391,17 +391,62 @@ class SnapVaInboundController extends Controller
         
         // Validate length, max 20 char
         if (strlen($customerNo) > 20) {
-            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INVALID_FIELD_FORMAT', '{customerNo: "exceed 20 characters"}');
+            throw new SnapRequestParsingException(
+                $this->REQUEST_TYPE . '_INVALID_FIELD_FORMAT',
+                '{customerNo: "exceed 20 characters"}',
+                $this->buildVaResponsePayload($request, [
+                    'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                    'inquiryReason' => [
+                        'english' => 'CustomerNo exceeds 20 character',
+                        'indonesia' => 'customerNo melebihi 20 karakter',
+                    ],
+                    'paymentFlagReason' => [
+                        'english' => 'CustomerNo exceeds 20 character',
+                        'indonesia' => 'customerNo melebihi 20 karakter',
+                    ],
+                    'paymentFlagStatus' => $this->PAYMENT_INVALID_STATUS,
+                ])
+            );
         }
 
         // Validate VA number
         if ($partnerServiceId . $customerNo !== $virtualAccountNo) {
-            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INVALID_FIELD_FORMAT', '{customerNo: "virtual account not matched"}');
+            throw new SnapRequestParsingException(
+                $this->REQUEST_TYPE . '_INVALID_FIELD_FORMAT',
+                '{customerNo: "virtual account not matched"}',
+                $this->buildVaResponsePayload($request, [
+                    'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                    'inquiryReason' => [
+                        'english' => 'virtual account not matched',
+                        'indonesia' => 'VA tidak sesuai',
+                    ],
+                    'paymentFlagReason' => [
+                        'english' => 'virtual account not matched',
+                        'indonesia' => 'VA tidak sesuai',
+                    ],
+                    'paymentFlagStatus' => $this->PAYMENT_INVALID_STATUS,
+                ])
+            );
         }
 
         // Validate whitespace
         if (!strpos($virtualAccountNo, $this->ADDITIONAL_SPACE)) {
-            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INVALID_FIELD_FORMAT', '{virtualAccountNo: "invalid additional space"}');
+            throw new SnapRequestParsingException(
+                $this->REQUEST_TYPE . '_INVALID_FIELD_FORMAT',
+                '{virtualAccountNo: "invalid additional space"}',
+                $this->buildVaResponsePayload($request, [
+                    'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                    'inquiryReason' => [
+                        'english' => 'invalid additional space',
+                        'indonesia' => 'Spasi tidak sesuai',
+                    ],
+                    'paymentFlagReason' => [
+                        'english' => 'invalid additional space',
+                        'indonesia' => 'Spasi tidak sesuai',
+                    ],
+                    'paymentFlagStatus' => $this->PAYMENT_INVALID_STATUS,
+                ])
+            );
         }
     }
     
@@ -410,7 +455,22 @@ class SnapVaInboundController extends Controller
         $paidAmount = $request->get('paidAmount');
 
         if (!$paidAmount || !isset($paidAmount['value']) || !isset($paidAmount['currency']) || !is_numeric($paidAmount['value'])) {
-            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INVALID_AMOUNT');
+            throw new SnapRequestParsingException(
+                $this->REQUEST_TYPE . '_INVALID_AMOUNT',
+                '',
+                $this->buildVaResponsePayload($request, [
+                    'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                    'inquiryReason' => [
+                        'english' => 'Invalid amount',
+                        'indonesia' => 'Jumlah tidak valid',
+                    ],
+                    'paymentFlagReason' => [
+                        'english' => 'Invalid amount',
+                        'indonesia' => 'Jumlah tidak valid',
+                    ],
+                    'paymentFlagStatus' => $this->PAYMENT_INVALID_STATUS,
+                ])
+            );
         }
 
         $paymentRequestId = $request->get('paymentRequestId');
@@ -442,7 +502,22 @@ class SnapVaInboundController extends Controller
         
         $isConsistentPaidAmount = $$dbPaidAmount->value !== $paidAmount['value'];
         if ($isConsistentPaidAmount) {
-            throw new SnapRequestParsingException($this->REQUEST_TYPE . '_INVALID_AMOUNT');
+            throw new SnapRequestParsingException(
+                $this->REQUEST_TYPE . '_INVALID_AMOUNT',
+                '',
+                $this->buildVaResponsePayload($request, [
+                    'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                    'inquiryReason' => [
+                        'english' => 'Inconsistent amount',
+                        'indonesia' => 'Jumlah tidak konsisten',
+                    ],
+                    'paymentFlagReason' => [
+                        'english' => 'Inconsistent amount',
+                        'indonesia' => 'Jumlah tidak konsisten',
+                    ],
+                    'paymentFlagStatus' => $this->PAYMENT_INVALID_STATUS,
+                ])
+            );
         }
         
     }
@@ -473,7 +548,18 @@ class SnapVaInboundController extends Controller
                 throw new SnapRequestParsingException(
                     $this->REQUEST_TYPE . '_CONFLICTED_EXTERNAL_ID',
                     '',
-                    $this->buildVaResponsePayload($request)
+                    $this->buildVaResponsePayload($request, $this->buildVaResponsePayload($request, [
+                        'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                        'inquiryReason' => [
+                            'english' => 'Conflicted External ID',
+                            'indonesia' => 'External ID konflik',
+                        ],
+                        'paymentFlagReason' => [
+                            'english' => 'Conflicted External ID',
+                            'indonesia' => 'External ID konflik',
+                        ],
+                        'paymentFlagStatus' => $this->PAYMENT_INVALID_STATUS,
+                    ]))
                 );
             }
         } else { // INQUIRY
@@ -481,7 +567,18 @@ class SnapVaInboundController extends Controller
                 throw new SnapRequestParsingException(
                     $this->REQUEST_TYPE . '_CONFLICTED_EXTERNAL_ID',
                     '',
-                    $this->buildVaResponsePayload($request)
+                    $this->buildVaResponsePayload($request, [
+                        'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                        'inquiryReason' => [
+                            'english' => 'Conflicted External ID',
+                            'indonesia' => 'External ID konflik',
+                        ],
+                        'paymentFlagReason' => [
+                            'english' => 'Conflicted External ID',
+                            'indonesia' => 'External ID konflik',
+                        ],
+                        'paymentFlagStatus' => $this->PAYMENT_INVALID_STATUS,
+                    ])
                 );
             }
         }
