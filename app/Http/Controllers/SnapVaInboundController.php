@@ -252,8 +252,8 @@ class SnapVaInboundController extends Controller
         'paymentFlagStatus' => '',
     ])
     {
-        $virtualAccountNo = $request->input('virtualAccountNo');
-        $partnerServiceId = $request->input('partnerServiceId');
+        $virtualAccountNo = $request->input('virtualAccountNo') ? trim($request->input('virtualAccountNo')) : '';
+        $partnerServiceId = $request->input('partnerServiceId') ? trim($request->input('partnerServiceId')) : '';
         $customerNo = $request->input('customerNo');
         $paidAmount = $request->input('paidAmount');
         $trxDateTime = $request->input('trxDateTime');
