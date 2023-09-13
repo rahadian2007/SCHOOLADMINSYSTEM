@@ -412,14 +412,7 @@ class SnapVaInboundController extends Controller
         }
 
         if (!$payment) {
-            $this->checkIsVaRegistered(null, [
-                'partnerServiceId' => $request->get('partnerServiceId'),
-                'virtualAccountNo' => $request->get('virtualAccountNo'),
-                'customerNo' => $request->get('customerNo'),
-                'inquiryRequestId' => $request->get('inquiryRequestId'),
-                'paymentRequestId' => $request->get('paymentRequestId'),
-                'trxDateTime' => $request->get('trxDateTime'),
-            ]);
+            $this->checkInconsistentExternalId($request);
         }
 
         $dbPaidAmount = json_decode($payment->paidAmount);
@@ -557,13 +550,22 @@ class SnapVaInboundController extends Controller
                     ])
                 ]);
             } else if (!$va) {
-                $this->checkIsVaRegistered(null, [
-                    'partnerServiceId' => $request->get('partnerServiceId'),
-                    'virtualAccountNo' => $request->get('virtualAccountNo'),
-                    'customerNo' => $request->get('customerNo'),
-                    'inquiryRequestId' => $request->get('inquiryRequestId'),
-                    'paymentRequestId' => $request->get('paymentRequestId'),
-                ]);
+                throw new SnapRequestParsingException(
+                    $this->REQUEST_TYPE . '_INCONSISTENT_REQUEST',
+                    '',
+                    $this->buildVaResponsePayload($request, [
+                        'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                        'inquiryReason' => [
+                            'english' => 'Inconsistent request',
+                            'indonesia' => 'Request inkonsisten',
+                        ],
+                        'paymentFlagReason' => [
+                            'english' => 'Inconsistent request',
+                            'indonesia' => 'Request inkonsisten',
+                        ],
+                        'paymentFlagStatus' => $this->PAYMENT_INVALID_STATUS,
+                    ])
+                );
             }
         }
     }
