@@ -1076,6 +1076,18 @@ class SnapVaInboundController extends Controller
             throw new SnapRequestParsingException(
                 $this->REQUEST_TYPE . '_INVALID_FIELD_FORMAT',
                 ' {customerNo: "not a number"}',
+                $this->buildVaResponsePayload($request, [
+                    'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                    'inquiryReason' => [
+                        'english' => 'customerNo is not a number',
+                        'indonesia' => 'customerNo tidak valid',
+                    ],
+                    'paymentFlagReason' => [
+                        'english' => 'customerNo is not a number',
+                        'indonesia' => 'customerNo tidak valid',
+                    ],
+                    'paymentFlagStatus' => $this->PAYMENT_INVALID_STATUS,
+                ])
             );
         }
 
@@ -1084,6 +1096,18 @@ class SnapVaInboundController extends Controller
             throw new SnapRequestParsingException(
                 $this->REQUEST_TYPE . '_INVALID_FIELD_FORMAT',
                 ' {virtualAccountNo: "not a number"}',
+                $this->buildVaResponsePayload($request, [
+                    'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                    'inquiryReason' => [
+                        'english' => 'virtualAccountNo is not a number',
+                        'indonesia' => 'virtualAccountNo tidak valid',
+                    ],
+                    'paymentFlagReason' => [
+                        'english' => 'virtualAccountNo is not a number',
+                        'indonesia' => 'virtualAccountNo tidak valid',
+                    ],
+                    'paymentFlagStatus' => $this->PAYMENT_INVALID_STATUS,
+                ])
             );
         }
 
@@ -1092,6 +1116,18 @@ class SnapVaInboundController extends Controller
             throw new SnapRequestParsingException(
                 $this->REQUEST_TYPE . '_INVALID_FIELD_FORMAT',
                 ' {customerNo: "VA not matched"}',
+                $this->buildVaResponsePayload($request, [
+                    'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                    'inquiryReason' => [
+                        'english' => 'VA not matched',
+                        'indonesia' => 'VA tidak sesuai',
+                    ],
+                    'paymentFlagReason' => [
+                        'english' => 'VA not matched',
+                        'indonesia' => 'VA tidak sesuai',
+                    ],
+                    'paymentFlagStatus' => $this->PAYMENT_INVALID_STATUS,
+                ])
             );
         }
 
@@ -1100,6 +1136,18 @@ class SnapVaInboundController extends Controller
             throw new SnapRequestParsingException(
                 $this->REQUEST_TYPE . '_INVALID_FIELD_FORMAT',
                 ' {virtualAccountNo: "invalid additional space"}',
+                $this->buildVaResponsePayload($request, [
+                    'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                    'inquiryReason' => [
+                        'english' => 'virtualAccountNo invalid additional space',
+                        'indonesia' => 'virtualAccountNo invalid spasi',
+                    ],
+                    'paymentFlagReason' => [
+                        'english' => 'virtualAccountNo invalid additional space',
+                        'indonesia' => 'virtualAccountNo invalid spasi',
+                    ],
+                    'paymentFlagStatus' => $this->PAYMENT_INVALID_STATUS,
+                ])
             );
         }
 
