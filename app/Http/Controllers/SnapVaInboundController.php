@@ -412,7 +412,9 @@ class SnapVaInboundController extends Controller
         }
 
         if (!$payment) {
-            $this->checkInconsistentExternalId($request);
+            $virtualAccountNo = $request->get('virtualAccountNo') ? trim($request->get('virtualAccountNo')) : '';
+            $va = VirtualAccount::where('number', $virtualAccountNo)->first();
+            $this->checkInconsistentExternalId($request, $va);
         }
 
         $dbPaidAmount = json_decode($payment->paidAmount);
