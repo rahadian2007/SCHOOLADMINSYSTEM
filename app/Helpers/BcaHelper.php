@@ -17,8 +17,8 @@ class BcaHelper {
     public static function getSignature($clientId, $timestamp)
     {
         $stringToSign = "$clientId|$timestamp";
-        $secretKey = config('app.bca_client_secret');
-        openssl_sign($stringToSign, $binarySignature, $secretKey, "SHA256");
+        $privateKey = openssl_get_privatekey(config('app.bca_private_key'));
+        openssl_sign($stringToSign, $binarySignature, $privateKey, "SHA256");
         $signature = base64_encode($binarySignature);
 
         return $signature;
@@ -34,7 +34,7 @@ class BcaHelper {
         $timestamp = Carbon::now()->timezone("Asia/Jakarta")->toIso8601String();
         $signature = self::getSignature($clientId, $timestamp);
 
-        return [
+        return [private-key-bca-dev.pem
             "X-CLIENT-KEY" => $clientId,
             "X-TIMESTAMP" => $timestamp,
             "X-SIGNATURE" => $signature,
