@@ -96,13 +96,27 @@ class BcaHelper {
     public static function evalAccessToken()
     {
         try {
-            if (!Cache::has(static::$accessTokenSessionPath)) {
+            $hasAccessTokenInCache = Cache::has(static::$accessTokenSessionPath);
+            Log::info(">> hasAccessTokenInCache");
+            Log::info($hasAccessTokenInCache);
+            if (!$hasAccessTokenInCache) {
                 $requestUrl = config('app.bca_api_base_url') . "/openapi/v1.0/access-token/b2b";
                 $requestBody = [ "grantType" => "client_credentials" ];
+
+                Log::info(">> get token url");
+                Log::info($requestUrl);
+                Log::info(">> requestBody");
+                Log::info($requestBody);
+
                 $response = Http::acceptJson()
                     ->withHeaders(BcaHelper::getAsymmetricHeaders())
                     ->post($requestUrl, $requestBody);
+                
                 $jsonResponse = $response->json();
+                
+                Log::info(">> token response");
+                Log::info($jsonResponse);
+
                 $accessToken = $jsonResponse["accessToken"];
                 if ($accessToken) {
                     Cache::put(static::$accessTokenSessionPath, $accessToken, 900);
