@@ -34,7 +34,7 @@ class BcaHelper {
         $timestamp = Carbon::now()->timezone("Asia/Jakarta")->toIso8601String();
         $signature = self::getSignature($clientId, $timestamp);
 
-        return [private-key-bca-dev.pem
+        return [
             "X-CLIENT-KEY" => $clientId,
             "X-TIMESTAMP" => $timestamp,
             "X-SIGNATURE" => $signature,
