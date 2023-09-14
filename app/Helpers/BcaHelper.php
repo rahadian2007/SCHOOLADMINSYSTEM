@@ -78,7 +78,7 @@ class BcaHelper {
         Log::info($stringToSign);
 
         return [
-            "String to sign" => $stringToSign,
+            // "String to sign" => $stringToSign,
             "Authorization" => "Bearer $accessToken",
             "X-TIMESTAMP" => $timestamp,
             "X-SIGNATURE" => $signature,
