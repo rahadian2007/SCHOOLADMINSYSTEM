@@ -17,8 +17,8 @@ class BcaHelper {
     public static function getSignature($clientId, $timestamp)
     {
         $stringToSign = "$clientId|$timestamp";
-        $privateKey = openssl_get_privatekey(config('app.bca_private_key'));
-        openssl_sign($stringToSign, $binarySignature, $privateKey, "SHA256");
+        $secretKey = config('app.bca_private_key');
+        openssl_sign($stringToSign, $binarySignature, $secretKey, "SHA256");
         $signature = base64_encode($binarySignature);
 
         return $signature;
