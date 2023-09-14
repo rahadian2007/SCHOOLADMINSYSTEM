@@ -51,7 +51,7 @@ class SnapVaOutboundController extends Controller
             $requestBody = [
                 "partnerServiceId" => $partnerServiceId,
                 "customerNo" => $customerNumber,
-                "virtualAccountNo" => $spacer . $partnerServiceId . $customerNumber,
+                "virtualAccountNo" => $partnerServiceId . $customerNumber,
                 "paymentRequestId" => $lastPaymentRequestId,
             ];
 
