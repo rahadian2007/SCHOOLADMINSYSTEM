@@ -36,8 +36,8 @@ class SnapVaOutboundController extends Controller
             Log::info(">> Request URL");
             Log::info($requestUrl);
 
-            $customerNumber = $va->number;
             $lastPayment = Payment::where('virtualAccountNumber', $va->number)->OrderBy('id', 'desc')->first();
+            $customerNumber = str_replace($lastPayment->partnerServiceId, '', $va->number);
             
             Log::info(">> Last Payment");
             Log::info($lastPayment);
