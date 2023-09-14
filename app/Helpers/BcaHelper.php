@@ -30,7 +30,7 @@ class BcaHelper {
     public static function getAsymmetricHeaders()
     {
         // $clientId = config('app.bca_client_id');
-        $clientId = '99a07b36-c73b-48a5-99db-a53acca60833';
+        $clientId = config('app.bca_client_id');
         $timestamp = Carbon::now()->timezone("Asia/Jakarta")->toIso8601String();
         $signature = self::getSignature($clientId, $timestamp);
 
