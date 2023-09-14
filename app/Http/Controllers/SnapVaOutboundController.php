@@ -21,15 +21,27 @@ class SnapVaOutboundController extends Controller
     public function updateVaStatus(VirtualAccount $va)
     {
         try {
+            Log::info(">> INITIATE OUTBOUND REQUEST");
             BcaHelper::evalAccessToken();
             
             $relativeUriPath = "/openapi/v1.0/transfer-va/status";
             $spacer = "   ";
             $accessToken = Cache::get(BcaHelper::$accessTokenSessionPath);
+            
+            Log::info(">> Access Token");
+            Log::info($accessToken);
+            
             $requestUrl = config('app.bca_api_base_url') . $relativeUriPath;
+
+            Log::info(">> Request URL");
+            Log::info($requestUrl);
+
             $customerNumber = $va->number;
             $lastPayment = Payment::where('virtualAccountNumber', $va->number)->OrderBy('id', 'desc')->first();
             
+            Log::info(">> Last Payment");
+            Log::info($lastPayment);
+
             if (!$lastPayment->id) {
                 throw new SnapRequestParsingException('STATUS_PAYMENT_NOT_FOUND');
             }
@@ -42,8 +54,6 @@ class SnapVaOutboundController extends Controller
                 "virtualAccountNo" => $spacer . $partnerServiceId . $customerNumber,
                 "paymentRequestId" => $lastPaymentRequestId,
             ];
-
-            Log::info("Request to endpoint: $requestUrl");
 
             $symmetricHeaders = BcaHelper::getSymmetricHeaders(
                 "POST",
