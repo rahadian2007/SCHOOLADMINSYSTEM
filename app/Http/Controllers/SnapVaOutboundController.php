@@ -6,10 +6,11 @@ use App\Exceptions\SnapRequestParsingException;
 use App\Helpers\BcaHelper;
 use App\Models\VirtualAccount;
 use App\Models\Payment;
-use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Exception;
+use stdClass;
 
 class SnapVaOutboundController extends Controller
 {
@@ -53,6 +54,8 @@ class SnapVaOutboundController extends Controller
                 "customerNo" => $customerNumber,
                 "virtualAccountNo" => $partnerServiceId . $customerNumber,
                 "paymentRequestId" => $lastPaymentRequestId,
+                "inquiryRequestId" => $lastPaymentRequestId,
+                "additionalInfo" => new stdClass,
             ];
 
             $symmetricHeaders = BcaHelper::getSymmetricHeaders(
