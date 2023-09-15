@@ -100,7 +100,7 @@ class BcaHelper {
             Log::info(">> hasAccessTokenInCache");
             Log::info($hasAccessTokenInCache);
             if (!$hasAccessTokenInCache) {
-                $requestUrl = config('app.bca_api_base_url') . "/openapi/v1.0/access-token/b2b";
+                $requestUrl = "https://devapi.klikbca.com:9443/openapi/v1.0/access-token/b2b";
                 $requestBody = [ "grantType" => "client_credentials" ];
 
                 Log::info(">> get token url");
