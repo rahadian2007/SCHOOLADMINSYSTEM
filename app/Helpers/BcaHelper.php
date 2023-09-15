@@ -82,11 +82,11 @@ class BcaHelper {
             "Authorization" => "Bearer $accessToken",
             "X-TIMESTAMP" => $timestamp,
             "X-SIGNATURE" => $signature,
-            "X-EXTERNAL-ID" => (int) date("YmdHms"),
+            "X-EXTERNAL-ID" => date("YmdHms"),
             "X-CLIENT-KEY" => config('app.bca_client_id'),
             "Content-Type" => "application/json",
             "X-PARTNER-ID" => config('app.bca_company_id'),
-            "CHANNEL-ID" => 95231, // Virtual account channel id = 95231
+            "CHANNEL-ID" => '95231', // Virtual account channel id = 95231
         ];
     }
 
