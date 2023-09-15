@@ -79,8 +79,6 @@ class SnapVaOutboundController extends Controller
 
             $jsonResponse = $response->json();
 
-            Log::info($jsonResponse->responseCode);
-
             return $jsonResponse;
         } catch (SnapRequestParsingException $error) {
             return redirect()->back()->withErrors("Terjadi kesalahan. Silakan hubungi Admin");
