@@ -37,7 +37,8 @@ class UsersController extends Controller
                 });
         }
         $users = $users->paginate(10);
-        return view('user.index', compact('users', 'you'));
+        $usersCount = User::whereNull('deleted_at')->count();
+        return view('user.index', compact('users', 'you', 'usersCount'));
     }
 
     public function create()

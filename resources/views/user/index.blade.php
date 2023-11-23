@@ -2,6 +2,19 @@
 
 @section('content')
 <x-containers.container>
+  <div class="row">
+    <div class="col-sm-6 col-lg-3">
+      <div class="card text-white bg-primary">
+        <div class="card-body pb-0">
+          <div class="text-value-lg">@numeric($usersCount)</div>
+          <div>Jumlah Siswa</div>
+        </div>
+        <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">
+          <canvas class="chart" height="70"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
   <x-containers.card searchEnabled>
     <x-slot name="addNew">
       <x-forms.button href="{{ route('users.create') }}">

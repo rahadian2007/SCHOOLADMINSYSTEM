@@ -27,7 +27,8 @@ class UsersController extends Controller
     {
         $you = auth()->user();
         $users = User::all();
-        return view('dashboard.admin.usersList', compact('users', 'you'));
+        $usersCount = User::count();
+        return view('dashboard.admin.usersList', compact('users', 'you', 'usersCount'));
     }
 
     /**

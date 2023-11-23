@@ -3,20 +3,26 @@
 @section('content')
     <x-containers.container>
         <div class="row">
-            <div class="col-md-4">
-                <div class="card mb-4 text-white bg-dark">
-                    <div class="card-body">
-                        <b>Total Tagihan</b>
-                        <h3 class="font-weight-bold">@currency($totalBill)</h3>
-                    </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card text-white bg-info">
+                <div class="card-body pb-0">
+                    <div class="text-value-lg">@numeric($vaCount)</div>
+                    <div>Jumlah Virtual Account</div>
+                </div>
+                <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">
+                    <canvas class="chart" height="70"></canvas>
+                </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card mb-4 text-white bg-light">
-                    <div class="card-body">
-                        <b class="text-dark">Jumlah VA</b>
-                        <h3 class="text-dark font-weight-bold">{{ $vaCount }}</h3>
-                    </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card text-white bg-warning">
+                <div class="card-body pb-0">
+                    <div class="text-value-lg">@currency($totalBill)</div>
+                    <div>Total Tagihan</div>
+                </div>
+                <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">
+                    <canvas class="chart" height="70"></canvas>
+                </div>
                 </div>
             </div>
         </div>

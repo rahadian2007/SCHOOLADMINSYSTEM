@@ -30,5 +30,9 @@ class AppServiceProvider extends ServiceProvider
         Blade::directive('currency', function ($amount) {
             return "<?php echo 'Rp' . number_format($amount); ?>";
         });
+
+        Blade::directive('numeric', function ($amount) {
+            return "<?php echo number_format($amount); ?>";
+        });
     }
 }
