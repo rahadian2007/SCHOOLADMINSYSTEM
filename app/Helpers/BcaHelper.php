@@ -108,7 +108,9 @@ class BcaHelper {
                 Log::info(">> requestBody");
                 Log::info($requestBody);
 
-                $response = Http::acceptJson()
+                $response = Http::withOptions([
+                    CURLOPT_SSLVERSION => CURL_SSLVERSION_SSLv3
+                ])  ->acceptJson()
                     ->withHeaders(BcaHelper::getAsymmetricHeaders())
                     ->post($requestUrl, $requestBody);
                 
