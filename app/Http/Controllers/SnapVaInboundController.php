@@ -417,6 +417,25 @@ class SnapVaInboundController extends Controller
             $this->checkInconsistentExternalId($request, $va);
         }
 
+        if (!$payment) {
+            throw new SnapRequestParsingException(
+                $this->REQUEST_TYPE . '_INVALID_AMOUNT',
+                '',
+                $this->buildVaResponsePayload($request, [
+                    'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
+                    'inquiryReason' => [
+                        'english' => 'Inconsistent amount',
+                        'indonesia' => 'Jumlah tidak konsisten',
+                    ],
+                    'paymentFlagReason' => [
+                        'english' => 'Inconsistent amount',
+                        'indonesia' => 'Jumlah tidak konsisten',
+                    ],
+                    'paymentFlagStatus' => $this->PAYMENT_INVALID_STATUS,
+                ])
+            );
+        }
+
         $dbPaidAmount = json_decode($payment->paidAmount);
         $dbPaidAmountInt = $dbPaidAmount->value ? intval($dbPaidAmount->value) : null;
         $paidAmountInt = $paidAmount['value'] ? intval($paidAmount['value']) : null;
