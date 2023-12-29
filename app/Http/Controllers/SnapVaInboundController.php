@@ -39,7 +39,11 @@ class SnapVaInboundController extends Controller
         try {
 
             Log::info(">> INITIATE VA INQUIRY");
+
             $this->REQUEST_TYPE = 'INQUIRY';
+
+            Log::info(">> headers");
+            Log::info($request->header());
     
             $virtualAccountNo = trim(isset($virtualAccountNo) ? $virtualAccountNo : $request->input('virtualAccountNo'));
             $partnerServiceId = trim(isset($partnerServiceId) ? $partnerServiceId : $request->input('partnerServiceId'));
@@ -306,7 +310,9 @@ class SnapVaInboundController extends Controller
                 ],
                 'virtualAccountTrxType' => $this->INQUIRY_VA_TYPE,
                 'feeAmount' => null,
-                'additionalInfo' => new stdClass,
+                'additionalInfo' => [
+                    'payment' => 'Pembayaran Sekolah',
+                ],
             ];
         } else if ($this->REQUEST_TYPE === 'PAYMENT') {
             $paymentRequestId = $request->input('paymentRequestId');
