@@ -3,10 +3,6 @@
 @php
 $statusOpts = [
     [
-        'value' => '',
-        'label' => 'SEMUA',
-    ],
-    [
         'value' => '01',
         'label' => 'PENDING',
     ],

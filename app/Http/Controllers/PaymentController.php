@@ -19,6 +19,10 @@ class PaymentController extends Controller
 
     public function index()
     {
+        if (!request('status')) {
+            return redirect()->route('payments.index', [ 'status' => '00' ]);
+        }
+
         $query = Payment::query();
 
         $query->when(!!request('status'), function($q) {
@@ -37,7 +41,6 @@ class PaymentController extends Controller
 
         $payments = $query
             ->where('channelCode', '6011')
-            ->where('paymentFlagStatus', '00')
             ->orderByDesc('created_at')
             ->paginate(10);
 
