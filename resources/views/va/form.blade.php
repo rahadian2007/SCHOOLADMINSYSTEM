@@ -25,12 +25,30 @@
                 <small>Harus unik dan max. 12 angka</small>
             </div>
             <div class="form-group">
-                <label for="user">Jumlah Tagihan (Rp)</label>
-                <input type="number" name="outstanding" value="{{ $va->outstanding }}" class="form-control"/>
+                <label for="user">Rincian Tagihan (Rp)</label>
+                <table id="bill-details-table">
+                    <thead>
+                        <tr>
+                            <th>Komponen Tagihan</th>
+                            <th>Nominal (Rp)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <input id="detail-name" type="text" name="outstanding" class="form-control"/>
+                            </td>
+                            <td>
+                                <input id="detail-value" type="number" name="outstanding" class="form-control"/>
+                            </td>
+                            <td><button id="add-bill-detail" class="btn btn-light">Tambah Rincian</button></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
             <div class="form-group">
-                <label for="user">Deskripsi</label>
-                <textarea name="description" class="form-control">{{ $va->description }}</textarea>
+                <label for="user">Total Tagihan (Rp)</label>
+                <input type="number" id="total-bill" name="outstanding" value="{{ $va->outstanding }}" class="form-control" readonly/>
             </div>
             <div class="form-group">
                 <label>Status</label>
@@ -56,6 +74,72 @@
 @endsection
 
 @section('javascript')
+<script>
+    const billDetails = {!! $va->description && is_array($va->description) ? $va->description : '[]' !!}
+    const billDetailsTable = document.getElementById('bill-details-table')
+    const body = billDetailsTable.querySelector('tbody')
 
+    function renderBillDetails() {
+        document.querySelectorAll('[id^=detail-row]').forEach((element) => {
+            element.remove()
+        })
+        billDetails.forEach(({ name, value }, index) => {
+            body.insertAdjacentHTML('afterbegin', `
+            <tr id="detail-row-${index}">
+                <td>
+                    <span>${name}</span>
+                    <input type="hidden" name="detail-name[]" value="${name}" />
+                </td>
+                <td>
+                    <span>${value}</span>
+                    <input type="hidden" name="detail-value[]" value="${value}" />
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-danger" onclick="removeDetail(${index})">X</button>
+                </td>
+            </tr>
+            `)
+        })
+    }
 
+    function calculateTotal() {
+        document.getElementById('total-bill').value = billDetails.reduce((acc, item) => {
+            return parseInt(acc) + parseInt(item.value)
+        }, 0)
+    }
+
+    const addBillDetailBtn = document.getElementById('add-bill-detail')
+    addBillDetailBtn.addEventListener('click', function(event) {
+        event.preventDefault()
+
+        const name = document.getElementById('detail-name').value
+        const value = document.getElementById('detail-value').value
+
+        const isDetailEmpty = !name
+        if (isDetailEmpty) {
+            alert('Lengkapi dahulu rincian tagihan')
+            return
+        }
+        
+        const isFieldInvalid = !value
+        if (isFieldInvalid) {
+            alert('Nilai tagihan tidak valid')
+            return
+        }
+        
+        billDetails.push({ name, value })
+        renderBillDetails()
+        document.getElementById('detail-name').value = ''
+        document.getElementById('detail-value').value = ''
+        calculateTotal()
+    })
+
+    function removeDetail(index) {
+        billDetails.splice(index, 1)
+        renderBillDetails()
+        calculateTotal()
+    }
+
+    renderBillDetails()
+</script>
 @endsection

@@ -83,6 +83,15 @@ class VirtualAccountController extends Controller
     {
         $data = $request->except('_token', '_method');
         $data['is_active'] = $request->input('is_active') === '1';
+        $details = [];
+        foreach ($request->get('detail-name') as $index => $name) {
+            $details[] = [
+                'name' => $name,
+                'value' => $request->get('detail-value')[$index],
+            ];
+        }
+        $data['description'] = $details;
+        
         return $data;
     }
 }

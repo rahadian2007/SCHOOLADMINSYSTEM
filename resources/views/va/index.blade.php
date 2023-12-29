@@ -37,7 +37,7 @@
                         <th>Nama Siswa</th>
                         <th>Virtual Account</th>
                         <th class="text-right">Tagihan Terakhir</th>
-                        <th>Deskripsi</th>
+                        <th>Rincian</th>
                         <th>Status</th>
                         <th></th>
                     </tr>
@@ -48,7 +48,18 @@
                         <td>{{ $va->user->name }}</td>
                         <td>{{ $va->number }}</td>
                         <td class="text-right">@currency($va->outstanding)</td>
-                        <td>{{ $va->description }}</td>
+                        <td>
+                            @if ($va->description)
+                            @foreach(json_decode($va->description) as $item)
+                            <p>
+                                <span>{{ $item->name }}:</span>
+                                <span>@currency($item->value)</span>
+                            </p>
+                            @endforeach
+                            @else
+                            -
+                            @endif
+                        </td>
                         <td>{{ $va->is_active ? 'Aktif' : 'Tidak Aktif' }}</td>
                         <td class="d-flex">
                             <x-forms.button href="{{ route('va.show', $va->id) }}">View</x-forms.button>

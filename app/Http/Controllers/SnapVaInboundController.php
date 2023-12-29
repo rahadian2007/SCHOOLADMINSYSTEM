@@ -289,24 +289,11 @@ class SnapVaInboundController extends Controller
                     'currency' => $this->CURRENCY,
                 ],
                 'subCompany' => $this->INQUIRY_SUB_COMPANY,
-                'billDetails' => [
-                    [
-                        'billNo' => $virtualAccountNo,
-                        'billDescription' => [
-                            'english' => $va && $va->description ? $va->description : 'School Payment',
-                            'indonesia' => $va && $va->description ? $va->description : 'Pembayaran Sekolah',
-                        ],
-                        'billSubCompany' => $this->INQUIRY_SUB_COMPANY,
-                        'billAmount' => [
-                            'value' => $va ? $va->outstanding : '',
-                            'currency' => $this->CURRENCY,
-                        ],
-                    ],
-                ],
+                'billDetails' => $this->constructBillDetails($va),
                 'freeTexts' => [
                     [
-                        'english' => $va && $va->description ? $va->description : 'Payment',
-                        'indonesia' => $va && $va->description ? $va->description : 'Pembayaran',
+                        'english' => '',
+                        'indonesia' => '',
                     ],
                 ],
                 'virtualAccountTrxType' => $this->INQUIRY_VA_TYPE,
@@ -1219,5 +1206,45 @@ class SnapVaInboundController extends Controller
                 ])
             );
         }
+    }
+
+    private function constructBillDetails(VirtualAccount $va) {
+        $description = $va && $va->description ? json_decode($va->description) : null;
+
+        if (!$description || !is_array($description)) {
+            return [
+                [
+                    'billNo' => $va->number,
+                    'billDescription' => [
+                        'english' => 'School Payment',
+                        'indonesia' => 'Pembayaran Sekolah',
+                    ],
+                    'billSubCompany' => $this->INQUIRY_SUB_COMPANY,
+                    'billAmount' => [
+                        'value' => $va ? $va->outstanding : '',
+                        'currency' => $this->CURRENCY,
+                    ],
+                ],
+            ];
+        }
+
+        $details = [];
+
+        foreach ($description as $desc) {
+            $details[] = [
+                'billNo' => $va->number,
+                'billDescription' => [
+                    'english' => $desc->name ? $desc->name : '',
+                    'indonesia' => $desc->name ? $desc->name : '',
+                ],
+                'billSubCompany' => $this->INQUIRY_SUB_COMPANY,
+                'billAmount' => [
+                    'value' => $desc && $desc->value ? $desc->value : '',
+                    'currency' => $this->CURRENCY,
+                ],
+            ];
+        }
+
+        return $details;
     }
 }
