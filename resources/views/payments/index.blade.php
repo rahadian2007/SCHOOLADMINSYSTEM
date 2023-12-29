@@ -68,9 +68,15 @@ $periodOpts = [
                     <tr>
                         <td>{{ $payment->virtualAccountName }}</td>
                         <td>{{ $payment->virtualAccountNumber }}</td>
-                        <td>{{ $payment->created_at }}</td>
+                        <td>{{ $payment->created_at->format('Y-m-d H:i:s', 'Asia/Jakarta') }}</td>
                         <td class="text-right">@currency(json_decode($payment->paidAmount)->value)</td>
-                        <td>{{ $payment->paymentFlagStatus === '00' ? 'BERHASIL' : 'PENDING' }}</td>
+                        <td>
+                            @if ($payment->paymentFlagStatus === '00')
+                            <span class="text-success font-weight-bold">BERHASIL</span>
+                            @else
+                            <span class="text-danger font-weight-bold">PENDING</span>
+                            @endif
+                        </td>
                     </tr>
                     @endforeach
                     @if(sizeof($payments) === 0)
