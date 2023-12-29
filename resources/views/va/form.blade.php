@@ -75,7 +75,7 @@
 
 @section('javascript')
 <script>
-    const billDetails = {!! $va->description && is_array($va->description) ? $va->description : '[]' !!}
+    const billDetails = {!! $va->description && is_array(json_decode($va->description)) ? $va->description : '[]' !!}
     const billDetailsTable = document.getElementById('bill-details-table')
     const body = billDetailsTable.querySelector('tbody')
 
