@@ -139,6 +139,9 @@ class SnapVaInboundController extends Controller
         try {
             Log::info(">> INITIATE VA PAYMENT");
             $this->REQUEST_TYPE = 'PAYMENT';
+
+            Log::info(">> Headers");
+            Log::info($request->header());
     
             $virtualAccountNo = trim(isset($virtualAccountNo) ? $virtualAccountNo : $request->input('virtualAccountNo'));
             $partnerServiceId = trim(isset($partnerServiceId) ? $partnerServiceId : $request->input('partnerServiceId'));
@@ -285,8 +288,8 @@ class SnapVaInboundController extends Controller
                     [
                         'billNo' => $virtualAccountNo,
                         'billDescription' => [
-                            'english' => $va ? $va->description : '',
-                            'indonesia' => $va ? $va->description : '',
+                            'english' => $va ? $va->description : 'School Payment',
+                            'indonesia' => $va ? $va->description : 'Pembayaran Sekolah',
                         ],
                         'billSubCompany' => $this->INQUIRY_SUB_COMPANY,
                         'billAmount' => [
@@ -297,8 +300,8 @@ class SnapVaInboundController extends Controller
                 ],
                 'freeTexts' => [
                     [
-                        'english' => $va ? $va->description : '',
-                        'indonesia' => $va ? $va->description : '',
+                        'english' => $va ? $va->description : 'Payment',
+                        'indonesia' => $va ? $va->description : 'Pembayaran',
                     ],
                 ],
                 'virtualAccountTrxType' => $this->INQUIRY_VA_TYPE,
@@ -397,7 +400,10 @@ class SnapVaInboundController extends Controller
         }
 
         $paymentRequestId = $request->get('paymentRequestId');
-        $externalId = $request->get('externalId');
+        $externalId = $request->get('externalId') ? $request->get('externalId') : $request->headers->get('X-EXTERNAL-ID');
+        
+        Log::info(">> externalId");
+        Log::info($externalId);
 
         $payment = Payment::where('paymentRequestId', $paymentRequestId)
                 ->where('externalId', $externalId)
@@ -417,19 +423,22 @@ class SnapVaInboundController extends Controller
             $this->checkInconsistentExternalId($request, $va);
         }
 
+        Log::info(">> payment");
+        Log::info($payment);
+
         if (!$payment) {
             throw new SnapRequestParsingException(
-                $this->REQUEST_TYPE . '_INVALID_AMOUNT',
+                $this->REQUEST_TYPE . '_VALID_VA_EXPIRED',
                 '',
                 $this->buildVaResponsePayload($request, [
                     'inquiryStatus' => $this->INQUIRY_INVALID_STATUS,
                     'inquiryReason' => [
-                        'english' => 'Inconsistent amount',
-                        'indonesia' => 'Jumlah tidak konsisten',
+                        'english' => 'Invalid bill',
+                        'indonesia' => 'Tagihan tidak valid',
                     ],
                     'paymentFlagReason' => [
-                        'english' => 'Inconsistent amount',
-                        'indonesia' => 'Jumlah tidak konsisten',
+                        'english' => 'Invalid bill',
+                        'indonesia' => 'Tagihan tidak valid',
                     ],
                     'paymentFlagStatus' => $this->PAYMENT_INVALID_STATUS,
                 ])
@@ -440,9 +449,14 @@ class SnapVaInboundController extends Controller
         $dbPaidAmountInt = $dbPaidAmount->value ? intval($dbPaidAmount->value) : null;
         $paidAmountInt = $paidAmount['value'] ? intval($paidAmount['value']) : null;
         
-        $isInconsistentPaidAmount = $dbPaidAmountInt &&
-            $paidAmountInt &&
-            $dbPaidAmountInt !== $paidAmountInt;
+        $isInconsistentPaidAmount =
+            !$dbPaidAmountInt   // No paid amount recorded
+            || !$paidAmountInt  // No paid amount requested
+            || (
+                $dbPaidAmountInt
+                && $paidAmountInt
+                && $dbPaidAmountInt < $paidAmountInt // User paid more from bill
+            );
 
         if ($isInconsistentPaidAmount) {
             throw new SnapRequestParsingException(
@@ -467,8 +481,6 @@ class SnapVaInboundController extends Controller
 
     private function checkRequestParsingError(Request $request)
     {
-        // json_decode($request->getContent());
-
         if (json_last_error() != JSON_ERROR_NONE) {
             throw new SnapRequestParsingException($this->REQUEST_TYPE . '_REQUEST_PARSING_ERROR');
         }
