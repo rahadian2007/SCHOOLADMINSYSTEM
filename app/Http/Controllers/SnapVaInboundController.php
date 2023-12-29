@@ -310,7 +310,7 @@ class SnapVaInboundController extends Controller
                 ],
                 'virtualAccountTrxType' => $this->INQUIRY_VA_TYPE,
                 'feeAmount' => null,
-                'additionalInfo' => 'Pembayaran Sekolah',
+                'additionalInfo' => new stdClass(),
             ];
         } else if ($this->REQUEST_TYPE === 'PAYMENT') {
             $paymentRequestId = $request->input('paymentRequestId');
