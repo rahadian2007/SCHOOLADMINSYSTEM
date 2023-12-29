@@ -54,7 +54,7 @@
                             @endphp
 
                             @if ($descriptions && is_array($descriptions))
-                            @foreach($description as $item)
+                            @foreach($descriptions as $item)
                             <p>
                                 <span>{{ $item->name }}:</span>
                                 <span>@currency($item->value)</span>
