@@ -49,15 +49,19 @@
                         <td>{{ $va->number }}</td>
                         <td class="text-right">@currency($va->outstanding)</td>
                         <td>
-                            @if ($va->description)
-                            @foreach(json_decode($va->description) as $item)
+                            @php
+                            $descriptions = $va->description ? json_decode($va->description) : null;
+                            @endphp
+
+                            @if ($descriptions && is_array($descriptions))
+                            @foreach($description as $item)
                             <p>
                                 <span>{{ $item->name }}:</span>
                                 <span>@currency($item->value)</span>
                             </p>
                             @endforeach
                             @else
-                            -
+                            {{ $va->description }}
                             @endif
                         </td>
                         <td>{{ $va->is_active ? 'Aktif' : 'Tidak Aktif' }}</td>
