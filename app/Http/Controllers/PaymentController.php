@@ -36,6 +36,7 @@ class PaymentController extends Controller
         });
 
         $payments = $query
+            ->where('channelCode', '6011')
             ->orderByDesc('created_at')
             ->paginate(10);
 
