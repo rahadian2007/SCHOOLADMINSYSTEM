@@ -288,8 +288,8 @@ class SnapVaInboundController extends Controller
                     [
                         'billNo' => $virtualAccountNo,
                         'billDescription' => [
-                            'english' => $va ? $va->description : 'School Payment',
-                            'indonesia' => $va ? $va->description : 'Pembayaran Sekolah',
+                            'english' => $va && $va->description ? $va->description : 'School Payment',
+                            'indonesia' => $va && $va->description ? $va->description : 'Pembayaran Sekolah',
                         ],
                         'billSubCompany' => $this->INQUIRY_SUB_COMPANY,
                         'billAmount' => [
@@ -300,8 +300,8 @@ class SnapVaInboundController extends Controller
                 ],
                 'freeTexts' => [
                     [
-                        'english' => $va ? $va->description : 'Payment',
-                        'indonesia' => $va ? $va->description : 'Pembayaran',
+                        'english' => $va && $va->description ? $va->description : 'Payment',
+                        'indonesia' => $va && $va->description ? $va->description : 'Pembayaran',
                     ],
                 ],
                 'virtualAccountTrxType' => $this->INQUIRY_VA_TYPE,
