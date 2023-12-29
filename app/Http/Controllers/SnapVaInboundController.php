@@ -8,6 +8,7 @@ use App\Models\VirtualAccount;
 use App\Models\OAuthClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use ReallySimpleJWT\Token;
@@ -409,15 +410,16 @@ class SnapVaInboundController extends Controller
         Log::info(">> externalId");
         Log::info($externalId);
 
+        $today = DB::raw('CURDATE()');
         $payment = Payment::where('paymentRequestId', $paymentRequestId)
                 ->where('externalId', $externalId)
-                ->whereDate('created_at', Carbon::today())
+                ->whereDate('created_at', $today)
                 ->first();
 
         if (!$payment) {
             $externalId = $request->headers->get('X-EXTERNAL-ID');
             $payment = Payment::where('externalId', $externalId)
-                ->whereDate('created_at', Carbon::today())
+                ->whereDate('created_at', $today)
                 ->first();
         }
 
@@ -425,6 +427,9 @@ class SnapVaInboundController extends Controller
             $virtualAccountNo = $request->get('virtualAccountNo') ? trim($request->get('virtualAccountNo')) : '';
             $va = VirtualAccount::where('number', $virtualAccountNo)->first();
             $this->checkInconsistentExternalId($request, $va);
+            $payment = Payment::where('paymentRequestId', $paymentRequestId)
+                ->where('externalId', $externalId)
+                ->first();
         }
 
         Log::info(">> payment");
@@ -494,7 +499,7 @@ class SnapVaInboundController extends Controller
     {
         $externalId = $request->headers->get('X-EXTERNAL-ID');
         $payment = Payment::where('externalId', $externalId)
-            ->whereDate('created_at', Carbon::today())
+            ->whereDate('created_at', DB::raw('CURDATE()'))
             ->first();
 
         if ($this->REQUEST_TYPE === 'PAYMENT') {
@@ -551,7 +556,7 @@ class SnapVaInboundController extends Controller
             $payment = Payment::where('paymentRequestId', $paymentRequestId)
                 ->where('externalId', $externalId)
                 ->where('paymentFlagStatus', $this->PAYMENT_SUCCESS_FLAG_STATUS)
-                ->whereDate('created_at', Carbon::today())
+                ->whereDate('created_at', DB::raw('CURDATE()'))
                 ->first();
     
             if ($payment) {
@@ -573,9 +578,9 @@ class SnapVaInboundController extends Controller
                 );
             } else if ($va) {
                 Payment::create([
-                    'partnerServiceId' => $request->get('partnerServiceId'),
+                    'partnerServiceId' => trim($request->get('partnerServiceId')),
                     'customerNo' => $request->get('customerNo'),
-                    'virtualAccountNumber' => $request->get('virtualAccountNo'),
+                    'virtualAccountNumber' => trim($request->get('virtualAccountNo')),
                     'virtualAccountName' => $va->user->name,
                     'trxId' => '',
                     'paymentRequestId' => $request->get('paymentRequestId'),
