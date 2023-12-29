@@ -11,9 +11,15 @@ class VirtualAccountController extends Controller
 {
     public function index()
     {
-        $vas = VirtualAccount::paginate(10);
-        $totalBill = VirtualAccount::where('is_active', 1)->sum('outstanding');
-        $vaCount = VirtualAccount::count();
+        $filter = request('q');
+        $query = VirtualAccount::join('users', 'users.id', '=', 'virtual_accounts.user_id')
+            ->when(!!$filter, function ($q) use ($filter) {
+                return $q->where('virtual_accounts.number', 'LIKE', '%'.$filter.'%')
+                    ->orWhere('users.name', 'LIKE', '%'.$filter.'%');
+            });
+        $vas = $query->paginate(10);
+        $totalBill = $query->where('is_active', 1)->sum('outstanding');
+        $vaCount = $query->count();
         $data = compact('vas', 'totalBill', 'vaCount');
         return view('va.index', $data);
     }
@@ -91,7 +97,7 @@ class VirtualAccountController extends Controller
             ];
         }
         $data['description'] = $details;
-        
+
         return $data;
     }
 }
