@@ -12,11 +12,6 @@ use App\Models\VirtualAccount;
 
 class PaymentController extends Controller
 {
-    public function __construct()
-    {
-        BcaHelper::evalAccessToken();
-    }
-
     public function index()
     {
         if (!request('status')) {
