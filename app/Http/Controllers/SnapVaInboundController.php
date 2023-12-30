@@ -44,7 +44,7 @@ class SnapVaInboundController extends Controller
             $this->REQUEST_TYPE = 'INQUIRY';
 
             Log::info(">> headers");
-            Log::info($request->header());
+            Log::notice($request->header());
     
             $virtualAccountNo = trim(isset($virtualAccountNo) ? $virtualAccountNo : $request->input('virtualAccountNo'));
             $partnerServiceId = trim(isset($partnerServiceId) ? $partnerServiceId : $request->input('partnerServiceId'));
@@ -115,7 +115,7 @@ class SnapVaInboundController extends Controller
             $this->validateResponse($response);
     
             Log::info(">> SUCCESS RESPONSE:");
-            Log::info($response);
+            Log::notice($response);
     
             return $response;
         } catch (\App\Exceptions\SnapRequestParsingException $e) {
@@ -143,10 +143,11 @@ class SnapVaInboundController extends Controller
     {
         try {
             Log::info(">> INITIATE VA PAYMENT");
+
             $this->REQUEST_TYPE = 'PAYMENT';
 
             Log::info(">> Headers");
-            Log::info($request->header());
+            Log::notice($request->header());
     
             $virtualAccountNo = trim(isset($virtualAccountNo) ? $virtualAccountNo : $request->input('virtualAccountNo'));
             $partnerServiceId = trim(isset($partnerServiceId) ? $partnerServiceId : $request->input('partnerServiceId'));
@@ -185,21 +186,42 @@ class SnapVaInboundController extends Controller
                 ]
             );
 
-            $newOutstanding = $va->outstanding - $request->get('paidAmount')['value'];
-            Log::info(">> New outstanding:" . $newOutstanding);
+            $actualPaidAmount = $request->get('paidAmount'); 
+            $paidAmountValue = $actualPaidAmount['value'];
+            $newOutstanding = $va->outstanding - $paidAmountValue;
+
+            Log::info(">> New outstanding");
+            Log::notice($newOutstanding);
 
             if ($newOutstanding < 0) {
                 throw new SnapRequestParsingException('SERVER_INTERNAL_ERROR');
             }
 
             Log::info(">> Updating VA");
-            $va->update([ 'outstanding' => $newOutstanding ]);
+
+            $vaUpdatedData = [ 'outstanding' => $newOutstanding ];
+            $billDetails = [];
+
+            Log::info(">> Substract on bill components");
+
+            $vaUpdatedData['description'] = $this->substractBillComponents($va, $paidAmountValue);
+            $va->update($vaUpdatedData);
+
+            Log::info('>> New VA Data');
+            Log::notice($va);
 
             $payment = Payment::where('paymentRequestId', $paymentRequestId)
                 ->where('externalId', $request->headers->get('X-EXTERNAL-ID'))
                 ->where('paymentFlagStatus', $this->PAYMENT_INVALID_STATUS)
                 ->first();
-            $payment->update([ 'paymentFlagStatus' => $this->PAYMENT_SUCCESS_FLAG_STATUS ]);
+
+            $payment->update([
+                'paymentFlagStatus' => $this->PAYMENT_SUCCESS_FLAG_STATUS,
+                'paidAmount' => json_encode($actualPaidAmount),
+            ]);
+
+            Log::info('>> New Payment Data');
+            Log::notice($payment);
     
             $data = [
                 'responseCode' => $this->PAYMENT_RESP_STATUS_SUCCESS,
@@ -219,7 +241,7 @@ class SnapVaInboundController extends Controller
             $this->validateResponse($response);
     
             Log::info(">> SUCCESS RESPONSE:");
-            Log::info($response);
+            Log::notice($response);
     
             return $response;
         } catch (\App\Exceptions\SnapRequestParsingException $e) {
@@ -238,6 +260,37 @@ class SnapVaInboundController extends Controller
 
             throw new SnapRequestParsingException('SERVER_INTERNAL_ERROR');
         }
+    }
+
+    /**
+     * Assumption: paid amount is less than or equal to bill amount
+     * $va: VirtualAccount = Virtual Account from database
+     * $paidAmount: number = Actual paid amount by user
+     */
+    private function substractBillComponents($va, $paidAmount) {
+        if (!$va || !$paidAmount) {
+            return null;
+        }
+
+        $billComponents = json_decode($va->description);
+
+        if (!is_array($billComponents)) {
+            return null;
+        }
+
+        $remainder = $paidAmount;
+        $newBillComponents = [];
+        foreach ($billComponents as $component) {
+            if ($component->value <= $remainder) {
+                $newBillComponents[$component->name] = 0;
+                $remainder -= $component->value;
+            } else {
+                $newBillComponents[$component->name] = $component->value - $remainder;
+                $remainder = 0;
+            }
+        }
+
+        return json_encode($newBillComponents);
     }
 
     /**
@@ -395,7 +448,7 @@ class SnapVaInboundController extends Controller
         $externalId = $request->get('externalId') ? $request->get('externalId') : $request->headers->get('X-EXTERNAL-ID');
         
         Log::info(">> externalId");
-        Log::info($externalId);
+        Log::notice($externalId);
 
         $today = DB::raw('CURDATE()');
         $payment = Payment::where('paymentRequestId', $paymentRequestId)
@@ -420,7 +473,7 @@ class SnapVaInboundController extends Controller
         }
 
         Log::info(">> payment");
-        Log::info($payment);
+        Log::notice($payment);
 
         if (!$payment) {
             throw new SnapRequestParsingException(
@@ -861,30 +914,34 @@ class SnapVaInboundController extends Controller
         $relativeUrl = '/' . $request->path();
         $accessToken = $request->bearerToken();
         $requestBody = $request->json()->all();
-        $hashedMinifiedJsonBody = hash(
-            "sha256",
-            json_encode( // minify and remove whitespace
-                $requestBody,
-                JSON_UNESCAPED_SLASHES
-            )
-        );
-        Log::info('>>> $requestBody');
-        Log::info($requestBody);
-        Log::info('>>> json_encode');
-        Log::info(json_encode( // minify and remove whitespace
+        $minifiedAndCleanedRequestBody = json_encode( // minify and remove whitespace
             $requestBody,
             JSON_UNESCAPED_SLASHES
-        ));
+        );
+        $hashedMinifiedJsonBody = hash(
+            "sha256",
+            $minifiedAndCleanedRequestBody
+        );
+
+        Log::info('>>> $requestBody');
+        Log::notice($requestBody);
+        Log::info('>>> minifiedAndCleanedRequestBody');
+        Log::notice($minifiedAndCleanedRequestBody);
         Log::info('>>> $hashedMinifiedJsonBody');
-        Log::info($hashedMinifiedJsonBody);
+        Log::notice($hashedMinifiedJsonBody);
+
         $signature = $request->header('X-SIGNATURE');
         $timestampStr = $request->header('X-TIMESTAMP');
         $stringToSign = "$httpMethod:$relativeUrl:$accessToken:$hashedMinifiedJsonBody:$timestampStr";
+
         Log::info('>>> $stringToSign');
-        Log::info($stringToSign);
+        Log::notice($stringToSign);
+
         $bcaSecret = $this->CLIENT->secret;
+
         Log::info('>>> $bcaSecret');
-        Log::info($bcaSecret);
+        Log::debug($bcaSecret);
+
         $signatureTester = base64_encode(
             hash_hmac(
                 "sha512",
@@ -893,10 +950,12 @@ class SnapVaInboundController extends Controller
                 true
             )
         );
+
         Log::info('>>> $signature');
-        Log::info($signature);
+        Log::debug($signature);
         Log::info('>>> $signatureTester');
-        Log::info($signatureTester);
+        Log::debug($signatureTester);
+
         if ($signatureTester !== $signature) {
             throw new SnapRequestParsingException($this->REQUEST_TYPE . '_UNAUTHORIZED_SIGNATURE');
         }
@@ -939,7 +998,8 @@ class SnapVaInboundController extends Controller
     private function validateResponse($response)
     {
         Log::info('Validating response');
-        Log::info($response);
+        Log::notice($response);
+
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new SnapRequestParsingException($this->REQUEST_TYPE . '_RESPONSE_PARSING_ERROR');
         }
