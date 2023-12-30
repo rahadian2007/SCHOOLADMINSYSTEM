@@ -26,8 +26,9 @@ class UsersController extends Controller
     public function index()
     {
         $you = auth()->user();
-        $users = User::all();
-        $usersCount = User::count();
+        $query = User::where('menuroles', 'not like', '%admin%');
+        $users = $query->get();
+        $usersCount = $query->count();
         return view('dashboard.admin.usersList', compact('users', 'you', 'usersCount'));
     }
 

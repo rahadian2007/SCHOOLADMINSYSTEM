@@ -11,7 +11,7 @@
             <div class="col-sm-6 col-lg-3">
                 <div class="card text-white bg-info">
                 <div class="card-body pb-0">
-                    <div class="text-value-lg">@numeric($vaCount)</div>
+                    <div class="text-value-xl">@numeric($vaCount)</div>
                     <div>Jumlah Virtual Account</div>
                 </div>
                 <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">
@@ -22,7 +22,7 @@
             <div class="col-sm-6 col-lg-3">
                 <div class="card text-white bg-warning">
                 <div class="card-body pb-0">
-                    <div class="text-value-lg">@currency($totalBill)</div>
+                    <div class="text-value-xl">@currency($totalBill)</div>
                     <div>Total Tagihan</div>
                 </div>
                 <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">

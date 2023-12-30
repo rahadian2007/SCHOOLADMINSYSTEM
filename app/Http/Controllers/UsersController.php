@@ -28,16 +28,21 @@ class UsersController extends Controller
     public function index(Request $request)
     {
         $you = auth()->user();
-        $users = User::query();
-        $query = $request->input('q');
-        if ($query) {
-            $users = $users->where('name', 'like', "%$query%")
-                ->orWhereHas('detail', function ($q) use ($query) {
-                    $q->where('phone', 'like', "%$query%");
-                });
-        }
-        $users = $users->paginate(10);
-        $usersCount = User::whereNull('deleted_at')->count();
+        $filter = request('q');
+        $query = User::query()
+            ->where('menuroles', 'not like', '%admin%')
+            ->whereNull('deleted_at')
+            ->when(!!$filter, function ($q) use ($filter) {
+                return $q->where('name', 'like', "%$filter%")
+                    ->orWhere('email', 'like', "%$filter%")
+                    ->orWhereHas('detail', function ($q2) use ($filter) {
+                        $q2->where('phone', 'like', "%$filter%");
+                    });
+            });
+        
+        $users = $query->paginate(10);
+        $usersCount = $query->count();
+
         return view('user.index', compact('users', 'you', 'usersCount'));
     }
 
