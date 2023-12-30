@@ -60,7 +60,7 @@
 
                             @if ($descriptions && is_array($descriptions))
                             @foreach($descriptions as $item)
-                            <p class="mb-0">
+                            <p class="mb-0 text-value-sm">
                                 <span>{{ $item->name }}:</span>
                                 <span>@currency($item->value)</span>
                             </p>
@@ -69,7 +69,12 @@
                             {{ $va->description }}
                             @endif
                         </td>
-                        <td>{{ $va->is_active ? 'Aktif' : 'Tidak Aktif' }}</td>
+                        <td>
+                            @if ($va->is_active)
+                            <span class="text-success">AKTIF</span>
+                            @else
+                            <span class="text-danger">TIDAK AKTIF</span>
+                            @endif
                         <td class="d-flex">
                             <x-forms.button href="{{ route('va.show', $va->id) }}">View</x-forms.button>
                             <x-forms.button href="{{ route('va.edit', $va->id) }}" preset="warning" class="mx-1">Edit</x-forms.button>

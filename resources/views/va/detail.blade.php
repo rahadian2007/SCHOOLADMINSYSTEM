@@ -23,6 +23,14 @@
             <td>: {{ $va->number }}</td>
           </tr>
           <tr>
+            <td>Total Tagihan Awal</td>
+            <td>: @currency($va->outstanding + $totalPaidAmount)</td>
+          </tr>
+          <tr>
+            <td>Jumlah yang Sudah Dibayarkan</td>
+            <td>: @currency($totalPaidAmount)</td>
+          </tr>
+          <tr>
             <td>Tagihan Terakhir</td>
             <td>: @currency($va->outstanding)</td>
           </tr>

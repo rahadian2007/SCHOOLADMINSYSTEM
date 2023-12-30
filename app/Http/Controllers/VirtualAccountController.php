@@ -28,11 +28,16 @@ class VirtualAccountController extends Controller
 
     public function show(VirtualAccount $va)
     {
-        $payments = Payment::where('virtualAccountNumber', $va->number)
+        $query = Payment::query()
+            ->where('virtualAccountNumber', $va->number)
             ->where('channelCode', '6011')
-            ->where('paymentFlagStatus', '00')
-            ->get();
-        return view('va.detail', compact('va', 'payments'));
+            ->where('paymentFlagStatus', '00');
+        $payments = $query->get();
+        $totalPaidAmount = 0;
+        foreach ($payments as $payment) {
+            $paidAmountValue += json_decode($payment->paidAmount)->value;
+        }
+        return view('va.detail', compact('va', 'payments', 'totalPaidAmount'));
     }
 
     public function create()

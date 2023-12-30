@@ -12,4 +12,8 @@ class Payment extends Model
     protected $fillable = [
         'partnerServiceId', 'customerNo', 'virtualAccountNumber', 'virtualAccountName', 'trxId', 'paymentRequestId', 'channelCode', 'paidAmount', 'externalId', 'paymentFlagStatus'
     ];
+
+    public function va() {
+        return $this->hasOne('\App\Models\VirtualAccount', 'number', 'virtualAccountNumber');
+    }
 }

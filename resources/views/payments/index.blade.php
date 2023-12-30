@@ -62,8 +62,22 @@ $periodOpts = [
                 <tbody>
                     @foreach($payments as $payment)
                     <tr>
-                        <td>{{ $payment->virtualAccountName }}</td>
-                        <td>{{ $payment->virtualAccountNumber }}</td>
+                        <td>
+                            @if ($payment->va)
+                            <a href="{{ route('users.show', $payment->va->user_id) }}">
+                                {{ $payment->virtualAccountName }}
+                            </a>
+                            @else
+                            {{ $payment->virtualAccountName }}
+                            @endif
+                        </td>
+                        <td>
+                            @if ($payment->va)
+                            <a href="{{ route('va.show', $payment->va->id) }}">{{ $payment->virtualAccountNumber }}</a>
+                            @else
+                            {{ $payment->virtualAccountNumber }}
+                            @endif
+                        </td>
                         <td>{{ $payment->created_at->format('d M Y H:i:s', 'Asia/Jakarta') }}</td>
                         <td class="text-right">@currency(json_decode($payment->paidAmount)->value)</td>
                         <td>
