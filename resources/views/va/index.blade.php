@@ -4,6 +4,11 @@
     <x-containers.container>
         <div class="row">
             <div class="col-sm-6 col-lg-3">
+                <div class="d-flex justify-content-center">
+                    <img src="/svg/illustration-payment.svg" width="220" />
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
                 <div class="card text-white bg-info">
                 <div class="card-body pb-0">
                     <div class="text-value-lg">@numeric($vaCount)</div>
