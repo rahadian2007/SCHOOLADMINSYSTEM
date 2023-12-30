@@ -52,10 +52,10 @@ $periodOpts = [
             <table class="table table-responsive-sm table-striped">
                 <thead>
                     <tr>
-                        <th>Nama Siswa</th>
-                        <th>Virtual Account</th>
-                        <th>Tanggal Transaksi</th>
-                        <th class="text-right">Tagihan Terakhir</th>
+                        <th>Nama</th>
+                        <th>Nomor Virtual Account</th>
+                        <th>Tanggal Pembayaran</th>
+                        <th class="text-right">Nominal Pembayaran</th>
                         <th>Status</th>
                     </tr>
                 </thead>
