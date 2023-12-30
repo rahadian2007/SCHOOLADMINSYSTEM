@@ -282,10 +282,16 @@ class SnapVaInboundController extends Controller
         $newBillComponents = [];
         foreach ($billComponents as $component) {
             if ($component->value <= $remainder) {
-                $newBillComponents[$component->name] = 0;
+                $newBillComponents[] = [
+                    'name' => $component->name,
+                    'value' => 0,
+                ];
                 $remainder -= $component->value;
             } else {
-                $newBillComponents[$component->name] = $component->value - $remainder;
+                $newBillComponents[] = [
+                    'name' => $component->name,
+                    'value' => $component->value - $remainder,
+                ];
                 $remainder = 0;
             }
         }
