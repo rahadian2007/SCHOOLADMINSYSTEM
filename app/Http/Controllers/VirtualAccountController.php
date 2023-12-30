@@ -15,7 +15,7 @@ class VirtualAccountController extends Controller
         $query = VirtualAccount::query()
             ->when(!!$filter, function ($q) use ($filter) {
                 return $q->where('number', 'LIKE', '%'.$filter.'%')
-                    ->orWhereHas('users', function ($q2) {
+                    ->orWhereHas('user', function ($q2) {
                         return $q2->where('name', 'LIKE', '%'.$filter.'%');
                     });
             });
