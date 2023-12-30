@@ -30,6 +30,7 @@ class VirtualAccountController extends Controller
     {
         $payments = Payment::where('virtualAccountNumber', $va->number)
             ->where('channelCode', '6011')
+            ->where('paymentFlagStatus', '00')
             ->get();
         return view('va.detail', compact('va', 'payments'));
     }
