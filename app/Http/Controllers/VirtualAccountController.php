@@ -12,10 +12,12 @@ class VirtualAccountController extends Controller
     public function index()
     {
         $filter = request('q');
-        $query = VirtualAccount::join('users', 'users.id', '=', 'virtual_accounts.user_id')
+        $query = VirtualAccount::query()
             ->when(!!$filter, function ($q) use ($filter) {
-                return $q->where('virtual_accounts.number', 'LIKE', '%'.$filter.'%')
-                    ->orWhere('users.name', 'LIKE', '%'.$filter.'%');
+                return $q->where('number', 'LIKE', '%'.$filter.'%')
+                    ->orWhereHas('users', function ($q2) {
+                        return $q2->where('name', 'LIKE', '%'.$filter.'%');
+                    });
             });
         $vas = $query->paginate(10);
         $totalBill = $query->where('is_active', 1)->sum('outstanding');
@@ -26,7 +28,9 @@ class VirtualAccountController extends Controller
 
     public function show(VirtualAccount $va)
     {
-        $payments = Payment::where('virtualAccountNumber', $va->number)->get();
+        $payments = Payment::where('virtualAccountNumber', $va->number)
+            ->where('channelCode', '6011')
+            ->get();
         return view('va.detail', compact('va', 'payments'));
     }
 

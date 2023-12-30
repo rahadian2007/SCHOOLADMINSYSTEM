@@ -4,6 +4,13 @@
 <x-containers.container size="6">
   <x-containers.card>
     <x-slot name="title">{{ $user->name }}</x-slot>
+    <div class="row">
+      <div class="col-12">
+        <div class="d-flex justify-content-center">
+          <img src="/svg/illustration-personal-info.svg" width="480" />
+        </div>
+      </div>
+    </div>
     <table class="table">
       <tr>
         <td>Name</td>
