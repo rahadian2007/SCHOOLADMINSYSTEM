@@ -34,6 +34,25 @@
             <td>Tagihan Terakhir</td>
             <td>: @currency($va->outstanding)</td>
           </tr>
+          <tr>
+            <td>Rincian Tagihan</td>
+            <td>
+              @php
+              $descriptions = $va->description ? json_decode($va->description) : null;
+              @endphp
+
+              @if ($descriptions && is_array($descriptions))
+              @foreach($descriptions as $item)
+              <p class="mb-0 text-value-sm">
+                  <span>{{ $item->name }}:</span>
+                  <span>@currency($item->value)</span>
+              </p>
+              @endforeach
+              @else
+              {{ $va->description }}
+              @endif
+            </td>
+          </tr>
         </table>
          <div class="d-flex justify-content-between">
           <x-forms.button href="{{ url()->previous() }}" preset="default">{{ __('Back') }}</x-forms.button>
