@@ -21,7 +21,7 @@
         <td>: {{ $user->email }}</td>
       </tr>
     </table>
-    <x-forms.button href="{{ route('users.index') }}" preset="default">{{ __('Back') }}</x-forms.button>
+    <x-forms.button href="{{ url()->previous() }}" preset="default">{{ __('Back') }}</x-forms.button>
   </x-containers.card>
 </x-containers.container>
 @endsection

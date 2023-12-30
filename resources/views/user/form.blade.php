@@ -39,7 +39,7 @@
         <textarea class="form-control mb-3" type="text" placeholder="{{ __('Address') }}" name="address">{{ $user->detail ? $user->detail->address : '' }}</textarea>
 
         <x-forms.button type="submit">{{ __('Save') }}</x-forms.button>
-        <x-forms.button href="{{ route('users.index') }}" preset="default">{{ __('Back') }}</x-forms.button>
+        <x-forms.button href="{{ url()->previous() }}" preset="default">{{ __('Back') }}</x-forms.button>
     </form>
   </x-containers.card>
 </x-containers.container>

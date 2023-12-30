@@ -64,9 +64,7 @@
             <button type="submit" class="btn btn-primary">
                 Save
             </button>
-            <x-forms.button href="{{ route('va.index') }}" preset="default">
-                Back
-            </x-forms.button>
+            <x-forms.button href="{{ url()->previous() }}" preset="default">{{ __('Back') }}</x-forms.button>
         </form>
     </x-containers.card>
 </x-containers.container>

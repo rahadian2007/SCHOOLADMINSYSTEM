@@ -28,7 +28,7 @@
           </tr>
         </table>
          <div class="d-flex justify-content-between">
-          <x-forms.button href="{{ route('va.index') }}" preset="default">{{ __('Back') }}</x-forms.button>
+          <x-forms.button href="{{ url()->previous() }}" preset="default">{{ __('Back') }}</x-forms.button>
           <!-- <form method="POST" action="{{ route('va.status-update', ['va' => $va->id]) }}">
             @csrf
             <button type="submit" class="btn btn-dark">{{ __('Status Update') }}</button>
@@ -66,7 +66,6 @@
             @endif
           </tbody>
         </table>
-        <x-forms.button href="{{ route('va.index') }}" preset="default">{{ __('Back') }}</x-forms.button>
       </x-containers.card>
     </div>
   </div>
