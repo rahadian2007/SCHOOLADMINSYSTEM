@@ -35,7 +35,7 @@ class VirtualAccountController extends Controller
         $payments = $query->get();
         $totalPaidAmount = 0;
         foreach ($payments as $payment) {
-            $paidAmountValue += json_decode($payment->paidAmount)->value;
+            $totalPaidAmount += json_decode($payment->paidAmount)->value;
         }
         return view('va.detail', compact('va', 'payments', 'totalPaidAmount'));
     }
