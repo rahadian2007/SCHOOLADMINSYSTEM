@@ -29,9 +29,9 @@
     <table class="table table-responsive-sm table-striped">
       <thead>
         <tr>
-          <th>Username</th>
+          <th>Nama</th>
           <th>Email</th>
-          <th>Phone</th>
+          <th>No. Telepon</th>
           <th></th>
         </tr>
       </thead>

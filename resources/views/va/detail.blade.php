@@ -48,7 +48,7 @@
           <tbody>
             @if (!isset($payments) || sizeof($payments) <= 0)
               <tr>
-                <td colspan="2">Belum ada history</td>
+                <td colspan="3">Belum ada history</td>
               </tr>
             @else
               @foreach ($payments as $payment)

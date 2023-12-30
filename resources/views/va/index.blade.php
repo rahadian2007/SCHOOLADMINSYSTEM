@@ -60,7 +60,7 @@
 
                             @if ($descriptions && is_array($descriptions))
                             @foreach($descriptions as $item)
-                            <p>
+                            <p class="mb-0">
                                 <span>{{ $item->name }}:</span>
                                 <span>@currency($item->value)</span>
                             </p>
