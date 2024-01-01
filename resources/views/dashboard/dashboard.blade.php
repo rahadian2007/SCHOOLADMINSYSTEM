@@ -1,21 +1,6 @@
 @extends('dashboard.base')
 
 @php
-$statusOpts = [
-    [
-        'value' => '',
-        'label' => 'SEMUA STATUS',
-    ],
-    [
-        'value' => '01',
-        'label' => 'PENDING',
-    ],
-    [
-        'value' => '00',
-        'label' => 'BERHASIL',
-    ],
-];
-
 $periodOpts = [
     [
         'value' => '',
@@ -76,11 +61,6 @@ $periodOpts = [
         </x-slot>
         <x-slot name="filters">
           <div class="d-flex" style="gap: 12px;">
-              <x-forms.select placeholder="SEMUA STATUS" id="filter-status">
-                  @foreach($statusOpts as $option)
-                  <option value="{{ $option['value'] }}" {{ request('status') === $option['value'] ? 'selected' : '' }}>{{ $option['label'] }}</option>
-                  @endforeach
-              </x-forms.select>
               <x-forms.select placeholder="SEMUA PERIODE" id="filter-period">
                   @foreach($periodOpts as $option)
                   <option value="{{ $option['value'] }}" {{ request('period') === $option['value'] ? 'selected' : '' }}>{{ $option['label'] }}</option>

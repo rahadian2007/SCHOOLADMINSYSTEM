@@ -25,9 +25,7 @@ class HomeController extends Controller
         
         $paymentQuery = Payment::query();
 
-        $paymentQuery->when(!!request('status'), function($q) {
-            return $q->where('paymentFlagStatus', request('status'));
-        })->when(request('period') === 'today', function($q) {
+        $paymentQuery->when(request('period') === 'today', function($q) {
             return $q->whereDate('created_at', DB::raw('CURDATE()'));
         })->when(request('period') === 'last-7-days', function($q) {
             return $q
@@ -40,6 +38,7 @@ class HomeController extends Controller
         });
 
         $payments = $paymentQuery
+            ->where('paymentFlagStatus', '00')
             ->where('channelCode', '6011')
             ->get();
         
