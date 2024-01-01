@@ -56,10 +56,10 @@
         </table>
          <div class="d-flex justify-content-between">
           <x-forms.button href="{{ url()->previous() }}" preset="default">{{ __('Back') }}</x-forms.button>
-          <!-- <form method="POST" action="{{ route('va.status-update', ['va' => $va->id]) }}">
+          <form method="POST" action="{{ route('va.status-update', ['va' => $va->id]) }}">
             @csrf
             <button type="submit" class="btn btn-dark">{{ __('Status Update') }}</button>
-          </form> -->
+          </form>
         </div>
       </x-containers.card>
     </div>
