@@ -12,12 +12,26 @@ class VirtualAccountController extends Controller
     public function index()
     {
         $filter = request('q');
+        $paymentStatus = request('payment');
+        $activeStatus = request('active');
         $query = VirtualAccount::query()
             ->when(!!$filter, function ($q) use ($filter) {
                 return $q->where('number', 'LIKE', '%'.$filter.'%')
                     ->orWhereHas('user', function ($q2) use ($filter) {
                         return $q2->where('name', 'LIKE', '%'.$filter.'%');
                     });
+            })
+            ->when($paymentStatus === 'paid', function ($q) use ($paymentStatus) {
+                return $q->where('outstanding', 0);
+            })
+            ->when($paymentStatus === 'unpaid', function ($q) {
+                return $q->where('outstanding', '!=', 0);
+            })
+            ->when($activeStatus === 'active', function ($q) {
+                return $q->where('is_active', 1);
+            })
+            ->when($activeStatus === 'inactive', function ($q) {
+                return $q->where('is_active', 0);
             });
         $vas = $query->paginate(10);
         $totalBill = $query->where('is_active', 1)->sum('outstanding');

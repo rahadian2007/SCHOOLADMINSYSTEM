@@ -3,12 +3,12 @@
 @section('content')
 <x-containers.container>
   <div class="row">
-    <div class="col-sm-6 col-lg-3">
+    <div class="col-sm-6 col-lg-4">
         <div class="d-flex justify-content-center">
             <img src="/svg/illustration-users.svg" width="220" />
         </div>
     </div>
-    <div class="col-sm-6 col-lg-3">
+    <div class="col-sm-6 col-lg-4">
       <div class="card text-white bg-primary">
         <div class="card-body pb-0">
           <div class="text-value-xl">@numeric($usersCount)</div>

@@ -1,14 +1,45 @@
 @extends('dashboard.base')
 
+@php
+$statusOpts = [
+    [
+        'label' => 'SEMUA',
+        'value' => ''
+    ],
+    [
+        'label' => 'LUNAS',
+        'value' => 'paid'
+    ],
+    [
+        'label' => 'BELUM LUNAS',
+        'value' => 'unpaid'
+    ],
+];
+$activeOpts = [
+    [
+        'label' => 'SEMUA',
+        'value' => ''
+    ],
+    [
+        'label' => 'AKTIF',
+        'value' => 'active'
+    ],
+    [
+        'label' => 'TIDAK AKTIF',
+        'value' => 'inactive'
+    ],
+];
+@endphp
+
 @section('content')
     <x-containers.container>
         <div class="row">
-            <div class="col-sm-6 col-lg-3">
+            <div class="col-sm-12 col-lg-4">
                 <div class="d-flex justify-content-center">
                     <img src="/svg/illustration-payment.svg" width="220" />
                 </div>
             </div>
-            <div class="col-sm-6 col-lg-3">
+            <div class="col-sm-6 col-lg-4">
                 <div class="card text-white bg-info">
                 <div class="card-body pb-0">
                     <div class="text-value-xl">@numeric($vaCount)</div>
@@ -19,7 +50,7 @@
                 </div>
                 </div>
             </div>
-            <div class="col-sm-6 col-lg-3">
+            <div class="col-sm-6 col-lg-4">
                 <div class="card text-white bg-warning">
                 <div class="card-body pb-0">
                     <div class="text-value-xl">@currency($totalBill)</div>
@@ -35,6 +66,20 @@
         <x-containers.card searchEnabled>
             <x-slot name="addNew">
                 <x-forms.button href="{{ route('va.create') }}">Tambah {{ __('Virtual Account') }}</x-forms.button>
+            </x-slot>
+            <x-slot name="filters">
+                <div class="d-flex" style="gap: 12px;">
+                    <x-forms.select placeholder="Pilih Status Pembayaran" id="filter-status-payment">
+                        @foreach($statusOpts as $option)
+                        <option value="{{ $option['value'] }}" {{ request('payment') === $option['value'] ? 'selected' : '' }}>{{ $option['label'] }}</option>
+                        @endforeach
+                    </x-forms.select>
+                    <x-forms.select placeholder="Pilih Keaktifan" id="filter-status-active">
+                        @foreach($activeOpts as $option)
+                        <option value="{{ $option['value'] }}" {{ request('active') === $option['value'] ? 'selected' : '' }}>{{ $option['label'] }}</option>
+                        @endforeach
+                    </x-forms.select>
+                </div>
             </x-slot>
             <table class="table table-responsive-sm table-striped">
                 <thead>
@@ -75,6 +120,7 @@
                             @else
                             <span class="text-danger">TIDAK AKTIF</span>
                             @endif
+                        </td>
                         <td class="d-flex">
                             <x-forms.button href="{{ route('va.show', $va->id) }}">View</x-forms.button>
                             <x-forms.button href="{{ route('va.edit', $va->id) }}" preset="warning" class="mx-1">Edit</x-forms.button>
@@ -88,7 +134,7 @@
                     @endforeach
                     @if(sizeof($vas) === 0)
                     <tr>
-                        <td colspan="4">Tidak ada data</td>
+                        <td colspan="6">Tidak ada data</td>
                     </tr>
                     @endif
                 </tbody>
@@ -99,6 +145,30 @@
 @endsection
 
 @section('javascript')
+<script>
+    const statusFilter = document.getElementById('filter-status-payment');
+    statusFilter.addEventListener('change', ({ target: { value }}) => {
+        const url = new URL(window.location.href);
+        if (value) {
+            url.searchParams.set('payment', value);
+        } else {
+            url.searchParams.delete('payment');
+        }
+        url.searchParams.delete('page');
+        window.location.href = url
+    })
 
+    const periodFilter = document.getElementById('filter-status-active');
+    periodFilter.addEventListener('change', ({ target: { value }}) => {
+        const url = new URL(window.location.href);
+        if (value) {
+            url.searchParams.set('active', value);
+        } else {
+            url.searchParams.delete('active');
+        }
+        url.searchParams.delete('page');
+        window.location.href = url
+    })
+</script>
 @endsection
 

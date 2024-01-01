@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Payment;
 use App\Models\VirtualAccount;
+use Illuminate\Support\Carbon;
 
 class HomeController extends Controller
 {
@@ -15,13 +17,17 @@ class HomeController extends Controller
             return redirect('/login');
         }
 
-        $usersCount = User::whereNull('deleted_at')->count();
+        $usersCount = User::whereNull('deleted_at')
+            ->where('menuroles', 'not like', '%admin%')
+            ->count();
         $vaCount = VirtualAccount::count();
         $totalBill = VirtualAccount::where('is_active', 1)->sum('outstanding');
         
         $paymentQuery = Payment::query();
 
-        $paymentQuery->when(request('period') === 'today', function($q) {
+        $paymentQuery->when(!!request('status'), function($q) {
+            return $q->where('paymentFlagStatus', request('status'));
+        })->when(request('period') === 'today', function($q) {
             return $q->whereDate('created_at', DB::raw('CURDATE()'));
         })->when(request('period') === 'last-7-days', function($q) {
             return $q
@@ -34,7 +40,6 @@ class HomeController extends Controller
         });
 
         $payments = $paymentQuery
-            ->where('paymentFlagStatus', '00')
             ->where('channelCode', '6011')
             ->get();
         
@@ -44,6 +49,8 @@ class HomeController extends Controller
             $totalSuccessPayment += $paidAmount->value;
         }
 
-        return view('dashboard.dashboard', compact('usersCount', 'vaCount', 'totalBill', 'totalSuccessPayment'));
+        return view('dashboard.dashboard', compact(
+            'usersCount', 'vaCount', 'totalBill', 'totalSuccessPayment'
+        ));
     }
 }
