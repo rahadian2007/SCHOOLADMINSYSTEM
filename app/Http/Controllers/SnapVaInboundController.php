@@ -1305,7 +1305,7 @@ class SnapVaInboundController extends Controller
                 ],
                 'billSubCompany' => $this->INQUIRY_SUB_COMPANY,
                 'billAmount' => [
-                    'value' => $desc && $desc->value ? $desc->value : '',
+                    'value' => $desc && $desc->value ? $desc->value : '0',
                     'currency' => $this->CURRENCY,
                 ],
             ];
