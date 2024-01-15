@@ -251,4 +251,36 @@ class BcaHelper {
         Log::info("result: " . $isSignatureVerified);
         return "true";
     }
+
+    public static function substractBillComponents($va, $paidAmount) {
+        if (!$va || !$paidAmount) {
+            return null;
+        }
+
+        $billComponents = json_decode($va->description);
+
+        if (!is_array($billComponents)) {
+            return null;
+        }
+
+        $remainder = $paidAmount;
+        $newBillComponents = [];
+        foreach ($billComponents as $component) {
+            if ($component->value <= $remainder) {
+                $newBillComponents[] = [
+                    'name' => $component->name,
+                    'value' => 0,
+                ];
+                $remainder -= $component->value;
+            } else {
+                $newBillComponents[] = [
+                    'name' => $component->name,
+                    'value' => $component->value - $remainder,
+                ];
+                $remainder = 0;
+            }
+        }
+
+        return json_encode($newBillComponents);
+    }
 }

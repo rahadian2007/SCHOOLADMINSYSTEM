@@ -35,6 +35,11 @@ $periodOpts = [
 @section('content')
     <x-containers.container>
         <x-containers.card searchEnabled>
+            <x-slot name="addNew">
+                <x-forms.button href="{{ route('payments.create') }}">
+                    Tambah {{ __('Payment') }}
+                </x-forms.button>
+            </x-slot>
             <x-slot name="filters">
                 <div class="d-flex" style="gap: 12px;">
                     <x-forms.select placeholder="Pilih Status" id="filter-status">
@@ -56,7 +61,9 @@ $periodOpts = [
                         <th>Nomor Virtual Account</th>
                         <th>Tanggal Pembayaran</th>
                         <th class="text-right">Nominal Pembayaran</th>
+                        <th>Metode Pembayaran</th>
                         <th>Status</th>
+                        <th>Keterangan</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -78,13 +85,39 @@ $periodOpts = [
                             {{ $payment->virtualAccountNumber }}
                             @endif
                         </td>
-                        <td>{{ $payment->created_at->format('d M Y H:i:s', 'Asia/Jakarta') }}</td>
+                        <td>
+                            <div>{{ $payment->created_at->format('d M Y', 'Asia/Jakarta') }}</div>
+                            <small>{{ $payment->created_at->format('H:i:s', 'Asia/Jakarta') }}</small>
+                        </td>
                         <td class="text-right">@currency(json_decode($payment->paidAmount)->value)</td>
+                        <td>
+                            <div>
+                                {{ $payment->paymentTypee === 'T' ? 'TRANSFER' : ($payment->paymentTypee === 'C' ? 'CASH' : 'VA') }}
+                            </div>
+                            @if ($payment->paymentProof)
+                            <small>
+                                <a href="{{ $payment->paymentProof }}" class="font-size-sm" target="_blank">Bukti Bayar</a>
+                            </small>
+                            @endif
+                        </td>
                         <td>
                             @if ($payment->paymentFlagStatus === '00')
                             <span class="text-success font-weight-bold">BERHASIL</span>
                             @else
                             <span class="text-danger font-weight-bold">GAGAL</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if ($payment->freeTexts)
+                            <small class="text-sm">{{ $payment->freeTexts }}</small>
+                            @endif
+                            @if ($payment->accNameSource)
+                            <small>
+                                Dari {{ $payment->accNameSource }}
+                                @if ($payment->accNumberSource)
+                                ({{ $payment->accNumberSource }})
+                                @endif
+                            </small>
                             @endif
                         </td>
                     </tr>

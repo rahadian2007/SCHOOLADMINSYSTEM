@@ -15,4 +15,9 @@ class VirtualAccount extends Model
     {
         return $this->belongsTo(\App\Models\User::class);
     }
+
+    public function getNameNumberAttribute()
+    {
+        return $this->user->name . ' - '  . $this->number;
+    }
 }

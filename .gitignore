@@ -15,6 +15,7 @@
 # /public/icons
 /public/vendors
 /public/public
+/public/va/*
 /storage/*.key
 /vendor
 .env

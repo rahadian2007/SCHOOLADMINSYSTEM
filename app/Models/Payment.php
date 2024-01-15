@@ -10,10 +10,18 @@ class Payment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'partnerServiceId', 'customerNo', 'virtualAccountNumber', 'virtualAccountName', 'trxId', 'paymentRequestId', 'channelCode', 'paidAmount', 'externalId', 'paymentFlagStatus'
+        'partnerServiceId', 'customerNo', 'virtualAccountNumber',
+        'virtualAccountName', 'trxId', 'paymentRequestId', 'channelCode',
+        'paidAmount', 'externalId', 'paymentFlagStatus', 'paymentTypee',
+        'hashedSourceAccountNo', 'additionalInfo', 'paymentProof',
+        'accNumberSource', 'accNameSource', 'freeTexts',
     ];
 
     public function va() {
-        return $this->hasOne('\App\Models\VirtualAccount', 'number', 'virtualAccountNumber');
+        return $this->hasOne(
+            '\App\Models\VirtualAccount',
+            'number',
+            'virtualAccountNumber'
+        );
     }
 }

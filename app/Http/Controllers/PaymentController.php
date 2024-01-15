@@ -6,6 +6,7 @@ use App\Helpers\BcaHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use App\Models\User;
 use App\Models\Payment;
 use App\Models\VirtualAccount;
@@ -15,7 +16,8 @@ class PaymentController extends Controller
     public function index()
     {
         if (!request('status')) {
-            return redirect()->route('payments.index', [ 'status' => '00' ]);
+            return redirect()
+                ->route('payments.index', [ 'status' => '00' ]);
         }
 
         $query = Payment::query();
@@ -36,6 +38,7 @@ class PaymentController extends Controller
 
         $payments = $query
             ->where('channelCode', '6011')
+            ->orWhere('channelCode', '6010')
             ->orderByDesc('created_at')
             ->paginate(10);
 
@@ -52,22 +55,83 @@ class PaymentController extends Controller
 
     public function create()
     {
-        $va = new VirtualAccount();
-        $userOptions = User::pluck('name', 'id');
-        return view('va.form', compact('userOptions', 'va'));
+        $vaOptions = VirtualAccount::all()
+            ->pluck('name_number', 'id')
+            ->prepend('Pilih nomor VA atau nama siswa', '');
+        $vas = VirtualAccount::get();
+        return view('payments.form', compact('vaOptions', 'vas'));
     }
 
     public function store(Request $request)
     {
         try {
+            // Validations
             $request->validate([
-                'user_id' => 'required',
-                'number' => 'required|unique:virtual_accounts|max:28',
-                'outstanding' => 'required',
-                'is_active' => 'required',
+                'va_id' => 'required|exists:virtual_accounts,id',
+                'total_payment' => 'required',
+                'payment_method' => 'required',
             ]);
-            VirtualAccount::create($this->getPayloadDataFromRequest($request));
-            return redirect()->route('va.index')->with('success', 'Berhasil menambah Virtual Account: ' . $request->input('number'));
+
+            $va = VirtualAccount::find(request('va_id'));
+
+            if (!$va) {
+                throw new \Exception('VA tidak ditemukan');
+            }
+
+            $totalPayment = request('total_payment');
+            $paymentIsLTEOutstanding = $totalPayment <= $va->outstanding;
+
+            if (!$paymentIsLTEOutstanding) {
+                throw new \Exception('Jumlah yang dibayarkan lebih besar dari tagihan');
+            }
+
+            $paymentData = [];
+            
+            // Upload file when available
+            if ($request->hasFile('proof')) {
+                $transferProof = $request->file('proof');
+                $path = 'va/'.request('va_id');
+                $fileName = $transferProof->getClientOriginalName();
+                $transferProof->move($path, $fileName);
+                $paymentData['paymentProof'] = $path . '/' . $fileName;
+            }
+
+            // Add payment record
+            $paymentMethod = request('payment_method');
+            $time = time();
+            $trxId = $paymentMethod . $time;
+            $paymentData = array_merge($paymentData, [
+                'partnerServiceId' => '1',
+                'customerNo' => $va->number,
+                'virtualAccountNumber' => $va->number,
+                'virtualAccountName' => $va->user->name,
+                'channelCode' => '6010',
+                'paidAmount' => json_encode([
+                    'value' => $totalPayment,
+                    'currency' => 'IDR',
+                ]),
+                'trxId' => $trxId,
+                'paymentRequestId' => $trxId,
+                'externalId' => $trxId,
+                'paymentFlagStatus' => '00',
+                'paymentTypee' => $paymentMethod,
+                'accNumberSource' => request('source_account_number'),
+                'accNameSource' => request('source_account_name'),
+            ]);
+            Payment::create($paymentData);
+
+            // Update outstanding bill
+            $va->update([
+                'outstanding' => $va->outstanding - $totalPayment,
+                'description' => BCAHelper::substractBillComponents(
+                    $va,
+                    $totalPayment
+                ),
+            ]);
+
+            return redirect()
+                ->route('payments.index')
+                ->with('success', 'Berhasil melakukan pembayaran');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -89,7 +153,12 @@ class PaymentController extends Controller
                 'is_active' => 'required',
             ]);
             $va->update($this->getPayloadDataFromRequest($request));
-            return redirect()->route('va.index')->with('success', 'Berhasil mengubah Virtual Account: ' . $request->input('number'));
+            return redirect()
+                ->route('va.index')
+                ->with(
+                    'success',
+                    'Berhasil mengubah Virtual Account: ' . $request->input('number')
+                );
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -99,9 +168,16 @@ class PaymentController extends Controller
     {
         try {
             $va->delete();
-            return redirect()->route('va.index')->with('success', 'Berhasil menghapus Virtual Account: ' . $va->number);
+            return redirect()
+                ->route('va.index')
+                ->with(
+                    'success',
+                    'Berhasil menghapus Virtual Account: ' . $va->number
+                );
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
+            return redirect()
+                ->back()
+                ->with('error', $e->getMessage());
         }
     }
 }
