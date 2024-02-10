@@ -65,35 +65,32 @@
 
                                         @if ($isActionColAvail)
                                             <td>
-                                                <div class="d-flex">
-                                                @if ($enableButtons['read'] == 1)
-                                                    <a href="{{ route('resource.show', [ 'table' => $form->id, 'resource' => $data['id'] ] ) }}"
-                                                        class="btn btn-primary mr-2"
-                                                    >
-                                                        Detil
-                                                    </a>
-                                                @endif
-
-                                                @if ($enableButtons['edit'] == 1)
-                                                    <a href="{{ route('resource.edit', [ 'table' => $form->id, 'resource' => $data['id'] ] ) }}"
-                                                        class="btn btn-primary mr-2"
-                                                    >
-                                                        Edit
-                                                    </a>
-                                                @endif
-
-                                                @if ($enableButtons['delete'] == 1)
-                                                    <form action="{{ route('resource.destroy', [
-                                                            'table' => $form->id,
-                                                            'resource' => $data['id']
-                                                        ]) }}"
-                                                        method="POST"
-                                                    >
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button class="btn btn-danger">Hapus</button>
-                                                    </form>
-                                                @endif
+                                                <div class="btn-group dropdown w-100">
+                                                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Opsi</button>
+                                                    <div class="dropdown-menu" x-placement="top-start" style="position: absolute; transform: translate3d(0px, -2px, 0px); top: 0px; right: 0px; will-change: transform;">
+                                                        @if ($enableButtons['read'] == 1)
+                                                            <a href="{{ route('resource.show', [ 'table' => $form->id, 'resource' => $data['id'] ] ) }}" class="dropdown-item">
+                                                                Detil
+                                                            </a>
+                                                        @endif
+                                                        @if ($enableButtons['edit'] == 1)
+                                                            <a href="{{ route('resource.edit', [ 'table' => $form->id, 'resource' => $data['id'] ] ) }}" class="dropdown-item">
+                                                                Edit
+                                                            </a>
+                                                        @endif
+                                                        @if ($enableButtons['delete'] == 1)
+                                                            <form action="{{ route('resource.destroy', [
+                                                                    'table' => $form->id,
+                                                                    'resource' => $data['id']
+                                                                ]) }}"
+                                                                method="POST"
+                                                            >
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button class="dropdown-item">Hapus</button>
+                                                            </form>
+                                                        @endif
+                                                    </div>
                                                 </div>
                                             </td>
                                         @endif
