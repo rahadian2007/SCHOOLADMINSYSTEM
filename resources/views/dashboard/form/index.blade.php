@@ -25,7 +25,7 @@
                     <div class="col-12">
                         <a 
                             href="{{ route('bread.create') }}"
-                            class="btn btn-primary mb-3"
+                            class="btn btn-sm btn-primary mb-3"
                         >
                         Add new BREAD
                         </a>
@@ -37,10 +37,7 @@
                             <thead>
                                 <tr>
                                     <th>Name</th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -50,36 +47,32 @@
                                             {{ $form->name }}
                                         </td>
                                         <td>
-                                            <a
-                                                href="{{ route('resource.index', $form->id) }}"
-                                                class="btn btn-success"
-                                                target="_blank"
-                                            >
-                                                Go to resource
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <a 
-                                                href="{{ route('bread.show', $form->id) }}"
-                                                class="btn btn-primary"
-                                            >
-                                                Show
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <a 
-                                                href="{{ route('bread.edit', $form->id) }}"
-                                                class="btn btn-primary"
-                                            >
-                                                Edit
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <form action="{{ route('bread.destroy', $form->id) }}" method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button class="btn btn-danger">Delete</button>
-                                            </form>
+                                            <div class="d-flex gap-3">
+                                                <a
+                                                    href="{{ route('resource.index', $form->id) }}"
+                                                    class="btn btn-sm btn-success mr-2"
+                                                    target="_blank"
+                                                >
+                                                    Go to resource
+                                                </a>
+                                                <a 
+                                                    href="{{ route('bread.show', $form->id) }}"
+                                                    class="btn btn-sm btn-primary mr-2"
+                                                >
+                                                    Show
+                                                </a>
+                                                <a 
+                                                    href="{{ route('bread.edit', $form->id) }}"
+                                                    class="btn btn-sm btn-primary mr-2"
+                                                >
+                                                    Edit
+                                                </a>
+                                                <form action="{{ route('bread.destroy', $form->id) }}" method="POST">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button class="btn btn-sm btn-danger">Delete</button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach

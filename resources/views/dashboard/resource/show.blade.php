@@ -42,9 +42,9 @@
                         </table>
                         <a 
                             href="{{ route('resource.index', $form->id) }}"
-                            class="btn btn-primary"
+                            class="btn btn-default"
                         >
-                            Return
+                            Back
                         </a>
                     </div>
                 </div>

@@ -19,6 +19,7 @@ Route::group(['middleware' => ['get.menu', 'web']], function () {
     Route::group(['middleware' => ['role:admin']], function () {
         Route::resource('va', 'VirtualAccountController');
         Route::resource('payments', 'PaymentController');
+        Route::resource('products', 'ProductController');
         Route::resource('bread', 'BreadController');   //create BREAD (resource)
         Route::resource('users', 'UsersController');
         Route::resource('roles', 'RolesController');

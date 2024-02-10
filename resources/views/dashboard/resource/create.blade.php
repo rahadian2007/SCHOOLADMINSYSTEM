@@ -101,9 +101,9 @@
                             </button>
                             <a 
                                 href="{{ route('resource.index', $form->id) }}"
-                                class="btn btn-primary mt-3"
+                                class="btn btn-default mt-3"
                             >
-                                Return
+                                Back
                             </a>
                         </form>
                     </div>

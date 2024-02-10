@@ -31,13 +31,17 @@ class ResourceService{
 
     public function addMedia($request, $columnName){
         $result = '';
-        if(isset($request[$columnName])){
+        if (isset($request[$columnName])) {
             $file = $request[$columnName];
             $path = $file->path();
-            $oryginalName = $file->getClientOriginalName();
+            $originalName = $file->getClientOriginalName();
             $mediaFolder = Folder::where('resource', '=', 1)->first();
-            if(!empty($mediaFolder)){
-                $mediaFolder->addMedia($path)->usingFileName( date('YmdHis') . $oryginalName )->usingName($oryginalName)->toMediaCollection();
+
+            if (!empty($mediaFolder)) {
+                $mediaFolder->addMedia($path)
+                    ->usingFileName(date('YmdHis') . $originalName)
+                    ->usingName($originalName)
+                    ->toMediaCollection();
                 $result = DB::getPdo()->lastInsertId(); 
             }
         }
@@ -51,9 +55,9 @@ class ResourceService{
         if(isset($request[$columnName])){
             $file = $request[$columnName];
             $path = $file->path();
-            $oryginalName = $file->getClientOriginalName();
+            $originalName = $file->getClientOriginalName();
             if(!empty($mediaFolder)){
-                $mediaFolder->addMedia($path)->usingName($oryginalName)->usingFileName( date('YmdHis') . $oryginalName )->toMediaCollection();
+                $mediaFolder->addMedia($path)->usingName($originalName)->usingFileName( date('YmdHis') . $originalName )->toMediaCollection();
                 $result = DB::getPdo()->lastInsertId();
                 $media->delete();
             }
