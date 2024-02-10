@@ -27,7 +27,7 @@
                                 href="{{ route('resource.create', $form->id ) }}"
                                 class="btn btn-primary mb-3"
                             >
-                            Add new
+                            Tambah {{ $form->name }} Baru
                             </a>
                         </div>
                     </div>
@@ -70,7 +70,7 @@
                                                     <a href="{{ route('resource.show', [ 'table' => $form->id, 'resource' => $data['id'] ] ) }}"
                                                         class="btn btn-primary mr-2"
                                                     >
-                                                        Show
+                                                        Detil
                                                     </a>
                                                 @endif
 
@@ -91,7 +91,7 @@
                                                     >
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button class="btn btn-danger">Delete</button>
+                                                        <button class="btn btn-danger">Hapus</button>
                                                     </form>
                                                 @endif
                                                 </div>
