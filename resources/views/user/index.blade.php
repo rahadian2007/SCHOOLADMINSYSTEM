@@ -12,7 +12,7 @@
       <div class="card text-white bg-primary">
         <div class="card-body pb-0">
           <div class="text-value-xl">@numeric($usersCount)</div>
-          <div>Jumlah Siswa</div>
+          <div>Jumlah {{ $pageType }}</div>
         </div>
         <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">
           <canvas class="chart" height="70"></canvas>

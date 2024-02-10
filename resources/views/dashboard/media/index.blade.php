@@ -139,7 +139,7 @@
                                                     class="btn btn-success file-cropp-file"
                                                     atr="{{ $media->id }}"
                                                 >
-                                                    Cropp
+                                                    Crop
                                                 </button>
                                             <?php 
                                                 }
