@@ -33,7 +33,7 @@ $periodOpts = [
                 <div class="text-value-lg">@numeric($usersCount)</div>
                 <div>Jumlah Siswa</div>
               </div>
-              <img src="/svg/illustration-users.svg" width="234" />
+              <img src="/svg/illustration-users.svg" width="128" />
             </div>
           </div>
           <div class="card text-white bg-info">
@@ -42,7 +42,7 @@ $periodOpts = [
                 <div class="text-value-lg">@numeric($vaCount)</div>
                 <div>Jumlah Virtual Account</div>
               </div>
-              <img src="/svg/illustration-profile.svg" width="234" />
+              <img src="/svg/illustration-profile.svg" width="128" />
             </div>
           </div>
         </div>
