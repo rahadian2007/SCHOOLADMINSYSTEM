@@ -320,6 +320,26 @@ class FormService{
                 'value'=> 'week',
                 'name' => 'week'
             ),
+            array(
+                'value'=> 'relation_select',
+                'name' => 'relation_select'
+            ),
+            array(
+                'value'=> 'relation_radio',
+                'name' => 'relation_radio'
+            ),
+            array(
+                'value'=> 'file',
+                'name' => 'file'
+            ),
+            array(
+                'value'=> 'image',
+                'name' => 'image'
+            ),
+            array(
+                'value'=> 'text_area',
+                'name' => 'text_area'
+            ),
         );
     }
 

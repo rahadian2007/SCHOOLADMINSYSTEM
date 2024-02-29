@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Role;
 use App\Models\UserDetail;
 
 class UsersController extends Controller
@@ -42,15 +43,44 @@ class UsersController extends Controller
         
         $users = $query->paginate(10);
         $usersCount = $query->count();
+        $pageType = 'Siswa';
 
-        return view('user.index', compact('users', 'you', 'usersCount'));
+        return view('user.index', compact(
+            'users', 'you', 'usersCount', 'pageType'
+        ));
+    }
+
+    public function cashiersList(Request $request)
+    {
+        $you = auth()->user();
+        $filter = request('q');
+        $query = User::query()
+            ->where('menuroles', 'not like', '%admin%')
+            ->where('menuroles', 'cashier')
+            ->whereNull('deleted_at')
+            ->when(!!$filter, function ($q) use ($filter) {
+                return $q->where('name', 'like', "%$filter%")
+                    ->orWhere('email', 'like', "%$filter%")
+                    ->orWhereHas('detail', function ($q2) use ($filter) {
+                        $q2->where('phone', 'like', "%$filter%");
+                    });
+            });
+        
+        $users = $query->paginate(10);
+        $usersCount = $query->count();
+        $pageType = 'Kasir';
+
+        return view('user.index', compact(
+            'users', 'you', 'usersCount', 'pageType'
+        ));
     }
 
     public function create()
     {
         $user = new User();
         $user->detail = new UserDetail();
-        $data = compact('user');
+        $roles = Role::pluck('name', 'id');
+        $data = compact('user', 'roles');
 
         return view('user.form', $data);
     }
@@ -62,11 +92,21 @@ class UsersController extends Controller
             'email' => 'required|email|max:256',
             'phone' => 'required|max:15',
         ]);
+        
         $newUserPayload = $request->only(['name', 'email']);
         $newUserPayload['password'] = 'password';
+        
+        if ($request->get('role')) {
+            $role = Role::find($request->get('role'));
+            $newUserPayload['menuroles'] = $role->name;
+        }
+
         $user = User::create($newUserPayload);
         $user->detail()->create($request->only('phone'));
-        return redirect()->route('users.index')->with('message', 'Berhasil membuat user baru: ' . $user->name);
+
+
+        return redirect()->back()
+            ->with('message', 'Berhasil membuat user baru: ' . $user->name);
     }
 
     /**

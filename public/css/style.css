@@ -4676,6 +4676,7 @@ select.form-control option {
   margin-bottom: 0;
   font-size: inherit;
   line-height: 1.5;
+  font-weight: bold;
 }
 
 .col-form-label-lg {

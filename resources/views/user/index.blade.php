@@ -2,21 +2,14 @@
 
 @section('content')
 <x-containers.container>
-  <div class="row">
-    <div class="col-sm-6 col-lg-4">
-        <div class="d-flex justify-content-center">
-            <img src="/svg/illustration-users.svg" width="220" />
-        </div>
-    </div>
-    <div class="col-sm-6 col-lg-4">
-      <div class="card text-white bg-primary">
-        <div class="card-body pb-0">
+  <div class="d-flex">
+    <div class="card text-white bg-info">
+      <div class="card-body d-flex">
+        <div>
           <div class="text-value-xl">@numeric($usersCount)</div>
-          <div>Jumlah Siswa</div>
+          <div>Jumlah {{ $pageType }}</div>
         </div>
-        <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">
-          <canvas class="chart" height="70"></canvas>
-        </div>
+        <img src="/svg/illustration-users.svg" width="180" />
       </div>
     </div>
   </div>
@@ -42,15 +35,20 @@
           <td>{{ $user->email }}</td>
           <td>{{ $user->detail && $user->detail->phone ? $user->detail->phone : '-' }}</td>
           <td class="d-flex">
-            <x-forms.button href="{{ url('/users/' . $user->id) }}">View</x-forms.button>
-            <x-forms.button href="{{ url('/users/' . $user->id . '/edit') }}" preset="warning" class="mx-1">Edit</x-forms.button>
-            @if( $you->id !== $user->id )
-            <form action="{{ route('users.destroy', $user->id ) }}" method="POST">
-              @method('DELETE')
-              @csrf
-              <button class="btn btn-block btn-danger">Delete</button>
-            </form>
-            @endif
+            <div class="btn-group dropdown w-100">
+              <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Opsi</button>
+              <div class="dropdown-menu" x-placement="top-start" style="position: absolute; transform: translate3d(0px, -2px, 0px); top: 0px; right: 0px; will-change: transform;">
+                <x-forms.button href="{{ url('/users/' . $user->id) }}" class="dropdown-item">View</x-forms.button>
+                <x-forms.button href="{{ url('/users/' . $user->id . '/edit') }}" preset="warning" class="dropdown-item">Edit</x-forms.button>
+                @if( $you->id !== $user->id )
+                <form action="{{ route('users.destroy', $user->id ) }}" method="POST">
+                  @method('DELETE')
+                  @csrf
+                  <button type="submit" class="dropdown-item text-danger">Delete</button>
+                </form>
+                @endif
+              </div>
+            </div>
           </td>
         </tr>
       @endforeach

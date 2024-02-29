@@ -25,74 +25,62 @@ $periodOpts = [
 <div class="container-fluid">
   <div class="fade-in">
     <div class="row">
-      <div class="col-12">
-        <div class="d-flex justify-content-center">
-          <img src="/svg/illustration-dashboard.svg" width="480" />
-        </div>
-      </div>
-    </div>
-    <div class="row mt-4">
-        <div class="col-sm-6 col-lg-6">
-          <div class="card text-white bg-primary">
-            <div class="card-body pb-0">
-              <div class="text-value-lg">@numeric($usersCount)</div>
-              <div>Jumlah Siswa</div>
-            </div>
-            <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">
-              <canvas class="chart" height="70"></canvas>
+    <div class="col-6">
+        <div class="d-flex">
+          <div class="card text-white bg-info mr-3">
+            <div class="card-body d-flex">
+              <div>
+                <div class="text-value-lg">@numeric($usersCount)</div>
+                <div>Jumlah Siswa</div>
+              </div>
+              <img src="/svg/illustration-users.svg" width="128" />
             </div>
           </div>
-        </div>
-        <div class="col-sm-6 col-lg-6">
           <div class="card text-white bg-info">
-            <div class="card-body pb-0">
-              <div class="text-value-lg">@numeric($vaCount)</div>
-              <div>Jumlah Virtual Account</div>
-            </div>
-            <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">
-              <canvas class="chart" height="70"></canvas>
+            <div class="card-body d-flex">
+              <div>
+                <div class="text-value-lg">@numeric($vaCount)</div>
+                <div>Jumlah Virtual Account</div>
+              </div>
+              <img src="/svg/illustration-profile.svg" width="128" />
             </div>
           </div>
         </div>
       </div>
-      <x-containers.card>
-        <x-slot name="title">
-          SUMMARY PEMBAYARAN
-        </x-slot>
-        <x-slot name="filters">
-          <div class="d-flex" style="gap: 12px;">
-              <x-forms.select placeholder="SEMUA PERIODE" id="filter-period">
-                  @foreach($periodOpts as $option)
-                  <option value="{{ $option['value'] }}" {{ request('period') === $option['value'] ? 'selected' : '' }}>{{ $option['label'] }}</option>
-                  @endforeach
-              </x-forms.select>
-          </div>
-        </x-slot>
-        <div class="row">
-          <div class="col-sm-6 col-lg-6">
-            <div class="card text-white bg-success">
-              <div class="card-body pb-0">
-                <div class="text-value-lg">@currency($totalSuccessPayment)</div>
-                <div>Total Pembayaran Berhasil</div>
+      <div class="col-6">
+        <x-containers.card>
+          <x-slot name="title">
+            SUMMARY PEMBAYARAN
+          </x-slot>
+          <x-slot name="filters">
+            <div>
+                <x-forms.select placeholder="SEMUA PERIODE" id="filter-period">
+                    @foreach($periodOpts as $option)
+                    <option value="{{ $option['value'] }}" {{ request('period') === $option['value'] ? 'selected' : '' }}>{{ $option['label'] }}</option>
+                    @endforeach
+                </x-forms.select>
+            </div>
+          </x-slot>
+          <div class="row">
+            <div class="col-6">
+              <div class="card border border-light text-success shadow">
+                <div class="card-body text-right">
+                  <div class="text-value-lg">@currency($totalSuccessPayment)</div>
+                  <div>Total Pembayaran Berhasil</div>
+                </div>
               </div>
-              <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">
-                <canvas class="chart" height="70"></canvas>
+            </div>
+            <div class="col-6">
+              <div class="card border border-light">
+                <div class="card-body text-right">
+                  <div class="text-value-lg">@currency($totalBill)</div>
+                  <div>Total Tagihan</div>
+                </div>
               </div>
             </div>
           </div>
-          <div class="col-sm-6 col-lg-6">
-            <div class="card text-white bg-warning">
-              <div class="card-body pb-0">
-                <div class="text-value-lg">@currency($totalBill)</div>
-                <div>Total Tagihan</div>
-              </div>
-              <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">
-                <canvas class="chart" height="70"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
-      </x-containers.card>
+        </x-containers.card>
+      </div>
     </div>
   </div>
 </div>
@@ -102,6 +90,6 @@ $periodOpts = [
 @section('javascript')
     <script src="{{ asset('js/Chart.min.js') }}"></script>
     <script src="{{ asset('js/coreui-chartjs.bundle.js') }}"></script>
-    <script src="{{ asset('js/main.js') }}" defer></script>
+    <!-- <script src="{{ asset('js/main.js') }}" defer></script> -->
     <script src="{{ asset('js/filters/payment.js') }}"></script>
 @endsection

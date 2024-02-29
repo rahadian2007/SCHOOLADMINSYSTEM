@@ -6,26 +6,29 @@
 
 @section('content')
 
-
 <div class="container-fluid">
   <div class="fade-in">
     <div class="row">
       <div class="col-sm-12">
         <div class="card">
-          <div class="card-header"><h4>Media</h4></div>
+            <div class="card-header">
+                <h4 class="mb-0 d-flex align-items-center">
+                    <i class="cil-storage mr-2"></i>
+                    Media Penyimpanan Data
+                </h4>
+            </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-12">
                         <div style="float:left;">
                             @if($parentFolder !== 'disable')
-                                <a class="btn btn-primary mt-2" href="{{ route('media.folder.index', [ 'id' => $parentFolder ]) }}">
+                                <a class="btn btn-light mt-2" href="{{ route('media.folder.index', [ 'id' => $parentFolder ]) }}">
                                     <i class="cil-level-up"></i>
                                     back
                                 </a>
                             @endif
-                            <a class="btn btn-primary mt-2" href="{{ route('media.folder.add', [ 'thisFolder' => $thisFolder ]) }}">
-                                <i class="cil-plus"></i> 
-                                <i class="cil-folder"></i>
+                            <a class="btn btn-light mt-2" href="{{ route('media.folder.add', [ 'thisFolder' => $thisFolder ]) }}">
+                                <i class="cil-folder mr-1"></i>
                                 New folder
                             </a>
                         </div>
@@ -33,9 +36,8 @@
                             <form method="POST" action="{{ route('media.file.add') }}" enctype="multipart/form-data" id="file-file-form">
                                 @csrf
                                 <input type="hidden" name="thisFolder" value="{{ $thisFolder }}" id="this-folder-id"/> 
-                                <label class="btn btn-primary mt-2 ml-1">
-                                    <i class="cil-plus"></i>
-                                    <i class="cil-file"></i>
+                                <label class="btn btn-light mt-2 ml-1">
+                                    <i class="cil-file mr-1"></i>
                                     New file <input type="file" name="file" id="file-file-input" hidden>
                                 </label> 
                                 
@@ -55,112 +57,96 @@
                                                 {{ $mediaFolder->name }}
                                             </a>
                                         </td>
-                                        <td>
-
-                                        </td>
-                                        <td>
-                                            <button
-                                                class="btn btn-primary file-change-folder-name"
-                                                atr="{{ $mediaFolder->id }}"
-                                            >
-                                                Rename
-                                            </button>
-                                        </td>
-                                        <td>
-
-                                        </td>
-                                        <td>
-                                            <button 
-                                                class="btn btn-primary file-move-folder"
-                                                atr="{{ $mediaFolder->id }}"
-                                            >
-                                                Move
-                                            </button>
-                                        </td>
-                                        <td>
-
-                                        </td>
-                                        <td>
-                                            @if($mediaFolder->resource != 1)
-                                                <button 
-                                                    class="btn btn-danger file-delete-folder"
-                                                    atr="{{ $mediaFolder->id }}"
-                                                >
-                                                    Delete
-                                                </button>
-                                            @endif
+                                        <td width="100">
+                                            <div class="btn-group dropdown">
+                                                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Opsi</button>
+                                                <div class="dropdown-menu" x-placement="top-start" style="position: absolute; transform: translate3d(0px, -2px, 0px); top: 0px; right: 0px; will-change: transform;">
+                                                    <button
+                                                        class="btn btn-primary file-change-folder-name dropdown-item"
+                                                        atr="{{ $mediaFolder->id }}"
+                                                    >
+                                                        Rename
+                                                    </button>
+                                                    <button 
+                                                        class="btn btn-primary file-move-folder dropdown-item"
+                                                        atr="{{ $mediaFolder->id }}"
+                                                    >
+                                                        Move
+                                                    </button>
+                                                    @if($mediaFolder->resource != 1)
+                                                    <button 
+                                                        class="btn btn-danger file-delete-folder dropdown-item"
+                                                        atr="{{ $mediaFolder->id }}"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                    @endif
+                                                </div>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
                                 @foreach($medias as $media)
                                     <tr>
                                         <td class="click-file" atr="{{ $media->id }}">
-                                            <i class="cil-file"></i> 
-                                            {{ $media->name }}
+                                            <div class="d-flex align-items-center text-center">
+                                                @if ($media->mime_type === 'image/png')
+                                                <img src="{{ $media->getUrl() }}" width="32" class="mr-1 img-thumbnail" />
+                                                @else
+                                                <i class="cil-file mr-1" style="width: 32px;"></i>
+                                                @endif
+                                                {{ $media->name }}
+                                            <div>
                                         </td>
                                         <td>
-                                            <a 
-                                                href="<?php echo $media->getUrl(); ?>"
-                                                class="btn btn-primary"
-                                            >
-                                                Open
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <button
-                                                class="btn btn-primary file-change-file-name"
-                                                atr="{{ $media->id }}"
-                                            >
-                                                Rename
-                                            </button>
-                                        </td>
-                                        <td>
-                                            <a 
-                                                href="{{ route('media.file.copy', ['id' => $media->id, 'thisFolder' => $thisFolder]) }}"
-                                                class="btn btn-primary"
-                                            >   
-                                                Copy
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <button 
-                                                class="btn btn-primary file-move-file"
-                                                atr="{{ $media->id }}"
-                                            >
-                                                Move
-                                            </button>
-                                        </td>
-                                        <td>
-                                            <?php 
-                                                $mime = explode('/', $media->mime_type);
-                                                if($mime[0] === 'image'){
-                                            ?>
-                                                <button 
-                                                    class="btn btn-success file-cropp-file"
-                                                    atr="{{ $media->id }}"
-                                                >
-                                                    Cropp
-                                                </button>
-                                            <?php 
-                                                }
-                                            ?>
-                                        </td>
-                                        <td>
-                                            <button 
-                                                class="btn btn-danger file-delete-file"
-                                                atr="{{ $media->id }}"
-                                            >
-                                                Delete
-                                            </button>
-
-                                            <!--
-                                            <a 
-                                                class="btn btn-danger" 
-                                                href="{{ route('media.file.delete', ['id' => $media->id, 'thisFolder' => $thisFolder]) }}"
-                                            >
-                                                Delete
-                                            </a>
-                                            -->
+                                            <div class="btn-group dropdown">
+                                                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Opsi</button>
+                                                <div class="dropdown-menu" x-placement="top-start" style="position: absolute; transform: translate3d(0px, -2px, 0px); top: 0px; right: 0px; will-change: transform;">
+                                                    <a 
+                                                        href="<?php echo $media->getUrl(); ?>"
+                                                        class="dropdown-item"
+                                                    >
+                                                        Open
+                                                    </a>
+                                                    <button
+                                                        class="btn btn-primary file-change-file-name dropdown-item"
+                                                        atr="{{ $media->id }}"
+                                                    >
+                                                        Rename
+                                                    </button>
+                                                    <a 
+                                                        href="{{ route('media.file.copy', ['id' => $media->id, 'thisFolder' => $thisFolder]) }}"
+                                                        class="btn btn-primary dropdown-item"
+                                                    >   
+                                                        Duplikat
+                                                    </a>
+                                                    <button 
+                                                        class="btn btn-primary file-move-file dropdown-item"
+                                                        atr="{{ $media->id }}"
+                                                    >
+                                                        Pindahkan
+                                                    </button>
+                                                    <?php 
+                                                        $mime = explode('/', $media->mime_type);
+                                                        if($mime[0] === 'image'){
+                                                    ?>
+                                                        <button 
+                                                            class="btn btn-success file-cropp-file dropdown-item"
+                                                            atr="{{ $media->id }}"
+                                                        >
+                                                            Crop
+                                                        </button>
+                                                    <?php 
+                                                        }
+                                                    ?>
+                                                    <button 
+                                                        class="btn btn-danger file-delete-file dropdown-item"
+                                                        atr="{{ $media->id }}"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -289,9 +275,9 @@
                             </div>
                         </div>
 
-                        <div class="card border-primary" id="file-info-card">
+                        <div class="shadow rounded" id="file-info-card">
                             <div class="card-header">
-                                <h4>File info</h4>
+                                <h4 class="mb-0">File info</h4>
                             </div>
                             <div class="card-body">
                                 <table class="table table-striped table-bordered">
