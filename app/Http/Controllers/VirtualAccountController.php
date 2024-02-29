@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Payment;
 use App\Models\VirtualAccount;
+use App\Exports\VaExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class VirtualAccountController extends Controller
 {
@@ -123,5 +125,10 @@ class VirtualAccountController extends Controller
         $data['description'] = $details;
 
         return $data;
+    }
+
+    public function export(Request $request)
+    {
+        return Excel::download(new VaExport, 'virtual-account.xlsx');
     }
 }
