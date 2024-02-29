@@ -3,7 +3,7 @@
     <tr>
       <th width="5" align="center" style="background-color: #C4D79B; border-bottom: #687252; font-weight: bold;">No.</th>
       <th width="16" align="center" style="background-color: #C4D79B; border-bottom: #687252; font-weight: bold;">Nomor VA</th>
-      <th width="18" align="center" style="background-color: #C4D79B; border-bottom: #687252; font-weight: bold;">Nama Siswa</th>
+      <th width="30" align="center" style="background-color: #C4D79B; border-bottom: #687252; font-weight: bold;">Nama Siswa</th>
       <th width="15" align="center" style="background-color: #C4D79B; border-bottom: #687252; font-weight: bold;">Jumlah Tagihan</th>
       <th width="18" align="center" style="background-color: #C4D79B; border-bottom: #687252; font-weight: bold;">Rincian</th>
     </tr>
@@ -22,7 +22,7 @@
         @if ($description)
           @foreach ($description as $index => $desc)
             {{ $desc->name }}: {{ $desc->value }}
-            
+
             @if ($index < sizeof($description) - 1)
             <br/>
             @endif
