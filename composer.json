@@ -16,6 +16,7 @@
         "laravel/tinker": "^2.3.0",
         "laravel/ui": "^3.0",
         "laravelcollective/html": "^6.4",
+        "maatwebsite/excel": "^3.1",
         "rbdwllr/reallysimplejwt": "^1.0",
         "spatie/laravel-medialibrary": "^8.7.2",
         "spatie/laravel-permission": "^3.17"
@@ -48,9 +49,7 @@
             "database/seeders",
             "database/factories"
         ],
-        "files": [
-
-        ]
+        "files": []
     },
     "autoload-dev": {
         "psr-4": {

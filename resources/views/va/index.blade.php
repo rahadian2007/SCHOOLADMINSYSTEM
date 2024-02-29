@@ -65,7 +65,16 @@ $activeOpts = [
         
         <x-containers.card searchEnabled>
             <x-slot name="addNew">
-                <x-forms.button href="{{ route('va.create') }}">Tambah {{ __('Virtual Account') }}</x-forms.button>
+                <div class="d-flex">
+                    <x-forms.button href="{{ route('va.create') }}">Tambah {{ __('Virtual Account') }}</x-forms.button>
+                    <form method="POST" action="{{ route('va.export') }}">
+                        @csrf
+                        <x-forms.button type="submit" preset="light" class="d-flex align-items-center ml-1">
+                            <i class="cil-cloud-download mr-2"></i>
+                            Export (.xlsx)
+                        </x-forms.button>
+                    </form>
+                </div>
             </x-slot>
             <x-slot name="filters">
                 <div class="d-flex" style="gap: 12px;">
