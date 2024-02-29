@@ -19,12 +19,17 @@
       <td>{{ $va->user->name }}</td>
       <td data-format="#,##0_);(#,##0)">{{ $va->outstanding }}</td>
       <td>
-        @foreach ($description as $index => $desc)
-          {{ $desc->name }}: {{ $desc->value }}
-          @if ($index < sizeof($description) - 1)
-          <br/>
-          @endif
-        @endforeach
+        @if ($description)
+          @foreach ($description as $index => $desc)
+            {{ $desc->name }}: {{ $desc->value }}
+            
+            @if ($index < sizeof($description) - 1)
+            <br/>
+            @endif
+          @endforeach
+        @else
+        <span>-</span>
+        @endif
       </td>
     </tr>
   @endforeach
