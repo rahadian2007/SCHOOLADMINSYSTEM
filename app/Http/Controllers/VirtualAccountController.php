@@ -122,7 +122,7 @@ class VirtualAccountController extends Controller
                 'value' => $request->get('detail-value')[$index],
             ];
         }
-        $data['description'] = $details;
+        $data['description'] = json_encode($details);
 
         return $data;
     }
