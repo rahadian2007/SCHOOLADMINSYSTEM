@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Folder;
 use App\Models\Product;
+use App\Models\ProductCategory;
+use App\Models\ProductVendor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -11,6 +15,91 @@ class ProductController extends Controller
     {
         $products = Product::paginate(10);
         $data = compact('products');
+
         return view('products.index', $data);
+    }
+
+    public function show($id)
+    {
+        $product = Product::find($id);
+        $data = compact('product');
+
+        return view('products.detail', $data);
+    }
+
+    public function create()
+    {
+        $product = new Product();
+        $productCategories = ProductCategory::pluck('name', 'id');
+        $productVendors = ProductVendor::pluck('name', 'id');
+
+        return view('products.form', compact('product', 'productCategories', 'productVendors'));
+    }
+
+    public function store()
+    {
+        $resourceId = null;
+
+        if (request()->hasFile('img')) {
+            $file = request()->file('img');
+            $path = $file->path();
+            $originalName = $file->getClientOriginalName();
+            $mediaFolder = Folder::where('resource', '=', 1)->first();
+
+            if (!empty($mediaFolder)) {
+                $mediaFolder->addMedia($path)
+                    ->usingFileName(date('YmdHis') . $originalName)
+                    ->usingName($originalName)
+                    ->toMediaCollection();
+                $resourceId = DB::getPdo()->lastInsertId(); 
+            }
+        }
+        
+        $payload = request()->except('_token');
+        $payload['feat_product_img_url'] = $resourceId;
+
+        Product::create($payload);
+
+        return redirect('/products')
+            ->with('message', 'Berhasil menambahkan produk baru');
+    }
+
+    public function edit(Product $product)
+    {
+        $productCategories = ProductCategory::pluck('name', 'id');
+        $productVendors = ProductVendor::pluck('name', 'id');
+
+        return view('products.form', compact('product', 'productCategories', 'productVendors'));
+    }
+
+    public function update(Product $product)
+    {
+        $resourceId = null;
+
+        if (request()->hasFile('img')) {
+            $file = request()->file('img');
+            $path = $file->path();
+            $originalName = $file->getClientOriginalName();
+            $mediaFolder = Folder::where('resource', '=', 1)->first();
+
+            if (!empty($mediaFolder)) {
+                $mediaFolder->addMedia($path)
+                    ->usingFileName(date('YmdHis') . $originalName)
+                    ->usingName($originalName)
+                    ->toMediaCollection();
+                $resourceId = DB::getPdo()->lastInsertId(); 
+            }
+        }
+
+        $payload = request()->except('_token');
+
+        if ($resourceId) {
+            $payload['feat_product_img_url'] = $resourceId;
+        }
+
+        $product->update($payload);
+
+        return redirect('/products')
+            ->with('message', 'Berhasil mengubah info produk');
     }
 }
