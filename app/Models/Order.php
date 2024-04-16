@@ -11,4 +11,14 @@ class Order extends Model
     protected $fillable = [
         'id', 'total_order_value', 'total_paid', 'status', 'payment_method_id'
     ];
+
+    public function paymentMethod()
+    {
+        return $this->hasOne('\App\Models\PaymentMethod', 'id', 'payment_method_id');
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany('\App\Models\OrderItem', 'order_id', 'id');
+    }
 }

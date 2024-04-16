@@ -12,4 +12,9 @@ class OrderItem extends Model
     protected $fillable = [
         'id', 'product_id', 'qty', 'subtotal', 'discount', 'alt_name', 'alt_unit_price'
     ];
+
+    public function product()
+    {
+        return $this->hasOne('\App\Models\Product', 'id', 'product_id');
+    }
 }

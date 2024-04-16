@@ -6,7 +6,16 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\Log;
 
-class OrderController extends ApiController {
+class OrderController extends ApiController
+{
+
+  public function index()
+  {
+    $count = Order::count();
+    $data = Order::with(['paymentMethod', 'orderItems', 'orderItems.product'])->get();
+    Log::info($data);
+    return $this->constructResponse($count, $data);
+  }
   
   public function store()
   {
