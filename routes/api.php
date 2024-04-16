@@ -13,4 +13,5 @@ Route::prefix('/v2.0')->group(function () {
     Route::post('/login', [\App\Http\Controllers\Auth\AppAccessController::class, 'login']);
     Route::get('/profile', [\App\Http\Controllers\API\AccountController::class, 'profile']);
     Route::get('/product', [\App\Http\Controllers\API\ProductController::class, 'index']);
+    Route::get('/category', [\App\Http\Controllers\API\ProductController::class, 'categories']);
 });
