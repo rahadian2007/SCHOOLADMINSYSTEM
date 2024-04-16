@@ -7,11 +7,6 @@ use App\Models\ProductCategory;
 
 class ProductController extends ApiController {
 
-  public function __construct()
-  {
-    $this->middleware('api');
-  }
-
   public function index()
   {
     $count = Product::count();
