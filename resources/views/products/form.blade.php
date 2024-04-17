@@ -45,14 +45,28 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="commission">Komisi</label>
-                                <input type="text" name="commission" value="{{ $product->commission ?? old('commission') }}" class="form-control" placeholder="Komisi" />
+                                <label for="commission">Komisi (%)</label>
+                                <input type="text" name="commission_percent" value="{{ $product->commission_percent ?? old('commission_percent') }}" class="form-control" placeholder="Komisi dalam persen" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="discount">Komisi (Rp)</label>
+                                <input type="text" name="commission_nominal" value="{{ $product->commission_nominal ?? old('commission_nominal') }}" class="form-control" placeholder="Diskon dalam rupiah" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="commission">Diskon (%)</label>
+                                <input type="text" name="discount_percent" value="{{ $product->discount_percent ?? old('discount_percent') }}" class="form-control" placeholder="Diskon dalam persen" />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="discount">Diskon (Rp)</label>
-                                <input type="text" name="discount" value="{{ $product->discount ?? old('discount') }}" class="form-control" placeholder="Diskon (Rp)" />
+                                <input type="text" name="discount_nominal" value="{{ $product->discount_nominal ?? old('discount_nominal') }}" class="form-control" placeholder="Diskon dalam rupiah" />
                             </div>
                         </div>
                     </div>
@@ -102,4 +116,87 @@
 @endsection
 
 @section('javascript')
+<script>
+    const commissionPercent = document.getElementsByName('commission_percent')?.[0]
+    const commissionNominal = document.getElementsByName('commission_nominal')?.[0]
+    const discountPercent = document.getElementsByName('discount_percent')?.[0]
+    const discountNominal = document.getElementsByName('discount_nominal')?.[0]
+    
+    const evalCommissionPercent = ({target: {value}}) => {
+        const intInput = parseInt(value)
+        const floatInput = parseFloat(value)
+        const isValidRange = intInput >= 0 && intInput <= 100 && floatInput >= 0 && floatInput <= 100
+        const isValid = isValidRange && !isNaN(intInput) && !isNaN(floatInput)
+
+        if (isValid) {
+            commissionNominal.disabled = isValid
+        } else {
+            commissionNominal.val = ''
+            alert('Pastikan angka komisi valid')
+        }
+    }
+    
+    const evalCommissionNominal = ({target: {value}}) => {
+        const intInput = parseInt(value)
+        const floatInput = parseFloat(value)
+        const isValidRange = intInput > 0 && floatInput > 0
+        const isValid = isValidRange && !isNaN(intInput) && !isNaN(floatInput)
+
+        if (isValid) {
+            commissionPercent.disabled = isValid
+        } else {
+            commissionPercent.val = ''
+            alert('Pastikan angka komisi valid')
+        }
+    }
+    
+    const evalDiscountPercent = ({target: {value}}) => {
+        const intInput = parseInt(value)
+        const floatInput = parseFloat(value)
+        const isValidRange = intInput >= 0 && intInput <= 100 && floatInput >= 0 && floatInput <= 100
+        const isValid = isValidRange && !isNaN(intInput) && !isNaN(floatInput)
+
+        if (isValid) {
+            discountNominal.disabled = isValid
+        } else {
+            discountNominal.val = ''
+            alert('Pastikan angka diskon valid')
+        }
+    }
+    
+    const evalDiscountNominal = ({target: {value}}) => {
+        const intInput = parseInt(value)
+        const floatInput = parseFloat(value)
+        const isValidRange = intInput > 0 && floatInput > 0
+        const isValid = isValidRange && !isNaN(intInput) && !isNaN(floatInput)
+
+        if (isValid) {
+            discountPercent.disabled = isValid
+        } else {
+            discountPercent.val = ''
+            alert('Pastikan angka diskon valid')
+        }
+    }
+
+    commissionPercent?.addEventListener('change', evalCommissionPercent)
+    commissionNominal?.addEventListener('change', evalCommissionNominal)
+    discountPercent?.addEventListener('change', evalDiscountPercent)
+    discountNominal?.addEventListener('change', evalDiscountNominal)
+
+    if ({{ $product->commission_percent ? 'true' : 'false'}}) {
+        evalCommissionPercent({{ $product->commission_percent }})
+    }
+
+    if ({{ $product->commission_nominal ? 'true' : 'false'}}) {
+        evalCommissionNominal({{ $product->commission_nominal }})
+    }
+
+    if ({{ $product->discount_percent ? 'true' : 'false'}}) {
+        evalDiscountPercent({{ $product->discount_percent }})
+    }
+
+    if ({{ $product->discount_nominal ? 'true' : 'false'}}) {
+        evalDiscountNominal({{ $product->discount_nominal }})
+    }
+</script>
 @endsection

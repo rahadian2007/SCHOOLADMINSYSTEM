@@ -30,6 +30,8 @@ class ProductController extends Controller
     public function create()
     {
         $product = new Product();
+        $product->base_price = 0;
+        $product->selling_price = 0;
         $productCategories = ProductCategory::pluck('name', 'id');
         $productVendors = ProductVendor::pluck('name', 'id');
 
@@ -38,23 +40,7 @@ class ProductController extends Controller
 
     public function store()
     {
-        $resourceId = null;
-
-        if (request()->hasFile('img')) {
-            $file = request()->file('img');
-            $path = $file->path();
-            $originalName = $file->getClientOriginalName();
-            $mediaFolder = Folder::where('resource', '=', 1)->first();
-
-            if (!empty($mediaFolder)) {
-                $mediaFolder->addMedia($path)
-                    ->usingFileName(date('YmdHis') . $originalName)
-                    ->usingName($originalName)
-                    ->toMediaCollection();
-                $resourceId = DB::getPdo()->lastInsertId(); 
-            }
-        }
-        
+        $resourceId = $this->handleImageUpload();
         $payload = request()->except('_token');
         $payload['feat_product_img_url'] = $resourceId;
 
@@ -74,6 +60,21 @@ class ProductController extends Controller
 
     public function update(Product $product)
     {
+        $resourceId = $this->handleImageUpload();
+        $payload = request()->except('_token');
+
+        if ($resourceId) {
+            $payload['feat_product_img_url'] = $resourceId;
+        }
+
+        $product->update($payload);
+
+        return redirect('/products')
+            ->with('message', 'Berhasil mengubah info produk');
+    }
+
+    private function handleImageUpload()
+    {
         $resourceId = null;
 
         if (request()->hasFile('img')) {
@@ -91,15 +92,6 @@ class ProductController extends Controller
             }
         }
 
-        $payload = request()->except('_token');
-
-        if ($resourceId) {
-            $payload['feat_product_img_url'] = $resourceId;
-        }
-
-        $product->update($payload);
-
-        return redirect('/products')
-            ->with('message', 'Berhasil mengubah info produk');
+        return $resourceId;
     }
 }

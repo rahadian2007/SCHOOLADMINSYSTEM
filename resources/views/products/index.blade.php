@@ -1,37 +1,5 @@
 @extends('dashboard.base')
 
-@php
-$statusOpts = [
-    [
-        'value' => '01',
-        'label' => 'PENDING',
-    ],
-    [
-        'value' => '00',
-        'label' => 'BERHASIL',
-    ],
-];
-
-$periodOpts = [
-    [
-        'value' => '',
-        'label' => 'SEMUA',
-    ],
-    [
-        'value' => 'today',
-        'label' => 'HARI INI',
-    ],
-    [
-        'value' => 'last-7-days',
-        'label' => '7 HARI TERAKHIR',
-    ],
-    [
-        'value' => 'last-30-days',
-        'label' => '30 HARI TERAKHIR',
-    ],
-];
-@endphp
-
 @section('content')
     <x-containers.container>
         <x-containers.card searchEnabled>
@@ -50,8 +18,6 @@ $periodOpts = [
                         <th class="text-right">Diskon</th>
                         <th>Kategori</th>
                         <th>Vendor Penjual</th>
-                        <th>Stok</th>
-                        <th>Deskripsi</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -59,14 +25,12 @@ $periodOpts = [
                     @foreach($products as $product)
                     <tr>
                         <td>{{$product->name}}</td>
-                        <td class="text-right">@currency($product->base_price)</td>
+                        <td class="text-right">@currency($product->base_price ?? '-')</td>
                         <td class="text-right">@currency($product->selling_price)</td>
-                        <td class="text-right">{{$product->comission ?? '-'}}</td>
-                        <td class="text-right">{{$product->discount}}</td>
-                        <td>{{$product->category->name}}</td>
-                        <td>{{$product->vendor->name}}</td>
-                        <td>-</td>
-                        <td>{{$product->description}}</td>
+                        <td class="text-right">{{$product->commission_percent ?? $product->commission_nominal ?? '-'}}</td>
+                        <td class="text-right">{{$product->discount_percent ?? $product->discount_nominal ?? '-'}}</td>
+                        <td>{{$product->category->name ?? '-'}}</td>
+                        <td>{{$product->vendor->name ?? '-'}}</td>
                         <td>
                             <div class="btn-group dropdown w-100">
                                 <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Opsi</button>

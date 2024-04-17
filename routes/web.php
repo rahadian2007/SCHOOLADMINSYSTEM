@@ -20,6 +20,7 @@ Route::group(['middleware' => ['get.menu', 'web']], function () {
         Route::resource('va', 'VirtualAccountController');
         Route::post('va-export', 'VirtualAccountController@export')->name('va.export');
         Route::resource('payments', 'PaymentController');
+        Route::resource('orders', 'OrderController');
         Route::resource('products', 'ProductController');
         Route::resource('bread', 'BreadController');   //create BREAD (resource)
         Route::resource('users', 'UsersController');

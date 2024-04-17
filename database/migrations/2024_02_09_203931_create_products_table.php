@@ -42,7 +42,10 @@ class CreateProductsTable extends Migration
             $table->string('name');
             $table->integer('base_price')->nullable();
             $table->integer('selling_price');
-            $table->integer('discount')->nullable();
+            $table->integer('discount_percent')->nullable();
+            $table->integer('discount_nominal')->nullable();
+            $table->integer('commission_percent')->nullable();
+            $table->integer('commission_nominal')->nullable();
             $table->string('feat_product_img_url')->nullable();
             $table->unsignedBigInteger('product_category_id');
             $table->foreign('product_category_id')
@@ -56,6 +59,7 @@ class CreateProductsTable extends Migration
                 ->nullable();
             $table->integer('stock')->nullable();
             $table->text('description')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

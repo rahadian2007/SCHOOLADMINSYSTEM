@@ -47,7 +47,10 @@ class CreateOrders extends Migration
             $table->string('alt_unit_price')->nullable();
             $table->integer('qty');
             $table->integer('subtotal');
-            $table->integer('discount');
+            $table->integer('discount_percent')->nullable();
+            $table->integer('discount_nominal')->nullable();
+            $table->integer('commission_percent')->nullable();
+            $table->integer('commission_nominal')->nullable();
             $table->timestamps();
         });
     }

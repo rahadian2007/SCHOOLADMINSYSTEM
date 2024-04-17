@@ -21,4 +21,17 @@ class Order extends Model
     {
         return $this->hasMany('\App\Models\OrderItem', 'order_id', 'id');
     }
+
+    public function getDiscountAttribute()
+    {
+        $totalDiscount = 0;
+        
+        foreach ($this->orderItems as $item) {
+            $percentage = (($item->discount_percent ?? 0) / 100) * $item->product->selling_price;
+            $nominal = $item->discount_nominal ?? 0;
+            $totalDiscount += $percentage + $nominal;
+        }
+
+        return $totalDiscount;
+    }
 }

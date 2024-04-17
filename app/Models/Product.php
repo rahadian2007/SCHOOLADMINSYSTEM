@@ -10,7 +10,10 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'base_price', 'selling_price', 'discount', 'feat_product_img_url', 'product_category_id', 'product_vendor_id', 'stock', 'description'
+        'name', 'base_price', 'selling_price', 'discount_percent',
+        'discount_nominal', 'commission_percent', 'commission_nominal',
+        'feat_product_img_url', 'product_category_id', 'product_vendor_id',
+        'stock', 'description',
     ];
 
     public function featImg()
