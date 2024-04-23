@@ -39,6 +39,9 @@
                         <option value="{{ $id }}" {{ request('vendor') == $id ? 'selected' : '' }}>{{ $name }}</option>
                         @endforeach
                     </x-forms.select>
+                    <input id="date-picker-start" name="date-picker-start" class="form-control" placeholder="Tanggal awal" />
+                    <input id="date-picker-end" name="date-picker-end" class="form-control" placeholder="Tanggal akhir" />
+                    <button id="filter-reset" class="btn btn-info">Reset</button>
                 </div>
             </x-slot>
             <table class="table table-responsive-sm table-striped">
@@ -86,6 +89,11 @@
     </x-containers.container>
 @endsection
 
+@section('css')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+@endsection
+
 @section('javascript')
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="{{ asset('js/filters/order.js') }}"></script>
 @endsection
