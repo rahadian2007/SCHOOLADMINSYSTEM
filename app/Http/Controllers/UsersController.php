@@ -167,9 +167,13 @@ class UsersController extends Controller
     public function destroy($id)
     {
         $user = User::find($id);
+
         if($user){
             $user->delete();
         }
-        return redirect()->route('users.index')->with('message', 'Berhasil menghapus ' . $user->name);
+        
+        return redirect()
+            ->back()
+            ->with('message', 'Berhasil menghapus ' . $user->name);
     }
 }
