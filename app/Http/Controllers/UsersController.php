@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\UserDetail;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
 {
@@ -94,7 +95,7 @@ class UsersController extends Controller
         ]);
         
         $newUserPayload = $request->only(['name', 'email']);
-        $newUserPayload['password'] = 'password';
+        $newUserPayload['password'] = Hash::make('AlHaq123!');
         
         if ($request->get('role')) {
             $role = Role::find($request->get('role'));

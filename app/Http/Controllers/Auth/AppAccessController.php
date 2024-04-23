@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
 
 class AppAccessController extends Controller
 {
@@ -13,13 +14,28 @@ class AppAccessController extends Controller
 
   public function login()
   {
-    $credentials = request(['email', 'password']);
-
-    if (! $token = auth('api')->attempt($credentials)) {
-      return response()->json(['error' => 'Unauthorized'], 401);
+    Log::info('TESTTT');
+    try {
+      $credentials = request(['email', 'password']);
+      $token = auth('api')->attempt($credentials);
+      
+      if (!$token) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+      }
+  
+      $user = auth('api')->user();
+      $isAuthorized = str_contains($user->menuroles, 'admin')
+          || str_contains($user->menuroles, 'cashier');
+          
+      if ($isAuthorized) {
+        return $this->respondWithToken($token);
+      } else {
+        throw new \Exception('Permission denied');
+      }
+    } catch (\Exception $e) {
+      Log::error($e);
+      return response()->json(['error' => 'Permission denied'], 403);
     }
-
-    return $this->respondWithToken($token);
   }
 
   protected function respondWithToken($token)

@@ -52,7 +52,7 @@
                         <th class="text-right">Qty</th>
                         <th class="text-right">Total Pembelian</th>
                         <th class="text-right">Diskon</th>
-                        <th class="text-right">Komisi</th>
+                        <th class="text-right">Komisi (%)</th>
                         <th>Kategori</th>
                         <th>Vendor</th>
                     </tr>

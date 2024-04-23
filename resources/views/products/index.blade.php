@@ -14,7 +14,7 @@
                         <th>Nama Produk</th>
                         <th class="text-right">Harga Modal</th>
                         <th class="text-right">Harga Jual</th>
-                        <th class="text-right">Komisi</th>
+                        <th class="text-right">Komisi (%)</th>
                         <th class="text-right">Diskon</th>
                         <th>Kategori</th>
                         <th>Vendor Penjual</th>
@@ -27,7 +27,7 @@
                         <td>{{$product->name}}</td>
                         <td class="text-right">@currency($product->base_price ?? '-')</td>
                         <td class="text-right">@currency($product->selling_price)</td>
-                        <td class="text-right">{{$product->commission_percent ?? $product->commission_nominal ?? '-'}}</td>
+                        <td class="text-right">{{$product->commission_percent ?? $product->commission_nominal ?? ($commissionPercent ? $commissionPercent->value . '(G)' : null) ?? '-'}}</td>
                         <td class="text-right">{{$product->discount_percent ?? $product->discount_nominal ?? '-'}}</td>
                         <td>{{$product->category->name ?? '-'}}</td>
                         <td>{{$product->vendor->name ?? '-'}}</td>

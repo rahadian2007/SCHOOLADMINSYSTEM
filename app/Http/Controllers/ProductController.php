@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Folder;
 use App\Models\Product;
+use App\Models\Settings;
 use App\Models\ProductCategory;
 use App\Models\ProductVendor;
 use Illuminate\Http\Request;
@@ -14,7 +15,11 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::paginate(10);
-        $data = compact('products');
+
+        // Settings for default commissions
+        $commissionPercent = Settings::where('key', 'commission_percent')->first();
+
+        $data = compact('products', 'commissionPercent');
 
         return view('products.index', $data);
     }
@@ -65,6 +70,10 @@ class ProductController extends Controller
 
         if ($resourceId) {
             $payload['feat_product_img_url'] = $resourceId;
+        }
+
+        if (!$payload['commission_percent']) {
+            $payload['commission_percent'] = null;
         }
 
         $product->update($payload);

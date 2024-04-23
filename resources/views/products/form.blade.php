@@ -46,13 +46,13 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="commission">Komisi (%)</label>
-                                <input type="text" name="commission_percent" value="{{ $product->commission_percent ?? old('commission_percent') }}" class="form-control" placeholder="Komisi dalam persen" />
+                                <input type="text" name="commission_percent" value="{{ $product->commission_percent ?? old('commission_percent') ?? null }}" class="form-control" placeholder="Komisi dalam persen" />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="discount">Komisi (Rp)</label>
-                                <input type="text" name="commission_nominal" value="{{ $product->commission_nominal ?? old('commission_nominal') }}" class="form-control" placeholder="Diskon dalam rupiah" />
+                                <input type="text" name="commission_nominal" value="{{ $product->commission_nominal ?? old('commission_nominal') ?? null }}" class="form-control" placeholder="Diskon dalam rupiah" />
                             </div>
                         </div>
                     </div>
@@ -60,13 +60,13 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="commission">Diskon (%)</label>
-                                <input type="text" name="discount_percent" value="{{ $product->discount_percent ?? old('discount_percent') }}" class="form-control" placeholder="Diskon dalam persen" />
+                                <input type="text" name="discount_percent" value="{{ $product->discount_percent ?? old('discount_percent') ?? 0 }}" class="form-control" placeholder="Diskon dalam persen" />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="discount">Diskon (Rp)</label>
-                                <input type="text" name="discount_nominal" value="{{ $product->discount_nominal ?? old('discount_nominal') }}" class="form-control" placeholder="Diskon dalam rupiah" />
+                                <input type="text" name="discount_nominal" value="{{ $product->discount_nominal ?? old('discount_nominal') ?? 0 }}" class="form-control" placeholder="Diskon dalam rupiah" />
                             </div>
                         </div>
                     </div>
@@ -126,7 +126,7 @@
         const intInput = parseInt(value)
         const floatInput = parseFloat(value)
         const isValidRange = intInput >= 0 && intInput <= 100 && floatInput >= 0 && floatInput <= 100
-        const isValid = isValidRange && !isNaN(intInput) && !isNaN(floatInput)
+        const isValid = isValidRange && !isNaN(intInput) && !isNaN(floatInput) || !value
 
         if (isValid) {
             commissionNominal.disabled = isValid
@@ -140,7 +140,7 @@
         const intInput = parseInt(value)
         const floatInput = parseFloat(value)
         const isValidRange = intInput > 0 && floatInput > 0
-        const isValid = isValidRange && !isNaN(intInput) && !isNaN(floatInput)
+        const isValid = isValidRange && !isNaN(intInput) && !isNaN(floatInput) || !value
 
         if (isValid) {
             commissionPercent.disabled = isValid
@@ -154,7 +154,7 @@
         const intInput = parseInt(value)
         const floatInput = parseFloat(value)
         const isValidRange = intInput >= 0 && intInput <= 100 && floatInput >= 0 && floatInput <= 100
-        const isValid = isValidRange && !isNaN(intInput) && !isNaN(floatInput)
+        const isValid = isValidRange && !isNaN(intInput) && !isNaN(floatInput) || !value
 
         if (isValid) {
             discountNominal.disabled = isValid
@@ -168,7 +168,7 @@
         const intInput = parseInt(value)
         const floatInput = parseFloat(value)
         const isValidRange = intInput > 0 && floatInput > 0
-        const isValid = isValidRange && !isNaN(intInput) && !isNaN(floatInput)
+        const isValid = isValidRange && !isNaN(intInput) && !isNaN(floatInput) || !value
 
         if (isValid) {
             discountPercent.disabled = isValid
