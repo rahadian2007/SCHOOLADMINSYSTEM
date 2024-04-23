@@ -16,4 +16,5 @@ Route::prefix('/v2.0')->group(function () {
     Route::get('/category', [\App\Http\Controllers\API\ProductController::class, 'categories']);
     Route::get('/order', [\App\Http\Controllers\API\OrderController::class, 'index']);
     Route::post('/order', [\App\Http\Controllers\API\OrderController::class, 'store']);
+    Route::delete('/order/{id}', [\App\Http\Controllers\API\OrderController::class, 'destroy']);
 });
