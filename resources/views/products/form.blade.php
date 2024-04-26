@@ -60,13 +60,13 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="commission">Diskon (%)</label>
-                                <input type="text" name="discount_percent" value="{{ $product->discount_percent ?? old('discount_percent') ?? 0 }}" class="form-control" placeholder="Diskon dalam persen" />
+                                <input type="text" name="discount_percent" value="{{ $product->discount_percent ?? old('discount_percent') ?? null }}" class="form-control" placeholder="Diskon dalam persen" />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="discount">Diskon (Rp)</label>
-                                <input type="text" name="discount_nominal" value="{{ $product->discount_nominal ?? old('discount_nominal') ?? 0 }}" class="form-control" placeholder="Diskon dalam rupiah" />
+                                <input type="text" name="discount_nominal" value="{{ $product->discount_nominal ?? old('discount_nominal') ?? null }}" class="form-control" placeholder="Diskon dalam rupiah" />
                             </div>
                         </div>
                     </div>
