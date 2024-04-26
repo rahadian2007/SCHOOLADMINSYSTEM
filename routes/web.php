@@ -20,10 +20,13 @@ Route::group(['middleware' => ['get.menu', 'web']], function () {
         Route::resource('va', 'VirtualAccountController');
         Route::post('va-export', 'VirtualAccountController@export')->name('va.export');
         Route::resource('payments', 'PaymentController');
+        Route::resource('orders', 'OrderController');
         Route::resource('products', 'ProductController');
         Route::resource('bread', 'BreadController');   //create BREAD (resource)
         Route::resource('users', 'UsersController');
         Route::get('cashiers', 'UsersController@cashiersList')->name('users.cashiersList');
+        Route::get('canteen/settings', 'SettingsController@index')->name('canteen.settings.index');
+        Route::put('canteen/settings', 'SettingsController@update')->name('canteen.settings.update');
         Route::resource('roles', 'RolesController');
         Route::resource('mail', 'MailController');
         Route::get('prepareSend/{id}',        'MailController@prepareSend')->name('prepareSend');

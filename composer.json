@@ -20,7 +20,8 @@
         "maatwebsite/excel": "^3.1",
         "rbdwllr/reallysimplejwt": "^1.0",
         "spatie/laravel-medialibrary": "^8.7.2",
-        "spatie/laravel-permission": "^3.17"
+        "spatie/laravel-permission": "^3.17",
+        "tymon/jwt-auth": "^1.0@dev"
     },
     "require-dev": {
         "facade/ignition": "^2.3.6",

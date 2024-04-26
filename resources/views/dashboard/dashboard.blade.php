@@ -26,6 +26,12 @@ $periodOpts = [
   <div class="fade-in">
     <div class="row">
     <div class="col-6">
+      <x-containers.card>
+        <x-slot name="title">
+          <div class="py-2">
+            SUMMARY VA
+          </div>
+        </x-slot>
         <div class="d-flex">
           <div class="card text-white bg-info mr-3">
             <div class="card-body d-flex">
@@ -47,6 +53,7 @@ $periodOpts = [
           </div>
         </div>
       </div>
+      </x-containers.card>
       <div class="col-6">
         <x-containers.card>
           <x-slot name="title">
@@ -61,7 +68,7 @@ $periodOpts = [
                 </x-forms.select>
             </div>
           </x-slot>
-          <div class="row">
+          <div class="row py-4">
             <div class="col-6">
               <div class="card border border-light text-success shadow">
                 <div class="card-body text-right">

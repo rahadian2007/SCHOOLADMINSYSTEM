@@ -7,56 +7,100 @@
 @section('content')
 <x-containers.container>
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-12">
             <x-containers.card>
-                <x-slot name="title">Form Tambah Pembayaran</x-slot>
-                <form method="POST" action="{{ route('payments.store') }}" enctype="multipart/form-data">
+                <x-slot name="title">Form Produk</x-slot>
+                @if ($product->id)
+                    <form method="POST" action="{{ route('products.update', [$product->id]) }}" enctype="multipart/form-data">
+                        @method('put')
+                @else
+                    <form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data">
+                @endif
                     @csrf
                     <div class="form-group">
-                        <label for="user">Nomor Virtual Account - Nama Siswa</label>
-                        {!! Form::select(
-                            'va_id',
-                            $vaOptions,
-                            old('va_id'),
-                            [
-                                'class' => 'form-control mb-2',
-                                'id' => 'va_select'
-                            ])
-                        !!}
+                        <label for="name">Nama Produk</label>
+                        <input type="text" name="name" value="{{ $product->name ?? old('name') }}" class="form-control" placeholder="Nama produk" />
                     </div>
                     <div class="form-group">
-                        <label for="user">Total Pembayaran (Rp)</label>
-                        <input type="hidden" id="outstanding" name="outstanding" value="" />
-                        <input type="number" name="total_payment" value="{{ old('total_payment') }}" class="form-control" placeholder="Jumlah yang dibayarkan" />
+                        <label for="name">Gambar Produk</label>
+                        <input type="file" name="img" value="{{ old('feat_img_url') }}" class="form-control" />
+                        @if ($product->featImg)
+                        <img src="/public/{{ $product->featImg->id }}/{{ $product->featImg->file_name }}" width="240" class="my-4" />
+                        @endif
                     </div>
-                    <div class="form-group">
-                        <label for="user">Metode Pembayaran</label>
-                        {!!
-                            Form::select(
-                                'payment_method',
-                                [
-                                    'T' => 'Transfer',
-                                    'C' => 'Cash',
-                                ],
-                                null,
-                                [
-                                    'id' => 'va_select',
-                                    'class' => 'form-control mb-2',
-                                ]
-                            )
-                        !!}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="base_price">Harga Modal</label>
+                                <input type="text" name="base_price" value="{{ $product->base_price ?? old('base_price') }}" class="form-control" placeholder="Harga modal" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="selling_price">Harga Jual</label>
+                                <input type="text" name="selling_price" value="{{ $product->selling_price ?? old('selling_price') }}" class="form-control" placeholder="Harga jual" />
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="user">Nomor Rekening Sumber (opsional)</label>
-                        <input type="text" name="source_account_number" value="{{ old('source_account_number') }}" class="form-control" placeholder="Nomor rekening sumber" />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="commission">Komisi (%)</label>
+                                <input type="text" name="commission_percent" value="{{ $product->commission_percent ?? old('commission_percent') ?? null }}" class="form-control" placeholder="Komisi dalam persen" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="discount">Komisi (Rp)</label>
+                                <input type="text" name="commission_nominal" value="{{ $product->commission_nominal ?? old('commission_nominal') ?? null }}" class="form-control" placeholder="Diskon dalam rupiah" />
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="user">Nama Pemilik Nomor Rekening Sumber (opsional)</label>
-                        <input type="text" name="source_account_name" value="{{ old('source_account_name') }}" class="form-control" placeholder="Nama pemilik nomor rekening" />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="commission">Diskon (%)</label>
+                                <input type="text" name="discount_percent" value="{{ $product->discount_percent ?? old('discount_percent') ?? 0 }}" class="form-control" placeholder="Diskon dalam persen" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="discount">Diskon (Rp)</label>
+                                <input type="text" name="discount_nominal" value="{{ $product->discount_nominal ?? old('discount_nominal') ?? 0 }}" class="form-control" placeholder="Diskon dalam rupiah" />
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="user">Bukti Pembayaran</label>
-                        <input type="file" name="proof" value="{{ old('proof') }}" class="form-control" />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="commission">Kategori</label>
+                                {!!
+                                    Form::select(
+                                        'product_category_id',
+                                        $productCategories,
+                                        $product->category ? $product->category->id : null,
+                                        [
+                                            'class' => 'form-control mb-2',
+                                        ]
+                                    )
+                                !!}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="discount">Vendor Penjual</label>
+                                {!!
+                                    Form::select(
+                                        'product_vendor_id',
+                                        $productVendors,
+                                        $product->vendor ? $product->vendor->id : null,
+                                        [
+                                            'class' => 'form-control mb-2',
+                                        ]
+                                    )
+                                !!}
+                            </div>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-primary">
                         Simpan
@@ -67,82 +111,92 @@
                 </form>
             </x-containers.card>
         </div>
-        <div class="col-md-6">
-            <x-containers.card>
-                <x-slot name="title">Detil Virtual Account</x-slot>
-                <div class="form-group">
-                    <label for="user">Rincian Tagihan (Rp)</label>
-                    <table id="bill-details-table" class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Komponen Tagihan</th>
-                                <th class="text-right">Nominal (Rp)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr id="detail-row">
-                                <td colspan="2">
-                                    Belum ada data tagihan
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="form-group text-right">
-                    <label for="user">Total Tagihan (Rp)</label>
-                    <span id="total-bill"></span>
-                </div>
-            </x-vontainers.card>
-        </div>
     </div>
 </x-containers.container>
 @endsection
 
 @section('javascript')
 <script>
-    const billDetails = {!! $vas ? $vas : '[]' !!};
-    let billDetailsDisplay = []
-    const billDetailsTable = document.getElementById('bill-details-table')
-    const body = billDetailsTable.querySelector('tbody')
+    const commissionPercent = document.getElementsByName('commission_percent')?.[0]
+    const commissionNominal = document.getElementsByName('commission_nominal')?.[0]
+    const discountPercent = document.getElementsByName('discount_percent')?.[0]
+    const discountNominal = document.getElementsByName('discount_nominal')?.[0]
+    
+    const evalCommissionPercent = ({target: {value}}) => {
+        const intInput = parseInt(value)
+        const floatInput = parseFloat(value)
+        const isValidRange = intInput >= 0 && intInput <= 100 && floatInput >= 0 && floatInput <= 100
+        const isValid = isValidRange && !isNaN(intInput) && !isNaN(floatInput) || !value
 
-    function renderBillDetails() {
-        document.querySelectorAll('[id^=detail-row]').forEach((element) => {
-            element.remove()
-        })
-        billDetailsDisplay.forEach(({ name, value }, index) => {
-            body.insertAdjacentHTML('afterbegin', `
-            <tr id="detail-row-${index}">
-                <td>
-                    <span>${name}</span>
-                </td>
-                <td class="text-right">
-                    <span>${value}</span>
-                </td>
-            </tr>
-            `)
-        })
+        if (isValid) {
+            commissionNominal.disabled = isValid
+        } else {
+            commissionNominal.val = ''
+            alert('Pastikan angka komisi valid')
+        }
+    }
+    
+    const evalCommissionNominal = ({target: {value}}) => {
+        const intInput = parseInt(value)
+        const floatInput = parseFloat(value)
+        const isValidRange = intInput > 0 && floatInput > 0
+        const isValid = isValidRange && !isNaN(intInput) && !isNaN(floatInput) || !value
+
+        if (isValid) {
+            commissionPercent.disabled = isValid
+        } else {
+            commissionPercent.val = ''
+            alert('Pastikan angka komisi valid')
+        }
+    }
+    
+    const evalDiscountPercent = ({target: {value}}) => {
+        const intInput = parseInt(value)
+        const floatInput = parseFloat(value)
+        const isValidRange = intInput >= 0 && intInput <= 100 && floatInput >= 0 && floatInput <= 100
+        const isValid = isValidRange && !isNaN(intInput) && !isNaN(floatInput) || !value
+
+        if (isValid) {
+            discountNominal.disabled = isValid
+        } else {
+            discountNominal.val = ''
+            alert('Pastikan angka diskon valid')
+        }
+    }
+    
+    const evalDiscountNominal = ({target: {value}}) => {
+        const intInput = parseInt(value)
+        const floatInput = parseFloat(value)
+        const isValidRange = intInput > 0 && floatInput > 0
+        const isValid = isValidRange && !isNaN(intInput) && !isNaN(floatInput) || !value
+
+        if (isValid) {
+            discountPercent.disabled = isValid
+        } else {
+            discountPercent.val = ''
+            alert('Pastikan angka diskon valid')
+        }
     }
 
-    const vaSelect = document.getElementById('va_select')
-    vaSelect.addEventListener('change', function(event) {
-        event.preventDefault()
+    commissionPercent?.addEventListener('change', evalCommissionPercent)
+    commissionNominal?.addEventListener('change', evalCommissionNominal)
+    discountPercent?.addEventListener('change', evalDiscountPercent)
+    discountNominal?.addEventListener('change', evalDiscountNominal)
 
-        if (event.target.value) {
-            const selectedVa = billDetails.find(({ id }) => id === parseInt(event.target.value))
-            if (selectedVa?.description) {
-                const { description } = selectedVa
-                const descArr = JSON.parse(description)
-                if (descArr?.length) {
-                    billDetailsDisplay = []
-                    descArr.forEach((desc) => {
-                        billDetailsDisplay.push(desc)
-                    })
-                    renderBillDetails()
-                    document.getElementById('total-bill').innerHTML = selectedVa.outstanding
-                    document.getElementById('outstanding').innerHTML = selectedVa.outstanding
-                }
-            }
-        }
-    })
+    if ({{ $product->commission_percent ? 'true' : 'false'}}) {
+        evalCommissionPercent({{ $product->commission_percent }})
+    }
+
+    if ({{ $product->commission_nominal ? 'true' : 'false'}}) {
+        evalCommissionNominal({{ $product->commission_nominal }})
+    }
+
+    if ({{ $product->discount_percent ? 'true' : 'false'}}) {
+        evalDiscountPercent({{ $product->discount_percent }})
+    }
+
+    if ({{ $product->discount_nominal ? 'true' : 'false'}}) {
+        evalDiscountNominal({{ $product->discount_nominal }})
+    }
 </script>
 @endsection
