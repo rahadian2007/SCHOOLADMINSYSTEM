@@ -47,6 +47,18 @@ class ProductController extends Controller
     {
         $resourceId = $this->handleImageUpload();
         $payload = request()->except('_token');
+        if (!$payload['commission_percent']) {
+            $payload['commission_percent'] = null;
+        }
+        if (!$payload['commission_nominal']) {
+            $payload['commission_nominal'] = null;
+        }
+        if (!$payload['discount_percent']) {
+            $payload['discount_percent'] = null;
+        }
+        if (!$payload['discount_nominal']) {
+            $payload['discount_nominal'] = null;
+        }
         $payload['feat_product_img_url'] = $resourceId;
 
         Product::create($payload);
