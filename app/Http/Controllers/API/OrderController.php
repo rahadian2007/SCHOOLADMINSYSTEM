@@ -16,6 +16,7 @@ class OrderController extends ApiController
     $count = Order::count();
     $data = Order::with(['paymentMethod', 'orderItems', 'orderItems.product'])
       ->whereNull('deleted_at')
+      ->limit(8)
       ->get();
     return $this->constructResponse($count, $data);
   }
