@@ -22,6 +22,7 @@ Route::group(['middleware' => ['get.menu', 'web']], function () {
         Route::resource('payments', 'PaymentController');
         Route::resource('orders', 'OrderController');
         Route::resource('products', 'ProductController');
+        Route::resource('settlements', 'SettlementController');
         Route::resource('bread', 'BreadController');   //create BREAD (resource)
         Route::resource('users', 'UsersController');
         Route::get('cashiers', 'UsersController@cashiersList')->name('users.cashiersList');
