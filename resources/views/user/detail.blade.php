@@ -20,6 +20,18 @@
         <td>Email</td>
         <td>: {{ $user->email }}</td>
       </tr>
+      <tr>
+        <td>Virtual Account</td>
+        <td>
+            @foreach ($user->virtualAccounts as $va)
+            <p>
+              <a href="/va/{{ $va->id }}">
+              {{ $va->number }}
+              </a>
+            <p>
+            @endforeach
+          </td>
+      </tr>
     </table>
     <x-forms.button href="{{ url()->previous() }}" preset="default">{{ __('Back') }}</x-forms.button>
   </x-containers.card>

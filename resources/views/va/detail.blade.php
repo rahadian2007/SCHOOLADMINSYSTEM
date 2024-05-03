@@ -70,6 +70,7 @@
           <thead>
             <th>Waktu</th>
             <th class="text-right">Total Pembayaran</th>
+            <th>Metode Pembayaran</th>
             <th>Status</th>
           </thead>
           <tbody>
@@ -82,6 +83,7 @@
               <tr>
                 <td>{{ $payment->created_at->format('d M Y H:i:s', 'Asia/Jakarta') }}</td>
                 <td class="text-right">@currency(json_decode($payment->paidAmount)->value)</td>
+                <td>{{ substr($payment->trxId, 0, 1) === 'T' ? 'Transfer' : 'Cash' }}</td>
                 <td>
                   @if ($payment->paymentFlagStatus === '00')
                   <span class="text-success font-weight-bold">BERHASIL</span>
