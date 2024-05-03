@@ -14,7 +14,6 @@ class AppAccessController extends Controller
 
   public function login()
   {
-    Log::info('TESTTT');
     try {
       $credentials = request(['email', 'password']);
       $token = auth('api')->attempt($credentials);
