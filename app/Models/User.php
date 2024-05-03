@@ -72,4 +72,18 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
+
+    public function isAdmin()
+    {
+        if (!$this->menuroles) {
+            return false;
+        }
+
+        return str_contains($this->menuroles, 'admin');
+    }
+
+    public function getRoleNames()
+    {
+        return explode(',', $this->menuroles);
+    }
 }

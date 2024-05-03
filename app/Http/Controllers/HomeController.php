@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Payment;
+use App\Models\OrderItem;
 use App\Models\VirtualAccount;
 use Illuminate\Support\Carbon;
 
@@ -48,8 +49,27 @@ class HomeController extends Controller
             $totalSuccessPayment += $paidAmount->value;
         }
 
+        // Order date filter
+        $orderItemsQuery = OrderItem::query();
+        $orderItemsQuery = $orderItemsQuery
+            ->whereHas('order', function($q) {
+                return $q->whereDate('created_at', Carbon::today());
+            });
+        
+        $salesToday = $orderItemsQuery->sum('subtotal');
+
+        $orderItemsCommissions = $orderItemsQuery->get();
+        $commissionsToday = 0;
+
+        foreach ($orderItemsCommissions as $item) {
+            $commissionPercent = (($item->commission_percent ?? 0) / 100) * $item->subtotal;
+            $commissionNominal = $item->commission_nominal * $item->qty;
+            $commissionsToday += $commissionPercent + $commissionNominal;
+        }
+
         return view('dashboard.dashboard', compact(
-            'usersCount', 'vaCount', 'totalBill', 'totalSuccessPayment'
+            'usersCount', 'vaCount', 'totalBill', 'totalSuccessPayment',
+            'commissionsToday', 'salesToday',
         ));
     }
 }
