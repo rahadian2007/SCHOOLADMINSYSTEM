@@ -36,9 +36,20 @@ class PaymentController extends Controller
                 ->whereDate('created_at', '<=', Carbon::now());
         });
 
+        if (request('q')) {
+            $search = request('q');
+            $query = $query->whereHas('va', function($q) use ($search) {
+                return $q->whereHas('user', function($q1) use ($search) {
+                    return $q1->where('name', 'like', '%' . $search . '%');
+                });
+            });
+        }
+
         $payments = $query
-            ->where('channelCode', '6011')
-            ->orWhere('channelCode', '6010')
+            ->where(function ($q) {
+                return $q->where('channelCode', '6011')
+                ->orWhere('channelCode', '6010');
+            })
             ->orderByDesc('created_at')
             ->paginate(10);
 

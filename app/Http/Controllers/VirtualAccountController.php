@@ -46,7 +46,11 @@ class VirtualAccountController extends Controller
     {
         $query = Payment::query()
             ->where('virtualAccountNumber', $va->number)
-            ->where('channelCode', '6011')
+            ->where(function ($q) {
+                return $q->where('channelCode', '6011')
+                    ->orWhere('trxId', 'like', 'T%')
+                    ->orWhere('trxId', 'like', 'C%');
+            })
             ->where('paymentFlagStatus', '00');
         $payments = $query->get();
         $totalPaidAmount = 0;
