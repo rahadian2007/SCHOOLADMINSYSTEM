@@ -66,11 +66,13 @@
     <div class="col-md-6">
       <x-containers.card>
         <x-slot name="title">History Pembayaran</x-slot>
-        <table class="table table-striped table-hover table-sm">
+        <table class="table table-striped table-hover">
           <thead>
             <th>Waktu</th>
+            <th>Nama Pengirim</th>
+            <th class="text-center">Metode Pembayaran</th>
+            <th class="text-center">Nomor Rekening Sumber / VA</th>
             <th class="text-right">Total Pembayaran</th>
-            <th>Metode Pembayaran</th>
             <th>Status</th>
           </thead>
           <tbody>
@@ -81,9 +83,15 @@
             @else
               @foreach ($payments as $payment)
               <tr>
-                <td>{{ $payment->created_at->format('d M Y H:i:s', 'Asia/Jakarta') }}</td>
-                <td class="text-right">@currency(json_decode($payment->paidAmount)->value)</td>
-                <td>{{ substr($payment->trxId, 0, 1) === 'T' ? 'Transfer' : 'Cash' }}</td>
+                <td class="font-xs">{{ $payment->created_at->format('d M Y H:i:s', 'Asia/Jakarta') }}</td>
+                <td>{{ $payment->accNameSource ?? $payment->virtualAccountName ?? '-' }}</td>
+                <td class="text-center">
+                  <span class="badge badge-{{ substr($payment->trxId, 0, 1) === 'T' ? 'info' : (substr($payment->trxId, 0, 1) === 'C' ? 'warning' : 'success') }}">
+                    {{ substr($payment->trxId, 0, 1) === 'T' ? 'Transfer' : (substr($payment->trxId, 0, 1) === 'C' ? 'Cash' : 'VA') }}
+                  </span>
+                </td>
+                <td class="text-center">{{ $payment->accNumberSource ?? $payment->virtualAccountNumber ?? '-' }}</td>
+                <td class="text-right font-weight-bold">@currency(json_decode($payment->paidAmount)->value)</td>
                 <td>
                   @if ($payment->paymentFlagStatus === '00')
                   <span class="text-success font-weight-bold">BERHASIL</span>
