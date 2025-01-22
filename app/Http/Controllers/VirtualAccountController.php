@@ -48,6 +48,7 @@ class VirtualAccountController extends Controller
             ->where('virtualAccountNumber', $va->number)
             ->where(function ($q) {
                 return $q->where('channelCode', '6011')
+                    ->orWhere('channelCode', '6010')
                     ->orWhere('trxId', 'like', 'T%')
                     ->orWhere('trxId', 'like', 'C%');
             })
