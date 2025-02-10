@@ -47,8 +47,11 @@ class PaymentController extends Controller
 
         $payments = $query
             ->where(function ($q) {
-                return $q->where('channelCode', '6011')
-                ->orWhere('channelCode', '6010');
+                return $q->where('channelCode', '6010')
+                ->orWhere('channelCode', '6011')
+                ->orWhere('channelCode', '6016')
+                ->orWhere('channelCode', '6017')
+                ->orWhere('channelCode', '6018');
             })
             ->orderByDesc('created_at')
             ->paginate(10);
