@@ -3,19 +3,19 @@
 @section('content')
 <x-containers.container size="12">
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-12">
       <x-containers.card>
         <x-slot name="title">Detil Virtual Account</x-slot>
         <div class="row">
           <div class="col-12">
-            <div class="d-flex justify-content-center">
-              <img src="/svg/illustration-profile.svg" width="480" />
+            <div class="d-flex justify-content-start">
+              <img src="/svg/illustration-profile.svg" width="240" />
             </div>
           </div>
         </div>
-        <table class="table">
+        <table class="table table-hover">
           <tr>
-            <td>Nama</td>
+            <td style="width: 240px;">Nama</td>
             <td>: {{ $va->user->name }}</td>
           </tr>
           <tr>
@@ -56,14 +56,14 @@
         </table>
          <div class="d-flex justify-content-between">
           <x-forms.button href="{{ url()->previous() }}" preset="default">{{ __('Back') }}</x-forms.button>
-          <form method="POST" action="{{ route('va.status-update', ['va' => $va->id]) }}">
+          <!-- <form method="POST" action="{{ route('va.status-update', ['va' => $va->id]) }}">
             @csrf
             <button type="submit" class="btn btn-dark">{{ __('Status Update') }}</button>
-          </form>
+          </form> -->
         </div>
       </x-containers.card>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-12">
       <x-containers.card>
         <x-slot name="title">History Pembayaran</x-slot>
         <table class="table table-striped table-hover">
