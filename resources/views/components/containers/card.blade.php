@@ -10,7 +10,7 @@
             {{ $filters }}
         @endif
         @if (isset($attributes['searchEnabled']))
-        <form method="GET" action="{{ request()->fullUrlWithQuery(['q' => '']) }}" class="w-25">
+        <form method="GET" class="w-25">
             <input type="text" class="form-control" name="q" placeholder="Search" value="{{ request()->input('q') }}" />
         </form>
         @endif

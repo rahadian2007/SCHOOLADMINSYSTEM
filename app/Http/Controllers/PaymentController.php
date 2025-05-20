@@ -17,7 +17,7 @@ class PaymentController extends Controller
     {
         if (!request('status')) {
             return redirect()
-                ->route('payments.index', [ 'status' => '00' ]);
+                ->route('payments.index', array_merge([ 'status' => '00' ], request()->all()));
         }
 
         $query = Payment::query();
