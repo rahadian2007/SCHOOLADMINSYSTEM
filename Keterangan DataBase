@@ -1,0 +1,6 @@
+Keterangan DB
+
+Buat Tabel ID_Warga di MySQL
+field: ID, Nama_Warga
+
+ID auto increment

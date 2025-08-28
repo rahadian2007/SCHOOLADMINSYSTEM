@@ -1,0 +1,7 @@
+Dirubah:
+
+rute:   routes/api.php
+controller:  IDWarga_Controller
+model:    IDWarga.php 
+
+CRUD.html dengan liveserver VS Code
