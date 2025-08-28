@@ -1,0 +1,89 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\IDWarga;
+
+class ID_WargaController extends Controller
+{
+    // Ambil semua data warga
+    public function index()
+    {
+        $data = IDWarga::all();
+        return response()->json($data);
+    }
+
+    // Simpan data warga baru
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'Nama_Warga' => 'required|string|max:100',
+        ]);
+
+        $warga = IDWarga::create([
+            'Nama_Warga' => $validated['Nama_Warga'],
+        ]);
+
+        return response()->json([
+            'message' => 'Data warga berhasil disimpan',
+            'data' => $warga,
+        ], 201);
+    }
+
+    // Ambil data warga berdasarkan ID
+    public function show($id)
+    {
+        $warga = IDWarga::find($id);
+
+        if (!$warga) {
+            return response()->json([
+                'message' => 'Data warga tidak ditemukan',
+            ], 404);
+        }
+
+        return response()->json($warga);
+    }
+
+    // Update data warga berdasarkan ID
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'Nama_Warga' => 'required|string|max:100',
+        ]);
+
+        $warga = IDWarga::find($id);
+
+        if (!$warga) {
+            return response()->json([
+                'message' => 'Data warga tidak ditemukan',
+            ], 404);
+        }
+
+        $warga->Nama_Warga = $validated['Nama_Warga'];
+        $warga->save();
+
+        return response()->json([
+            'message' => 'Data warga berhasil diupdate',
+            'data' => $warga,
+        ]);
+    }
+
+    // Hapus data warga berdasarkan ID (optional)
+    public function destroy($id)
+    {
+        $warga = IDWarga::find($id);
+
+        if (!$warga) {
+            return response()->json([
+                'message' => 'Data warga tidak ditemukan',
+            ], 404);
+        }
+
+        $warga->delete();
+
+        return response()->json([
+            'message' => 'Data warga berhasil dihapus',
+        ]);
+    }
+}
