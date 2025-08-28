@@ -1,7 +1,7 @@
 Dirubah:
 
 rute:   routes/api.php
-controller:  IDWarga_Controller
+controller:  IDWarga_Controller -> ada di Controllers, bukan ada di Controllers/API 
 model:    IDWarga.php 
 
 CRUD.html dengan liveserver VS Code
