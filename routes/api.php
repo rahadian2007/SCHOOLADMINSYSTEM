@@ -6,23 +6,20 @@ use App\Http\Controllers\DaftarVendorController;
 
 
 // untuk uji coba CRUD
-use App\Http\Controllers\ID_WargaController;
+use App\Http\Controllers\API\IDWargaController;
 //
 
 Route::apiResource('daftar-vendor', DaftarVendorController::class);
 
 
 //untuk uji coba CRUD
-
-Route::post('/ID-warga', [ID_WargaController::class, 'store']);
-Route::get('/ID-warga', [ID_WargaController::class, 'index']);
-Route::get('/ID-warga/{id}', [ID_WargaController::class, 'show']);
-Route::put('/ID-warga/{id}', [ID_WargaController::class, 'update']);
-Route::delete('/ID-warga/{id}', [ID_WargaController::class, 'destroy']);
-
-
-
+Route::post('/ID-warga', [IDWargaController::class, 'store']);
+Route::get('/ID-warga', [IDWargaController::class, 'index']);
+Route::get('/ID-warga/{id}', [IDWargaController::class, 'show']);
+Route::put('/ID-warga/{id}', [IDWargaController::class, 'update']);
+Route::delete('/ID-warga/{id}', [IDWargaController::class, 'destroy']);
 //
+
 
 
 // Contoh route lain dengan prefix (sesuaikan jika diperlukan)
