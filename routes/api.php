@@ -2,19 +2,46 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('/v1.0')->group(function () {
-    Route::post('/access-token/b2b', [\App\Http\Controllers\Auth\AccessTokenController::class, 'issueToken']);
-    Route::post('/validate-token', [\App\Http\Controllers\Auth\AccessTokenController::class, 'validateToken']);
-    Route::post('/transfer-va/inquiry', [\App\Http\Controllers\SnapVaInboundController::class, 'transferVaInquiry']);
-    Route::post('/transfer-va/payment', [\App\Http\Controllers\SnapVaInboundController::class, 'transferVaPayment']);
+use App\Http\Controllers\DaftarVendorController;
+
+
+// untuk uji coba CRUD
+use App\Http\Controllers\API\IDWargaController;
+//
+
+Route::apiResource('daftar-vendor', DaftarVendorController::class);
+
+// rute kasir login
+Route::post('/kasir/login', [KasirAuthController::class, 'login']);
+//
+
+//untuk uji coba CRUD
+Route::post('/ID-warga', [IDWargaController::class, 'store']);
+Route::get('/ID-warga', [IDWargaController::class, 'index']);
+Route::get('/ID-warga/{id}', [IDWargaController::class, 'show']);
+Route::put('/ID-warga/{id}', [IDWargaController::class, 'update']);
+Route::delete('/ID-warga/{id}', [IDWargaController::class, 'destroy']);
+//
+
+
+
+
+
+
+////////////////////////////////////////////
+
+
+// Contoh route lain dengan prefix (sesuaikan jika diperlukan)
+Route::prefix('v1.0')->group(function () {
+    Route::post('/access-token/b2b', [\App\Http\Controllers\Auth\AccessTokenController::class, 'methodName']);
+    Route::post('/validate-token', [\App\Http\Controllers\Auth\AccessTokenController::class, 'methodName']);
+    Route::post('/transfer-va/inquiry', [\App\Http\Controllers\SnapVaInboundController::class, 'methodName']);
+    Route::post('/transfer-va/payment', [\App\Http\Controllers\SnapVaInboundController::class, 'methodName']);
 });
 
-Route::prefix('/v2.0')->group(function () {
-    Route::post('/login', [\App\Http\Controllers\Auth\AppAccessController::class, 'login']);
-    Route::get('/profile', [\App\Http\Controllers\API\AccountController::class, 'profile']);
-    Route::get('/product', [\App\Http\Controllers\API\ProductController::class, 'index']);
-    Route::get('/category', [\App\Http\Controllers\API\ProductController::class, 'categories']);
-    Route::get('/order', [\App\Http\Controllers\API\OrderController::class, 'index']);
-    Route::post('/order', [\App\Http\Controllers\API\OrderController::class, 'store']);
-    Route::delete('/order/{id}', [\App\Http\Controllers\API\OrderController::class, 'destroy']);
+Route::prefix('v2.0')->group(function () {
+    Route::post('/login', [\App\Http\Controllers\Auth\AppAccessController::class, 'methodName']);
+    Route::get('/profile', [\App\Http\Controllers\API\AccountController::class, 'methodName']);
+    Route::get('/product', [\App\Http\Controllers\API\ProductController::class, 'methodName']);
+    Route::get('/category', [\App\Http\Controllers\API\ProductController::class, 'methodName']);
 });
