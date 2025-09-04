@@ -11,6 +11,9 @@ use App\Http\Controllers\API\IDWargaController;
 
 Route::apiResource('daftar-vendor', DaftarVendorController::class);
 
+// rute kasir login
+Route::post('/kasir/login', [KasirAuthController::class, 'login']);
+//
 
 //untuk uji coba CRUD
 Route::post('/ID-warga', [IDWargaController::class, 'store']);
@@ -20,6 +23,12 @@ Route::put('/ID-warga/{id}', [IDWargaController::class, 'update']);
 Route::delete('/ID-warga/{id}', [IDWargaController::class, 'destroy']);
 //
 
+
+
+
+
+
+////////////////////////////////////////////
 
 
 // Contoh route lain dengan prefix (sesuaikan jika diperlukan)
